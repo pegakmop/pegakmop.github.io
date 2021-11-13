@@ -6,8 +6,8 @@
 
         {
             "name": "iTorrent",
-            "bundleIdentifier": "com.chinatelecomshanxi.zhangshangyunwei",
-            "developerName": "Esign",
+            "bundleIdentifier": "ru.nonamedude.iTorrent",
+            "developerName": "nonamedude",
             "version": "1.8.4-dev.3",
             "versionDate": "2021-11-13T19:29:00+08:00",
             "versionDescription": "torrent клиент на ios, фиксы 15 оси",
