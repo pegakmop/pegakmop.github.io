@@ -1,0 +1,64 @@
+{
+    "name": "create pegakmop list .ipa app.json",
+    "identifier": "pegakmop.github.io",
+    "sourceURL": "https://pegakmop.github.io/apps.json",
+    "apps": [
+
+        {
+            "name": "Esign",
+            "bundleIdentifier": "p.xyz.yyyue.esign",
+            "developerName": "Esign",
+            "version": "4.3.4",
+            "versionDate": "2021-11-13T19:25:00+08:00",
+            "versionDescription": "Приложение для подписи и установки ваших ipa приложений с русской локализацией 🇷🇺",
+            "downloadURL": "https://www.dropbox.com/s/8r8pgxz160mxuq6/ESign_4.3.4_corporative.ipa?dl=1",
+            "localizedDescription": "Russian",
+            "iconURL": "https://esign.yyyue.xyz/ESignLogo200.png",
+            "tintColor": "018084",
+            "isLanZouCloud": 1,
+            "size": 5650000
+        },
+        {
+            "name": "MagicSign",
+            "bundleIdentifier": "com.magicsign-std",
+            "developerName": "magicsign-std",
+            "version": "1.7",
+            "versionDate": "2021-11-12T19:45:00+08:00",
+            "versionDescription": "Приложение для подписи и установки ваших ipa приложений",
+            "downloadURL": "https://www.dropbox.com/s/rz0rzonm49m8haq/%D0%9C%D0%B0%D0%B3%D0%B8%D0%BA%20%D1%81%D0%B8%D0%B3%D0%BD.ipa?dl=1",
+            "localizedDescription": "English",
+            "iconURL": "https://www.dl.dropboxusercontent.com/s/hip33z7lulzrk4r/magicsign.jpg",
+            "tintColor": "018084",
+            "isLanZouCloud": 1,
+            "size": 5980000
+        } ,
+        {
+            "name": "all one sign",
+            "bundleIdentifier": "qnq.nuosike.sign",
+            "developerName": "nuosike",
+            "version": "3.9",
+            "versionDate": "2021-11-11T19:45:00+08:00",
+            "versionDescription": "Приложение для подписи и установки ваших ipa приложений",
+            "downloadURL": "https://www.dropbox.com/s/rz0rzonm49m8haq/%D0%9C%D0%B0%D0%B3%D0%B8%D0%BA%20%D1%81%D0%B8%D0%B3%D0%BD.ipa?dl=1",
+            "localizedDescription": "English",
+            "iconURL": "http://qnq.nuosike.cn/uploads/20210909/8f8b1006441c012ba7770217085dea5f.png",
+            "tintColor": "018084",
+            "isLanZouCloud": 1,
+            "size": 3150000
+        }  ,
+        {
+            "name": "AppDB",
+            "bundleIdentifier": "it.ned.appdb-ios",
+            "developerName": "AppDB",
+            "version": "1.1.1",
+            "versionDate": "2021-11-11T19:45:00+08:00",
+            "versionDescription": "Приложение для поиска, подписи и установки ipa на ваше устройство",
+            "downloadURL": "https://github.com/n3d1117/appdb/releases/download/v1.1.1/appdb_1.1.1.ipa",
+            "localizedDescription": "English",
+            "iconURL": "https://pbs.twimg.com/profile_images/1306156975496089606/fy94yrEY_400x400.png",
+            "tintColor": "018084",
+            "isLanZouCloud": 1,
+            "size": 24700000
+        }
+    ]
+}
