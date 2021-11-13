@@ -5,12 +5,12 @@
     "apps": [
 
         {
-            "name": "Esign",
+            "name": "VK 6.53 | VKAgain 3.1",
             "bundleIdentifier": "p.xyz.yyyue.esign",
             "developerName": "Esign",
-            "version": "4.3.4",
-            "versionDate": "2021-11-13T19:25:00+08:00",
-            "versionDescription": "Приложение для подписи и установки ваших ipa приложений с русской локализацией 🇷🇺",
+            "version": "VK 6.53 | VKAgain 3.1",
+            "versionDate": "2021-10-19T19:25:00+08:00",
+            "versionDescription": "VK 6.53 | VKAgain 3.1  Модифицированный клиент Вконтакте для iOS с большим функционалом.  P.S. Теперь настройки работают с любым методом подписи и установки.   К сожалению взлом на кэш работает только на устройствах с JB.   #vkagain | Твик: Error Network",
             "downloadURL": "https://www.dropbox.com/s/8r8pgxz160mxuq6/ESign_4.3.4_corporative.ipa?dl=1",
             "localizedDescription": "Russian",
             "iconURL": "https://esign.yyyue.xyz/ESignLogo200.png",
