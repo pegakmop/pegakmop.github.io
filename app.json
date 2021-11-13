@@ -19,15 +19,15 @@
             "size": 1800100
         },
         {
-            "name": "AltStore Beta",
-            "bundleIdentifier": "com.rileytestut.AltStore.Beta",
-            "developerName": "rileytestut",
-            "version": "1.4.4b",
+            "name": "MagicSign",
+            "bundleIdentifier": "com.magicsign-std",
+            "developerName": "magicsign-std",
+            "version": "1.7",
             "versionDate": "2021-11-11T19:45:00+08:00",
-            "versionDescription": "AltStore - это приложение для iOS, позволяющее подписывать другие приложения (*.ipa) на вашем устройстве с помощью вашего Apple ID. AltStore имеет статус ALPHA, возможны ошибки. AltDaemon позволяет AltStore устанавливать и обновлять приложения без компьютера. Означает, что вам больше не нужен компьютер для повторной подписи ваших приложений.",
+            "versionDescription": "Приложение для подписи и установки ваших ipa приложений",
             "downloadURL": "https://www.dropbox.com/s/rz0rzonm49m8haq/%D0%9C%D0%B0%D0%B3%D0%B8%D0%BA%20%D1%81%D0%B8%D0%B3%D0%BD.ipa?dl=1",
             "localizedDescription": "English",
-            "iconURL": "https://ds-blobs-2.cdn.devapps.ru/20029516.png",
+            "iconURL": "https://www.dropbox.com/s/hip33z7lulzrk4r/magicsign.jpg?dl=1",
             "tintColor": "018084",
             "isLanZouCloud": 1,
             "size": 2475295
