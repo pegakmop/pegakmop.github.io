@@ -31,6 +31,20 @@
             "tintColor": "018084",
             "isLanZouCloud": 1,
             "size": 5650000
+        } ,
+        {
+            "name": "name",
+            "bundleIdentifier": "p.xyz.yyyue.esign",
+            "developerName": "Esign",
+            "version": "version",
+            "versionDate": "2021-10-19T19:27:00+08:00",
+            "versionDescription": "description",
+            "downloadURL": "link",
+            "localizedDescription": "Russian",
+            "iconURL": "https://github.com/pegakmop/pegakmop.github.io/raw/main/ipa/iapps.JPG",
+            "tintColor": "018084",
+            "isLanZouCloud": 1,
+            "size": 5650000
         }
     ]
 }
