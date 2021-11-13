@@ -94,7 +94,7 @@
             "developerName": "magicsign-std",
             "version": "1.7",
             "versionDate": "2021-11-12T19:45:00+08:00",
-            "versionDescription": "Приложение для подписи и установки ваших ipa приложений. Может быть установлено из официального сайта <a href=https://ios-tool.com>https://ios-tool.com</a> с помощью сертификата разработчика",
+            "versionDescription": "Приложение для подписи и установки ваших ipa приложений. Может быть установлено из официального сайта https://ios-tool.com/ с помощью сертификата разработчика",
             "downloadURL": "https://www.dropbox.com/s/rz0rzonm49m8haq/magicsign.ipa?dl=1",
             "localizedDescription": "English",
             "iconURL": "https://www.dl.dropboxusercontent.com/s/hip33z7lulzrk4r/magicsign.jpg",
