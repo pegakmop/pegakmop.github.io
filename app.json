@@ -16,7 +16,7 @@
             "iconURL": "https://esign.yyyue.xyz/ESignLogo200.png",
             "tintColor": "018084",
             "isLanZouCloud": 1,
-            "size": 1800100
+            "size": 5650000
         },
         {
             "name": "MagicSign",
@@ -30,7 +30,7 @@
             "iconURL": "https://www.dl.dropboxusercontent.com/s/hip33z7lulzrk4r/magicsign.jpg",
             "tintColor": "018084",
             "isLanZouCloud": 1,
-            "size": 2475295
+            "size": 5980000
         } ,
         {
             "name": "all one sign",
@@ -44,7 +44,7 @@
             "iconURL": "http://qnq.nuosike.cn/uploads/20210909/8f8b1006441c012ba7770217085dea5f.png",
             "tintColor": "018084",
             "isLanZouCloud": 1,
-            "size": 2475295
+            "size": 3150000
         }
     ]
 }
