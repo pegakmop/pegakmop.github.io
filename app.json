@@ -10,7 +10,7 @@
             "developerName": "tijo",
             "version": "1.8.1",
             "versionDate": "2021-11-11T10:25:00+08:00",
-            "versionDescription": "з­ѕеђЌдјеЊ–,е»єи®®еЌ‡зє§е€°еЅ“е‰Ќз‰€жњ¬\nи“ќеҐЏдє‘дјље‘е€¤ж–­\nдї®е¤ЌеЇји€Єж Џйўњи‰Ій”™иЇЇ\nж”ЇжЊЃiOS15.1з­ѕеђЌ\nж”ЇжЊЃз›ґжЋҐжіЁе…Ґdebж–‡д»¶пј€жњ‰зљ„debжіЁе…Ґдјљй—ЄйЂЂзљ„пјЊж€–иЂ…е¤±ж•€пјЊе› дёєжњ‰зљ„з”Ёе€°зљ„жЇи¶Љз‹±ж‰ЌиѓЅдЅїз”Ёзљ„APIгЂ‚пј‰\nfix bug\nfix navigation bar color bug\nSupport iOS 15.1 Beta Signature\nSupport deb inject\nSupport change App Icon\nUntested, Feedback Problems",
+            "versionDescription": "С приложением Opener вы можете открывать ссылки напрямую в их «родных» iOS-приложениях вместо браузера! Просто скопируйте нужную ссылку и запустите Opener, чтобы увидеть, какие приложения поддерживают этот формат. Или используйте расширение Opener, чтобы открыть ссылку из одного приложения в другом. На сегодняшний день Opener поддерживает более 250 приложений, и мы регулярно добавляем новые.",
             "downloadURL": "https://www.dropbox.com/s/6bcx2d7obmi0aow/Opener.ipa?dl=1",
             "localizedDescription": "English",
             "iconURL": "https://ds-blobs-2.cdn.devapps.ru/15796754.png",
@@ -24,7 +24,8 @@
             "developerName": "rileytestut",
             "version": "1.4.4b",
             "versionDate": "2021-11-11T19:45:00+08:00",
-            "versionDescription": "ж”ЇжЊЃз›ґжЋҐжіЁе…Ґdebж–‡д»¶пј€жњ‰зљ„debжіЁе…Ґдјљй—ЄйЂЂзљ„пјЊж€–иЂ…е¤±ж•€пјЊе› дёєжњ‰зљ„з”Ёе€°зљ„жЇи¶Љз‹±ж‰ЌиѓЅдЅїз”Ёзљ„APIгЂ‚пј‰\nж”ЇжЊЃи‡Єе®љд№‰appжЎЊйќўе›ѕж ‡\nж”ЇжЊЃiOS15з­ѕеђЌ\nжњ‰й—®йўеЏЌй¦€пјЊдёЌиЎЊе°±е…€з”Ёж—§з‰€жњ¬\nSupport deb inject\nSupport change App Icon\nSupport iOS 15 Signature\nUntested, Feedback Problems",
+            "versionDescription": "AltStore - это приложение для iOS, позволяющее подписывать другие приложения (*.ipa) на вашем устройстве с помощью вашего Apple ID. AltStore имеет статус ALPHA, возможны ошибки. 
+AltDaemon позволяет AltStore устанавливать и обновлять приложения без компьютера. Означает, что вам больше не нужен компьютер для повторной подписи ваших приложений.",
             "downloadURL": "https://esign.lanzoui.com/iYO1Ms8fykf",
             "localizedDescription": "иЅ»жќѕз­ѕжЇдёЂж¬ѕе…Ќи¶Љз‹±еЏЇз»™ipaз­ѕеђЌзљ„е·Ґе…·пјЊе…·жњ‰жіЁе…Ґеє“пјЊеЋ»еє“з­‰еЉџиѓЅгЂ‚",
             "iconURL": "https://ds-blobs-2.cdn.devapps.ru/20029516.png",
