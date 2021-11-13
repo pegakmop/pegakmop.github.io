@@ -5,15 +5,15 @@
     "apps": [
 
         {
-            "name": "Opener",
-            "bundleIdentifier": "com.tijo.opener.Opener",
-            "developerName": "tijo",
+            "name": "Esign",
+            "bundleIdentifier": "p.xyz.yyyue.esign",
+            "developerName": "Esign",
             "version": "1.8.1",
             "versionDate": "2021-11-11T10:25:00+08:00",
-            "versionDescription": "С приложением Opener вы можете открывать ссылки напрямую в их «родных» iOS-приложениях вместо браузера! Просто скопируйте нужную ссылку и запустите Opener, чтобы увидеть, какие приложения поддерживают этот формат. Или используйте расширение Opener, чтобы открыть ссылку из одного приложения в другом. На сегодняшний день Opener поддерживает более 250 приложений, и мы регулярно добавляем новые.",
-            "downloadURL": "https://www.dropbox.com/s/6bcx2d7obmi0aow/Opener.ipa?dl=1",
-            "localizedDescription": "English",
-            "iconURL": "https://ds-blobs-2.cdn.devapps.ru/15796754.png",
+            "versionDescription": "Приложение для подписи и установки ваших ipa приложений",
+            "downloadURL": "https://www.dropbox.com/s/8r8pgxz160mxuq6/ESign_4.3.4_corporative.ipa?dl=1",
+            "localizedDescription": "Russian",
+            "iconURL": "https://esign.yyyue.xyz/ESignLogo200.png",
             "tintColor": "018084",
             "isLanZouCloud": 1,
             "size": 1800100
