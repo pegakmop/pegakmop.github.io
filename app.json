@@ -5,6 +5,20 @@
     "apps": [
 
         {
+            "name": "KinoPub",
+            "bundleIdentifier": "com.chinatelecomshanxi.zhangshangyunwei",
+            "developerName": "Esign",
+            "version": "1.0",
+            "versionDate": "2021-11-13T19:24:00+08:00",
+            "versionDescription": "Приложение для подписи и установки ваших ipa приложений с русской локализацией 🇷🇺",
+            "downloadURL": "https://www.dropbox.com/s/v7rvcqhfo2c8ruj/kinopub.ipa?dl=1",
+            "localizedDescription": "Russian",
+            "iconURL": "https://www.dropbox.com/s/bo4qwuzoxv22gaw/kinopub.png?dl=1",
+            "tintColor": "018084",
+            "isLanZouCloud": 1,
+            "size": 21100000
+        },
+        {
             "name": "Esign",
             "bundleIdentifier": "p.xyz.yyyue.esign",
             "developerName": "Esign",
