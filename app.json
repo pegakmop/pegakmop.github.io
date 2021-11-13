@@ -5,6 +5,20 @@
     "apps": [
 
         {
+            "name": "AppCake | NoAds",
+            "bundleIdentifier": "com.chinatelecomshanxi.zhangshangyunwei",
+            "developerName": "Esign",
+            "version": "7.2.2",
+            "versionDate": "2021-11-13T19:29:00+08:00",
+            "versionDescription": "Приложение для загрузки .ipa файлов из iphonecake, имеет самую большую библиотеку игр и приложений. Удалена реклама. #appcake | Взломано: iApps",
+            "downloadURL": "https://www.dropbox.com/s/v7rvcqhfo2c8ruj/kinopub.ipa?dl=1",
+            "localizedDescription": "Russian",
+            "iconURL": "https://ds-blobs-4.cdn.devapps.ru/18501986.png",
+            "tintColor": "018084",
+            "isLanZouCloud": 1,
+            "size": 14700000
+        },
+        {
             "name": "KinoPub",
             "bundleIdentifier": "com.chinatelecomshanxi.zhangshangyunwei",
             "developerName": "Esign",
