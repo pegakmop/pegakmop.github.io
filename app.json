@@ -1,5 +1,5 @@
 {
-    "name": "create pegakmop app.json",
+    "name": "create pegakmop list .ipa app.json",
     "identifier": "pegakmop.github.io",
     "sourceURL": "https://pegakmop.github.io/apps.json",
     "apps": [
