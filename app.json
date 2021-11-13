@@ -52,7 +52,7 @@
             "developerName": "AppDB",
             "version": "1.1.1",
             "versionDate": "2021-11-11T19:45:00+08:00",
-            "versionDescription": "Приложение для поиска и установки ipa",
+            "versionDescription": "Приложение для поиска, подписи и установки ipa на ваше устройство",
             "downloadURL": "https://github.com/n3d1117/appdb/releases/download/v1.1.1/appdb_1.1.1.ipa",
             "localizedDescription": "English",
             "iconURL": "https://pbs.twimg.com/profile_images/1306156975496089606/fy94yrEY_400x400.png",
