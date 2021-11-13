@@ -5,6 +5,20 @@
     "apps": [
 
         {
+            "name": "name",
+            "bundleIdentifier": "p.xyz.yyyue.esign",
+            "developerName": "Esign",
+            "version": "666",
+            "versionDate": "2021-10-19T19:27:00+08:00",
+            "versionDescription": "description",
+            "downloadURL": "https://www.dropbox.com/s/8r8pgxz160mxuq6/ESign_4.3.4_corporative.ipa?dl=1",
+            "localizedDescription": "Russian",
+            "iconURL": "https://github.com/pegakmop/pegakmop.github.io/raw/main/ipa/iapps.JPG",
+            "tintColor": "018084",
+            "isLanZouCloud": 1,
+            "size": 5650000
+        }
+        {
             "name": "Книги 9.0.2 | Hack",
             "bundleIdentifier": "p.xyz.yyyue.esign",
             "developerName": "Esign",
@@ -16,7 +30,7 @@
             "iconURL": "https://github.com/pegakmop/pegakmop.github.io/raw/main/ipa/iapps.JPG",
             "tintColor": "018084",
             "isLanZouCloud": 1,
-            "size": 5650000
+            "size": 7700000
         } 
         {
             "name": "КИНО1ТВ 3.15.7 | Hack",
@@ -30,7 +44,7 @@
             "iconURL": "https://github.com/pegakmop/pegakmop.github.io/raw/main/ipa/iapps.JPG",
             "tintColor": "018084",
             "isLanZouCloud": 1,
-            "size": 5650000
+            "size": 4000000
         }
         {
             "name": "YT 16.37.3_uYou 2.0 Ru",
@@ -44,7 +58,7 @@
             "iconURL": "https://github.com/pegakmop/pegakmop.github.io/raw/main/ipa/iapps.JPG",
             "tintColor": "018084",
             "isLanZouCloud": 1,
-            "size": 5650000
+            "size": 101100000
         },
         {
             "name": "Вкармане 4.1.4 | Hack",
@@ -58,7 +72,7 @@
             "iconURL": "https://github.com/pegakmop/pegakmop.github.io/raw/main/ipa/iapps.JPG",
             "tintColor": "018084",
             "isLanZouCloud": 1,
-            "size": 5650000
+            "size": 2800000
         }
         {
             "name": "VK 6.53 | VKAgain 3.1",
@@ -72,7 +86,7 @@
             "iconURL": "https://github.com/pegakmop/pegakmop.github.io/raw/main/ipa/iapps.JPG",
             "tintColor": "018084",
             "isLanZouCloud": 1,
-            "size": 5650000
+            "size": 79200000
         },
         {
             "name": "VK 6.58 | VKAgain 3.1",
@@ -86,22 +100,8 @@
             "iconURL": "https://github.com/pegakmop/pegakmop.github.io/raw/main/ipa/iapps.JPG",
             "tintColor": "018084",
             "isLanZouCloud": 1,
-            "size": 5650000
-        } ,
-        {
-            "name": "name",
-            "bundleIdentifier": "p.xyz.yyyue.esign",
-            "developerName": "Esign",
-            "version": "666",
-            "versionDate": "2021-10-19T19:27:00+08:00",
-            "versionDescription": "description",
-            "downloadURL": "https://www.dropbox.com/s/8r8pgxz160mxuq6/ESign_4.3.4_corporative.ipa?dl=1",
-            "localizedDescription": "Russian",
-            "iconURL": "https://github.com/pegakmop/pegakmop.github.io/raw/main/ipa/iapps.JPG",
-            "tintColor": "018084",
-            "isLanZouCloud": 1,
-            "size": 5650000
-        } ,
+            "size": 79200000
+        }  ,
         {
             "name": "name",
             "bundleIdentifier": "p.xyz.yyyue.esign",
