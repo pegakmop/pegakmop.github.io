@@ -1,7 +1,7 @@
 {
     "name": "create pegakmop list .ipa app.json",
     "identifier": "pegakmop.github.io",
-    "sourceURL": "https://pegakmop.github.io/apps.json",
+    "sourceURL": "https://pegakmop.github.io/ipa/apps.json",
     "apps": [
 
         {
