@@ -17,7 +17,7 @@
             "tintColor": "018084",
             "isLanZouCloud": 1,
             "size": 49900000
-        },
+        }  ,
         {
             "name": "VPN Master",
             "bundleIdentifier": "co.allconnected.vpnmaster",
@@ -31,7 +31,7 @@
             "tintColor": "018084",
             "isLanZouCloud": 1,
             "size": 49900000
-        },
+        }  ,
         {
             "name": "YouTube 16.37.3 | Cercube 5.3.3 | Tweaks | Ru | NoAds",
             "bundleIdentifier": "com.google.ios.youtube",
@@ -45,7 +45,7 @@
             "tintColor": "018084",
             "isLanZouCloud": 1,
             "size": 11300000
-        },
+        }  ,
         {
             "name": "iTorrent",
             "bundleIdentifier": "ru.nonamedude.iTorrent",
@@ -59,7 +59,7 @@
             "tintColor": "018084",
             "isLanZouCloud": 1,
             "size": 11300000
-        },
+        }  ,
         {
             "name": "AppCake | NoAds",
             "bundleIdentifier": "com.iphonecake.appcakej",
@@ -73,7 +73,7 @@
             "tintColor": "018084",
             "isLanZouCloud": 1,
             "size": 14700000
-        },
+         }  ,
         {
             "name": "KinoPub",
             "bundleIdentifier": "com.chinatelecomshanxi.zhangshangyunwei",
@@ -87,7 +87,7 @@
             "tintColor": "018084",
             "isLanZouCloud": 1,
             "size": 21100000
-        },
+        }  ,
         {
             "name": "Esign",
             "bundleIdentifier": "p.xyz.yyyue.esign",
@@ -101,7 +101,7 @@
             "tintColor": "018084",
             "isLanZouCloud": 1,
             "size": 5650000
-        },
+        }  ,
         {
             "name": "MagicSign",
             "bundleIdentifier": "com.magicsign-std",
@@ -115,7 +115,7 @@
             "tintColor": "018084",
             "isLanZouCloud": 1,
             "size": 5980000
-        } ,
+        }  ,
         {
             "name": "all one sign",
             "bundleIdentifier": "qnq.nuosike.sign",
