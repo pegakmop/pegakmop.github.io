@@ -3,6 +3,21 @@
     "identifier": "pegakmop.github.io",
     "sourceURL": "https://pegakmop.github.io/apps.json",
     "apps": [
+
+        {
+            "name": "TV+ | Hack",
+            "bundleIdentifier": "com.andevapps.ontv",
+            "developerName": "Andev",
+            "version": "1.6.2",
+            "versionDate": "2021-11-13T19:29:00+08:00",
+            "versionDescription": "Приложение для просмотра онлайн ТВ. Для активации взлома: 1. Открыть в приложении раздел Платные каналы 2. Под пакетом канала нажать: подписаться - продолжить 3. Во время появления окна оплаты, нажать кнопку Отмена - подписка будет взломана. 4. Повторить для каждого пакета каналов. 5. Перезайти в приложение, подписка активируется, реклама будет удалена. P.S. Не работает с бесплатными сертификатами Sideloadly, AltStore и тд. #tvhdhack",
+            "downloadURL": "https://www.dropbox.com/s/xdlk4mazu3zj9ez/TV%2B.ipa?dl=1",
+            "localizedDescription": "Russian",
+            "iconURL": "https://www.dl.dropboxusercontent.com/s/5hs1jihuhmf88f5/tv%2B.png",
+            "tintColor": "018084",
+            "isLanZouCloud": 1,
+            "size": 49900000
+        },
         {
             "name": "VPN Master",
             "bundleIdentifier": "co.allconnected.vpnmaster",
