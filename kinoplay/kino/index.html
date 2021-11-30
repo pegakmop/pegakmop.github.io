@@ -196,7 +196,7 @@
 		const players = document.getElementById('players');
 		const sp1 = document.getElementById('sp1');
 		const sp2 = document.getElementById('sp2');
-		iframe.src = "./players.html#"+id;
+		iframe.src = "/kinoplay/kino/player.html#'+item.filmId+'";
 
 		///containers.innerHTML = '<iframe id="iframe" style="border:0px; width: 100%; height: 70vmin;" src="./players.html#'+id+'"></iframe>';
 		/**
@@ -214,7 +214,7 @@
 			trailers.setAttribute("onclick", "selectTrailers()");
 			
 			containers.innerHTML = '';
-			containers.innerHTML = '<iframe id="iframe" style="border:0px; width: 100%; height: 75vmin;" src="./players.html#'+id+'"></iframe>';
+			containers.innerHTML = '<iframe id="iframe" style="border:0px; width: 100%; height: 75vmin;" src="/kinoplay/kino/player.html#'+item.filmId+'"></iframe>';
 		};
 		
 		/**
