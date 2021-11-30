@@ -99,7 +99,7 @@
 		<a onclick="selectTorrents();" id="torrents">Торренты</a>
 	</div>
 	<div id="containers" style="position: relative; margin: 5px;">
-		<iframe id="iframe" style="border:0px; width: 100%; height: 75vmin;" src="./players.html#820638"></iframe>
+		<iframe id="iframe" style="border:0px; width: 100%; height: 75vmin;" src="/kinoplay/players.html#820638"></iframe>
 	</div>
 	<script>
 	var searchString = new URLSearchParams(window.location.search);
@@ -198,7 +198,7 @@
 		const sp2 = document.getElementById('sp2');
 		iframe.src = "./players.html#"+id;
 
-		///containers.innerHTML = '<iframe id="iframe" style="border:0px; width: 100%; height: 70vmin;" src="./players.html#'+id+'"></iframe>';
+		///containers.innerHTML = '<iframe id="iframe" style="border:0px; width: 100%; height: 70vmin;" src="/kinoplay/players.html#'+id+'"></iframe>';
 		/**
 		 * Switch to players list
 		 */
@@ -214,7 +214,7 @@
 			trailers.setAttribute("onclick", "selectTrailers()");
 			
 			containers.innerHTML = '';
-			containers.innerHTML = '<iframe id="iframe" style="border:0px; width: 100%; height: 75vmin;" src="./players.html#'+id+'"></iframe>';
+			containers.innerHTML = '<iframe id="iframe" style="border:0px; width: 100%; height: 75vmin;" src="/kinoplay/players.html#'+id+'"></iframe>';
 		};
 		
 		/**
@@ -232,7 +232,7 @@
 			players.setAttribute("onclick", "selectPlayers()");
 			
 			containers.innerHTML = '';
-			containers.innerHTML = '<iframe id="iframe" style="border:0px; width: 100%; height: 75vmin;" src="./trailers.html#'+TLT+'"></iframe>';
+			containers.innerHTML = '<iframe id="iframe" style="border:0px; width: 100%; height: 75vmin;" src="/kinoplay/trailers.html#'+TLT+'"></iframe>';
 		};
 
 		/**
@@ -250,7 +250,7 @@
 			players.setAttribute("onclick", "selectPlayers()");
 			
 			containers.innerHTML = '';
-			containers.innerHTML = '<iframe id="iframe" style="border:0px; width: 100%; height: 75vmin;" src="./torrents.html#'+TLT+'"></iframe>';
+			containers.innerHTML = '<iframe id="iframe" style="border:0px; width: 100%; height: 75vmin;" src="/kinoplay/torrents.html#'+TLT+'"></iframe>';
 		};
 </script>
 	<h1 class="h1" style="font-size: 1.1em; line-height: 1em; font-weight: 700; margin-top: 1em;">Похожие фильмы:</h1>
