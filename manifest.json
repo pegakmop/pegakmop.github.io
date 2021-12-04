@@ -1,7 +1,7 @@
 {
-  "name": "Piper Pied",
-    "short_name": "Piper Pied",
-    "description": "Piper Pied",
+  "name": "Дудочник",
+    "short_name": "Дудочник",
+    "description": "@Piper_Pied",
     "lang": "en-GB",
     "start_url": "/",
     "display": "standalone",
