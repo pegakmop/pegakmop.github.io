@@ -1,9 +1,9 @@
 {
-  "name": "Web Community Leaders UK IE",
-    "short_name": "Web Leaders",
+  "name": "@Piper_Pied",
+    "short_name": "Дудочник",
     "description": "Web Community Leaders landing page",
     "lang": "en-GB",
-    "start_url": "/",
+    "start_url": "/kinoplay/",
     "display": "standalone",
     "theme_color": "#E6E6FA",
     "background_color": "#E6E6FA",
