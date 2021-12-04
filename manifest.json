@@ -1,7 +1,7 @@
 {
-  "name": "@Piper_Pied",
-    "short_name": "Дудочник",
-    "description": "Web Community Leaders landing page",
+  "name": "Piper Pied",
+    "short_name": "Piper Pied",
+    "description": "Piper Pied",
     "lang": "en-GB",
     "start_url": "/kinoplay/index2.html",
     "display": "standalone",
