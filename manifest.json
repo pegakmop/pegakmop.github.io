@@ -3,7 +3,7 @@
     "short_name": "Piper Pied",
     "description": "Piper Pied",
     "lang": "en-GB",
-    "start_url": "/kinoplay/index2.html",
+    "start_url": "/kinoplay/",
     "display": "standalone",
     "theme_color": "#E6E6FA",
     "background_color": "#E6E6FA",
