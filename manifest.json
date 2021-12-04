@@ -3,7 +3,7 @@
     "short_name": "Дудочник",
     "description": "Web Community Leaders landing page",
     "lang": "en-GB",
-    "start_url": "/kinoplay/",
+    "start_url": "./kinoplay/",
     "display": "standalone",
     "theme_color": "#E6E6FA",
     "background_color": "#E6E6FA",
