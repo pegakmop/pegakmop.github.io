@@ -1,26 +1,19 @@
 {
-  "name": "Дудочник©️",
-    "short_name": "Дудочник©️",
-    "description": "@Piper_Pied",
-    "lang": "en-GB",
-    "start_url": "/kinoplay/",
-    "display": "standalone",
-    "theme_color": "#DDEEFF",
-    "background_color": "#00FF00",
+    "name": "Дудочник©️ PWA",
+    "short_name": "Дудочник©️ PWA",
     "dir": "ltr",
+    "lang": "en-us",
+    "description": "тестирование PWA приложения для сайта",
+    "start_url": "/kinoplay/",
+    "scope": "/",
+    "display": "standalone",
+    "theme_color": "#000000",
+    "background_color": "#000000",
     "orientation": "any",
-    "apple-touch-icon":"/apple-icon-180x180.png"
-
- "icons": [
+    "icons": [
         {
             "src": "/512x512.png",
             "sizes": "512x512"
         }
-  {
-   "src": "/icons/apple-icon-180x180.png",
-   "sizes": "180x180",
-   "type": "image/png",
-   "purpose": "any maskable"
-  }
- ]
+    ]
 }
