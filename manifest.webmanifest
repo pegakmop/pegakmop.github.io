@@ -12,7 +12,7 @@
     "orientation": "any",
     "icons": [
         {
-            "src": "/512x512.png",
+            "src": "images/512x512.png",
             "sizes": "512x512"
         }
     ]
