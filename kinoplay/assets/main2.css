@@ -1264,7 +1264,7 @@ body.embed .entity-header .video-js {
 }
 
 .description .title {
-    color: #fff;
+    color: #32CD32;
     font-weight: 400;
     font-size: 1rem;
     line-height: 1.5rem;
@@ -2451,7 +2451,7 @@ width: 120px;
 .entity-desc-value {
     margin-left: 6rem;
     min-height: 2rem;
-    color:#fff;
+    color:#32CD32;
     display: table;
 }
 
@@ -4895,4 +4895,3 @@ div.promo div.video-js {
 .VPAID-container {
     z-index: 100
 }
-
