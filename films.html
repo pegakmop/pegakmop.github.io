@@ -231,7 +231,7 @@ if ('serviceWorker' in navigator) {
 		const players = document.getElementById('players');
 		const sp1 = document.getElementById('sp1');
 		const sp2 = document.getElementById('sp2');
-		iframe.src = "https://apimovie.tobaco.ws/embed/kp/"+id;
+		iframe.src = "/players#"+id;
 
 		///containers.innerHTML = '<iframe id="iframe" style="border:0px; width: 100%; height: 70vmin;" src="https://apimovie.tobaco.ws/embed/kp/'+id+'"></iframe>';
 		/**
@@ -249,7 +249,7 @@ if ('serviceWorker' in navigator) {
 			trailers.setAttribute("onclick", "selectTrailers()");
 			
 			containers.innerHTML = '';
-			containers.innerHTML = '<iframe id="iframe" style="border:0px; width: 100%; height: 75vmin;" src="https://apimovie.tobaco.ws/embed/kp/'+id+'"></iframe>';
+			containers.innerHTML = '<iframe id="iframe" style="border:0px; width: 100%; height: 75vmin;" src="/players#'+id+'"></iframe>';
 		};
 		
 		/**
@@ -267,7 +267,7 @@ if ('serviceWorker' in navigator) {
 			players.setAttribute("onclick", "selectPlayers()");
 			
 			containers.innerHTML = '';
-			containers.innerHTML = '<iframe id="iframe" style="border:0px; width: 100%; height: 75vmin;" src="./trailer.html#'+id+'"></iframe>';
+			containers.innerHTML = '<iframe id="iframe" style="border:0px; width: 100%; height: 75vmin;" src="./trailer#'+id+'"></iframe>';
 		};
 
 		/**
@@ -285,7 +285,7 @@ if ('serviceWorker' in navigator) {
 			players.setAttribute("onclick", "selectPlayers()");
 			
 			containers.innerHTML = '';
-			containers.innerHTML = '<iframe id="iframe" style="border:0px; width: 100%; height: 75vmin;" src="./torrent.html#'+TLT+'"></iframe>';
+			containers.innerHTML = '<iframe id="iframe" style="border:0px; width: 100%; height: 75vmin;" src="./torrent#'+TLT+'"></iframe>';
 		};
 </script>
 
