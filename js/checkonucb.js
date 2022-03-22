@@ -7,7 +7,7 @@
 			 		crossDomain: true,
 					url: 'https://kinopoiskapiunofficial.tech/api/v2.2/films/'+id+'/similars',
 					type: 'GET',
-			 		headers: {'X-API-KEY':'1281ba0d-593b-4f3e-8b14-2b63e66ae00a'},
+			 		headers: {'X-API-KEY':'c7b7e689-7fd7-41fc-a60d-33a9b0f5713c'},
 					success: function(response){
 	         				var a = response.items;
 			 				var index, len;
@@ -25,7 +25,7 @@
 			 		crossDomain: true,
 					url: 'https://kinopoiskapiunofficial.tech/api/v2.2/films/'+id,
 					type: 'GET',
-			 		headers: {'X-API-KEY':'1281ba0d-593b-4f3e-8b14-2b63e66ae00a'},
+			 		headers: {'X-API-KEY':'c7b7e689-7fd7-41fc-a60d-33a9b0f5713c'},
 					success: function(response){
 							if (response.ratingImdb == null){
 								$('.entity-rating-imdb').html('-');
