@@ -1,17 +1,17 @@
 // ==UserScript==
 // @name:ru         Пегий дудочник 
-// @name		    Piper Pied plus
+// @name	    Piper Pied plus
 // @namespace	    PiperPied plus
-// @author		    @pegakmop
+// @author	    @pegakmop
 // @description     Смотрите фильмы c сайта kinopoisk.ru!
-// @icon		    https://www.dl.dropboxusercontent.com/s/wzc5g61s2ax0705/piper.pied.png
+// @icon	    https://www.dl.dropboxusercontent.com/s/wzc5g61s2ax0705/piper.pied.png
 // @version         2023.01.27
-// @updateURL       https://www.dl.dropboxusercontent.com/s/1nlboq7thewli4c/PiperPied.js
-// @downloadURL     https://www.dl.dropboxusercontent.com/s/1nlboq7thewli4c/PiperPied.js
+// @updateURL       https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/main/PiperPied.js
+// @downloadURL     https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/main/PiperPied.js
 // @supportURL      https://t.me/pegakmop
 // @match           *://www.kinopoisk.ru/*
 // @grant           none
-// @run-at		    document-end
+// @run-at          document-end
 // ==/UserScript==
 
 
