@@ -4,8 +4,8 @@
 // @namespace	    PiperPied plus
 // @author	    @pegakmop
 // @description     Смотрите фильмы c сайта kinopoisk.ru!
-// @icon	    https://www.dl.dropboxusercontent.com/s/wzc5g61s2ax0705/piper.pied.png
-// @version         2023.02.28
+// @icon	    https://github.com/pegakmop/pegakmop.github.io/raw/main/PiperPied.png
+// @version         2023.02.29
 // @updateURL       https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/main/PiperPied.js
 // @downloadURL     https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/main/PiperPied.js
 // @supportURL      https://t.me/pegakmop
