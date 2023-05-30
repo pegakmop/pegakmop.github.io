@@ -51,7 +51,7 @@ const akp = {
             let html = '';
             links.forEach((value, index) => {
                 let rText = links.length > 1 ? ` (источник ${index+1})` : '';
-                html += `<a href="${value}" >СМОТРЕТЬ С ❤ @Piper_Pied${rText}</a>\n`;
+                html += `<a href="${value}" target="_blank">СМОТРЕТЬ С ❤ @Piper_Pied${rText}</a>\n`;
             });
             if (html) {
                 akp.htmlBtns = html;
