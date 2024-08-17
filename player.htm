@@ -1,1 +1,57 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>@PiperPiedBot</title>
+<style type="text/css">
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<script>
 
+const id = new URLSearchParams(window.location.search).get('id');
+let url;
+
+if (id.startsWith('tt')) {
+  url = 'https://kinobox.tv/api/players/?imdb=' + id + '&sources=Collaps,Alloha,Hdvb,Videocdn,Voidboost,Kodik';
+} else {
+  url = 'https://kinobox.tv/api/players/?kinopoisk=' + id + '&sources=Collaps,Alloha,Hdvb,Videocdn,Voidboost,Kodik';
+}
+alert(url);
+// отправляем запрос с помощью fetch API
+fetch(url)
+  .then(response => response.json())
+  .then(data => {
+    if(data[0] && data[0].iframeUrl) {
+      document.body.innerHTML = `<iframe class="iframe" src="${data[0].iframeUrl}" frameborder="0" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" oallowfullscreen="" msallowfullscreen="" seamless></iframe>`;
+    } else if(data[1] && data[1].iframeUrl) {
+      document.body.innerHTML = `<iframe class="iframe" src="${data[1].iframeUrl}" frameborder="0" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" oallowfullscreen="" msallowfullscreen="" seamless></iframe>`;
+    } else if(data[2] && data[2].iframeUrl) {
+      document.body.innerHTML = `<iframe class="iframe" src="${data[2].iframeUrl}" frameborder="0" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" oallowfullscreen="" msallowfullscreen="" seamless></iframe>`;
+    } else if(data[3] && data[3].iframeUrl) {
+      document.body.innerHTML = `<iframe class="iframe" src="${data[3].iframeUrl}" frameborder="0" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" oallowfullscreen="" msallowfullscreen="" seamless></iframe>`;
+    } else if(data[4] && data[4].iframeUrl) {
+      document.body.innerHTML = `<iframe class="iframe" src="${data[4].iframeUrl}" frameborder="0" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" oallowfullscreen="" msallowfullscreen="" seamless></iframe>`;
+    } else if(data[5] && data[5].iframeUrl) {
+      document.body.innerHTML = `<iframe class="iframe" src="${data[5].iframeUrl}" frameborder="0" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" oallowfullscreen="" msallowfullscreen="" seamless></iframe>`;
+    } else if(data[6] && data[6].iframeUrl) {
+      document.body.innerHTML = `<iframe class="iframe" src="${data[6].iframeUrl}" frameborder="0" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" oallowfullscreen="" msallowfullscreen="" seamless></iframe>`;
+    } else {
+      console.error('Ошибка: фильм или сериал не найден.');
+    }
+  })
+  .catch(error => console.error('Произошла ошибка при выполнении запроса:', error));
+</script>
+</html>
