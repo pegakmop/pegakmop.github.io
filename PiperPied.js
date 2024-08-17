@@ -44,7 +44,7 @@ const akp = {
             const kNameNode = document.querySelector('h1[itemprop="name"] > *:first-child');
             const kName = kNameNode === null ? '' : kNameNode.innerText;
             const links = [].concat(
-                akp.getLinks(kID, kName, 'http://r95156lk.beget.tech/?id=' + kID + '&title=' + kName + '&apps=' + encodeURIComponent(GM_info.scriptHandler) + '&script=' + encodeURIComponent(GM_info.script.version) + '#**SEARCH**'),
+                akp.getLinks(kID, kName, 'https://wotblitznwotb.pythonanywhere.com/kino/?id=' + kID + '&title=' + kName + '&apps=' + encodeURIComponent(GM_info.scriptHandler) + '&script=' + encodeURIComponent(GM_info.script.version) + '#**SEARCH**'),
                 // akp.getLinks(kID, kName, 'https://4h0y.gitlab.io/#**SEARCH**')
                 // akp.getLinks(kID, kName, 'https://4h0y.bitbucket.io/#**SEARCH**')
             );
