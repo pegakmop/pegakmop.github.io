@@ -6,8 +6,8 @@
 // @description     Смотрите фильмы c сайта kinopoisk.ru!
 // @icon	    https://github.com/pegakmop/pegakmop.github.io/raw/main/PiperPied.png
 // @version         2023.02.29
-// @updateURL       https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/main/PiperPied.js
-// @downloadURL     https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/main/PiperPied.js
+// @updateURL       https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/main/PiperPied.user.js
+// @downloadURL     https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/main/PiperPied.user.js
 // @supportURL      https://t.me/pegakmop
 // @match           *://www.kinopoisk.ru/*
 // @grant           none
@@ -160,7 +160,7 @@ const BANNER_IMAGE = `
 
 const BANNER_ID = 'kinopoisk';
 const MOVIE_TYPES = ['film', 'series'];
-const PLAYER_LINK = 'http://r95156lk.beget.tech';
+const PLAYER_LINK = 'https://wotblitznwotb.pythonanywhere.com/kino/?id=';
 
 let lastUrl = '/';
 
