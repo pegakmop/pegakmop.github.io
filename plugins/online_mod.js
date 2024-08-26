@@ -278,7 +278,7 @@
       var prox = component.proxy('svetacdn');
       var host = (prefer_http ? 'http:' : 'https:') + '//videocdn.tv';
       var ref = host + '/';
-      var embed = '//93703.svetacdn.in/0HlZgU1l1mw5';
+      var embed = '//2413.svetacdn.in/HmbAa7srBcLo';
       var filter_items = {};
       var choice = {
         season: 0,
