@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0"
+    xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+    xmlns:content="http://purl.org/rss/1.0/modules/content/">
+    <channel>
+        <title>iCloud Podcast Media</title>
+        <description></description>
+        <itunes:summary></itunes:summary>
+        <itunes:author>x</itunes:author>
+        <itunes:image href="https://thumbnailer.mixcloud.com/unsafe/900x900/profile/b/3/d/9/9f42-ebb4-47b3-b351-d9f256c06e12"/>
+        <itunes:type>serial</itunes:type>
+        <itunes:explicit>true</itunes:explicit>
+  <item>
+        <title>Медиафайл №1</title>
+        <description>https://audio.fanfics.me/audio_fics/84524/molli_navsegda_0.mp3</description>
+        <itunes:episodeType>full</itunes:episodeType>
+        <itunes:episode>1</itunes:episode>
+        <enclosure length="498537" type="audio/mp3" url="https://audio.fanfics.me/audio_fics/84524/molli_navsegda_0.mp3" />
+</item>
+
+  <item>
+        <title>Медиафайл №2</title>
+        <description>https://audio.fanfics.me/audio_fics/84524/molli_navsegda_1.mp3</description>
+        <itunes:episodeType>full</itunes:episodeType>
+        <itunes:episode>2</itunes:episode>
+        <enclosure length="498537" type="audio/mp3" url="https://audio.fanfics.me/audio_fics/84524/molli_navsegda_1.mp3" />
+</item>
+
+  <item>
+        <title>Медиафайл №3</title>
+        <description>https://audio.fanfics.me/audio_fics/84524/molli_navsegda_2.mp3</description>
+        <itunes:episodeType>full</itunes:episodeType>
+        <itunes:episode>3</itunes:episode>
+        <enclosure length="498537" type="audio/mp3" url="https://audio.fanfics.me/audio_fics/84524/molli_navsegda_2.mp3" />
+</item>
+
+  <item>
+        <title>Медиафайл №4</title>
+        <description>https://audio.fanfics.me/audio_fics/84524/molli_navsegda_3.mp3</description>
+        <itunes:episodeType>full</itunes:episodeType>
+        <itunes:episode>4</itunes:episode>
+        <enclosure length="498537" type="audio/mp3" url="https://audio.fanfics.me/audio_fics/84524/molli_navsegda_3.mp3" />
+</item>
+
+  <item>
+        <title>Медиафайл №5</title>
+        <description>https://audio.fanfics.me/audio_fics/84524/molli_navsegda_4.mp3</description>
+        <itunes:episodeType>full</itunes:episodeType>
+        <itunes:episode>5</itunes:episode>
+        <enclosure length="498537" type="audio/mp3" url="https://audio.fanfics.me/audio_fics/84524/molli_navsegda_4.mp3" />
+</item>
+
+  <item>
+        <title>Медиафайл №6</title>
+        <description>https://audio.fanfics.me/audio_fics/84524/molli_navsegda_5.mp3</description>
+        <itunes:episodeType>full</itunes:episodeType>
+        <itunes:episode>6</itunes:episode>
+        <enclosure length="498537" type="audio/mp3" url="https://audio.fanfics.me/audio_fics/84524/molli_navsegda_5.mp3" />
+</item>
+
+    </channel>
+</rss>
