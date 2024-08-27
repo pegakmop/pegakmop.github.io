@@ -7,8 +7,8 @@
         <description>audiobooks</description>
         <itunes:summary></itunes:summary>
         <itunes:author>@pegakmop</itunes:author>
-        <itunes:image href="https://www.dl.dropboxusercontent.com/scl/fi/106f52kum3byd6vnlhaxl/PiperPied.png?rlkey=8vy46w7ysv2eiq43mqgcdwwxi&dl=1"/>
-        <itunes:type>serial</itunes:type>
+        <itunes:image href="https://fanfics.me/images/fanart/2019/09/15/4486321568579532_200_300.jpg"/>
+        <itunes:type>serial</itunes:type> 
         <itunes:explicit>true</itunes:explicit>
   <item>
         <title>Медиафайл №1</title>
