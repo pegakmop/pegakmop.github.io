@@ -17,60 +17,55 @@
 
     <title>❤️‍🔥Дудочник от pegakmop®️</title>
     <style>
-        body { background-image: url(/icons/apple-icon-180x180.png); background-size: cover; background-repeat: no-repeat; background-position: center; font-family: sans-serif; margin: 0; }
-        .modal {
-            display: none;
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            color: #fff;
-            text-align: center;
-        }
-        .modal-content {
-            background-color: #f8f8f8;
-            color: #000;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 80%;
-            margin: 0 auto;
-        }
-        .modal button {
-            margin: 10px;
-        }
+        body { background-image: url(/512x512.png); background-size: cover; background-repeat: no-repeat; background-position: center; font-family: sans-serif; margin: 0; }
     </style>
 </head>
 <body>
-    <div id="ios-modal" class="modal">
-        <div class="modal-content">
-            <h2>Добавьте приложение на домашний экран</h2>
-            <p>Чтобы установить приложение на свой iPhone, нажмите <img src="/icons/apple-icon-180x180.png" style="height:20px;vertical-align:middle;" alt="Поделиться">, а затем выберите <img src="/icons/add-to-home.png" style="height:20px;vertical-align:middle;" alt="Добавить"> на экран "Домой".</p>
-            <button onclick="document.getElementById('ios-modal').style.display='none'">Закрыть</button>
-        </div>
-    </div>
-
+    <h3><center>привет</center></h3> 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            if (isIOS) {
-                document.getElementById('ios-modal').style.display = 'flex';
+        document.addEventListener('DOMContentLoaded', () => {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+            const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) && !navigator.standalone;
+            const isAndroid = /Android/.test(navigator.userAgent);
+
+            // Показ баннера для iOS
+            if (isIOS && !isStandalone) {
+                const banner = `<div style="position:fixed;bottom:0;width:100%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;">
+                    <span>Установи приложение на свой iPhone/iPad: нажми <img src="/icons/apple-icon-180x180.png" style="height:20px;vertical-align:middle;" alt="Поделиться">, а затем <img src="/icons/add-to-home.png" style="height:20px;vertical-align:middle;" alt="Добавить"> На экран "Домой"</span>
+                    <button style="float:right;" onclick="this.parentElement.style.display='none'">Закрыть</button>
+                </div>`;
+                document.body.insertAdjacentHTML('beforeend', banner);
             }
 
-            let deferredPrompt;
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                const banner = `<div style="position:fixed;bottom:0;width:100%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;">
-                <span>Добавьте приложение на домашний экран для быстрого доступа</span>
-                <button onclick="deferredPrompt.prompt();deferredPrompt.userChoice.then(choiceResult=>{if(choiceResult.outcome==='accepted'){console.log('User accepted the A2HS prompt');}deferredPrompt=null;});">Установить</button>
-                <button style="float:right;" onclick="this.parentElement.style.display='none'">Закрыть</button></div>`;
-                document.body.insertAdjacentHTML('beforeend', banner);
-            });
+            // Показ баннера для Android
+            if (isAndroid && !isStandalone) {
+                let deferredPrompt;
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                    const banner = `<div style="position:fixed;bottom:0;width:100%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;">
+                        <span>Добавить приложение на домашний экран для быстрого доступа</span>
+                        <button onclick="deferredPrompt.prompt();deferredPrompt.userChoice.then(choiceResult => { if (choiceResult.outcome === 'accepted') console.log('User accepted the A2HS prompt'); deferredPrompt = null; });">Установить</button>
+                        <button style="float:right;" onclick="this.parentElement.style.display='none'">Закрыть</button>
+                    </div>`;
+                    document.body.insertAdjacentHTML('beforeend', banner);
+                });
+            }
+
+            // Показ баннера для ПК
+            if (!isStandalone && !isIOS && !isAndroid) {
+                let deferredPrompt;
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                    const banner = `<div style="position:fixed;bottom:0;width:100%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;">
+                        <span>Добавить приложение на домашний экран для быстрого доступа</span>
+                        <button onclick="deferredPrompt.prompt();deferredPrompt.userChoice.then(choiceResult => { if (choiceResult.outcome === 'accepted') console.log('User accepted the A2HS prompt'); deferredPrompt = null; });">Установить</button>
+                        <button style="float:right;" onclick="this.parentElement.style.display='none'">Закрыть</button>
+                    </div>`;
+                    document.body.insertAdjacentHTML('beforeend', banner);
+                });
+            }
         });
 
         if ('serviceWorker' in navigator) {
