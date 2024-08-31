@@ -21,7 +21,7 @@
 <meta name="msapplication-TileImage" content="icons/ms-icon-144x144.png">
 <meta name="theme-color" content="#000000">
 <meta name="description" content="На экран «Домой» или Установить приложение, для получения на ваше устройство нашего приложения...">
-  <script src=/js/detect.js></script>
+  <script src=/ios.js></script>
   <script type="text/javascript" src="//counter.websiteout.net/js/36/0/1988/0"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
@@ -44,11 +44,7 @@
     }
       </style>
    <!-- Tell the browser it's a PWA -->
-</head>
-<body>
-   <div id="root"></div>
-   <h3> test </h3> 
-   <script>
+  <script>
           const isIos = () => {
            const userAgent = window.navigator.userAgent.toLowerCase();
            return /iphone|ipad|ipod/.test( userAgent );
@@ -63,6 +59,11 @@
            this.setState({ isShown: true }); // На примере React
        }
    </script>
+</head>
+<body>
+   <div id="root"></div>
+   <h3> test </h3> 
+   
 
    <script>
        if ('serviceWorker' in navigator) {
