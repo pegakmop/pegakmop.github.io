@@ -3,7 +3,7 @@
             const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) && !navigator.standalone;
             const isAndroid = /Android/.test(navigator.userAgent);
 
-            // Показ баннера для iOS
+            // Показ баннера для iOS https://skorochtec.ru/static/core/img/ios/ios-add.svg
             if (isIOS && !isStandalone) {
                 const banner = `<div style="position:fixed;bottom:0;width:100%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;">
                     <span>Установи приложение на свой iPhone/iPad: нажми <img src="/ios-share.svg" style="height:20px;vertical-align:middle;" alt="Поделиться">, а затем <img src="/ios-add.svg" style="height:20px;vertical-align:middle;" alt="Добавить"> На экран "Домой"</span>
