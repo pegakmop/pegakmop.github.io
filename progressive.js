@@ -5,7 +5,7 @@
 
             // Показ баннера для iOS
             if (isIOS && !isStandalone) {
-                const banner = `<div style="position:fixed;bottom:0;width:100%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;">
+                const banner = `<div style="position:fixed;bottom:0;width:99%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;">
                     <span>Установи приложение на iPhone/iPad: нажми <img src="/ios-share.svg" style="height:20px;vertical-align:middle;" alt="Поделиться">, а затем <img src="/ios-add.svg" style="height:20px;vertical-align:middle;" alt="Добавить"> На экран "Домой"</span>
                     <button style="float:right;" onclick="this.parentElement.style.display='none'">Закрыть</button>
                 </div>`;
@@ -18,7 +18,7 @@
                 window.addEventListener('beforeinstallprompt', (e) => {
                     e.preventDefault();
                     deferredPrompt = e;
-                    const banner = `<div style="position:fixed;bottom:0;width:100%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;">
+                    const banner = `<div style="position:fixed;bottom:0;width:99%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;">
                         <span>Добавить приложение на домашний экран для быстрого доступа</span>
                         <button onclick="deferredPrompt.prompt();deferredPrompt.userChoice.then(choiceResult => { if (choiceResult.outcome === 'accepted') console.log('User accepted the A2HS prompt'); deferredPrompt = null; });">Установить</button>
                         <button style="float:right;" onclick="this.parentElement.style.display='none'">Закрыть</button>
@@ -33,7 +33,7 @@
                 window.addEventListener('beforeinstallprompt', (e) => {
                     e.preventDefault();
                     deferredPrompt = e;
-                    const banner = `<div style="position:fixed;bottom:0;width:100%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;">
+                    const banner = `<div style="position:fixed;bottom:0;width:99%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;">
                         <span>Добавить приложение на домашний экран для быстрого доступа</span>
                         <button onclick="deferredPrompt.prompt();deferredPrompt.userChoice.then(choiceResult => { if (choiceResult.outcome === 'accepted') console.log('User accepted the A2HS prompt'); deferredPrompt = null; });">Установить</button>
                         <button style="float:right;" onclick="this.parentElement.style.display='none'">Закрыть</button>
