@@ -45,19 +45,59 @@
       </style>
    <!-- Tell the browser it's a PWA -->
   <script>
-          const isIos = () => {
-           const userAgent = window.navigator.userAgent.toLowerCase();
-           return /iphone|ipad|ipod/.test( userAgent );
-       };
-       // Проверяем, открыто ли приложение отдельно или в браузере
-       const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+document.addEventListener('DOMContentLoaded', function() {
+    // iPhone (iOS)
+    if (navigator.userAgent.includes('iPhone')) {
+        const banner = document.createElement('div');
+        banner.innerHTML = `
+            <div style="position: fixed; bottom: 0; width: 100%; background-color: #f8f8f8; border-top: 1px solid #ddd; padding: 10px; text-align: center;">
+                <span>Установи приложение на свой iPhone: нажми <img src="180x180" style="height: 20px; vertical-align: middle;" alt="Поделиться">, а затем <img src="ссылка_на_иконку_добавить" style="height: 20px; vertical-align: middle;" alt="Добавить"> На экран "Домой"</span>
+                <button style="float: right;" onclick="this.parentElement.style.display='none'">Закрыть</button>
+            </div>
+        `;
+        document.body.appendChild(banner);
+    }
 
+    // Android
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const banner = document.createElement('div');
+        banner.innerHTML = `
+            <div style="position: fixed; bottom: 0; width: 100%; background-color: #f8f8f8; border-top: 1px solid #ddd; padding: 10px; text-align: center;">
+                <span>Добавить приложение на домашний экран для быстрого доступа</span>
+                <button onclick="showInstallPrompt()">Установить</button>
+                <button style="float: right;" onclick="this.parentElement.style.display='none'">Закрыть</button>
+            </div>
+        `;
+        document.body.appendChild(banner);
+    });
 
+    function showInstallPrompt() {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the A2HS prompt');
+            } else {
+                console.log('User dismissed the A2HS prompt');
+            }
+            deferredPrompt = null;
+        });
+    }
 
-       // Если приложение открыто на iOS и в браузере, то предлагаем установить
-       if (isIos() && !isInStandaloneMode()) {
-           this.setState({ isShown: true }); // На примере React
-       }
+    // ПК
+    if (!navigator.userAgent.includes('iPhone') && !navigator.userAgent.includes('Android')) {
+        const banner = document.createElement('div');
+        banner.innerHTML = `
+            <div style="position: fixed; bottom: 0; width: 100%; background-color: #f8f8f8; border-top: 1px solid #ddd; padding: 10px; text-align: center;">
+                <span>Добавьте это приложение на свой рабочий стол для удобного доступа.</span>
+                <button style="float: right;" onclick="this.parentElement.style.display='none'">Закрыть</button>
+            </div>
+        `;
+        document.body.appendChild(banner);
+    }
+});
    </script>
 </head>
 <body>
