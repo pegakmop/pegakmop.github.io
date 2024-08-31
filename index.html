@@ -2,136 +2,53 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- Иконки для iOS -->
-    <link rel="apple-touch-icon" sizes="57x57" href="/icons/apple-icon-57x57.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="/icons/apple-icon-60x60.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="/icons/apple-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="/icons/apple-icon-76x76.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="/icons/apple-icon-114x114.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="/icons/apple-icon-120x120.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="/icons/apple-icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-icon-152x152.png">
+    <!-- Основные иконки для платформ -->
     <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-icon-180x180.png">
-    
-    <!-- Иконки для Android -->
     <link rel="icon" type="image/png" sizes="192x192" href="icons/android-icon-192x192.png">
-    
-    <!-- Favicon для всех платформ -->
     <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="icons/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
-    
-    <!-- Manifest -->
     <link rel="manifest" href="/manifest.json">
     
-    <!-- Для Windows -->
+    <!-- Цвет для Android и Windows -->
+    <meta name="theme-color" content="#000000">
     <meta name="msapplication-TileColor" content="#000000">
     <meta name="msapplication-TileImage" content="icons/ms-icon-144x144.png">
-    
-    <!-- Цвет для браузеров на Android -->
-    <meta name="theme-color" content="#000000">
 
-    <meta name="description" content="На экран «Домой» или Установить приложение, для получения на ваше устройство нашего приложения...">
-    
-    <!-- Подключение JS-библиотек -->
-    <script src="/ios.js"></script>
-    <script type="text/javascript" src="//counter.websiteout.net/js/36/0/1988/0"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
-    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>❤️‍🔥Дудочник от pegakmop®️</title>
-    
     <style>
-        :root {
-            touch-action: pan-x pan-y;
-            height: 100%;
-        }
-
-        body {
-            background-image: url(/icons/apple-icon-180x180.png);
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-            font-family: sans-serif;
-            margin: 0;
-        }
+        body { background-image: url(/icons/apple-icon-180x180.png); background-size: cover; background-repeat: no-repeat; background-position: center; font-family: sans-serif; margin: 0; }
     </style>
 </head>
 <body>
-    <div id="root"></div>
-    <h3> test </h3>
-    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // iPhone (iOS)
-            if (navigator.userAgent.includes('iPhone')) {
-                const banner = document.createElement('div');
-                banner.innerHTML = `
-                    <div style="position: fixed; bottom: 0; width: 100%; background-color: #f8f8f8; border-top: 1px solid #ddd; padding: 10px; text-align: center;">
-                        <span>Установи приложение на свой iPhone: нажми <img src="/icons/apple-icon-180x180.png" style="height: 20px; vertical-align: middle;" alt="Поделиться">, а затем <img src="/icons/add-to-home.png" style="height: 20px; vertical-align: middle;" alt="Добавить"> На экран "Домой"</span>
-                        <button style="float: right;" onclick="this.parentElement.style.display='none'">Закрыть</button>
-                    </div>
-                `;
-                document.body.appendChild(banner);
+            // Уведомление для пользователей iOS
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            if (isIOS) {
+                const banner = `<div style="position:fixed;bottom:0;width:100%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;">
+                <span>Установите приложение на свой iPhone: нажмите <img src="/icons/apple-icon-180x180.png" style="height:20px;vertical-align:middle;" alt="Поделиться">, а затем <img src="/icons/add-to-home.png" style="height:20px;vertical-align:middle;" alt="Добавить"> на экран "Домой"</span>
+                <button style="float:right;" onclick="this.parentElement.style.display='none'">Закрыть</button></div>`;
+                document.body.insertAdjacentHTML('beforeend', banner);
             }
 
-            // Android
+            // Уведомление для добавления в домашний экран
             let deferredPrompt;
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
-                const banner = document.createElement('div');
-                banner.innerHTML = `
-                    <div style="position: fixed; bottom: 0; width: 100%; background-color: #f8f8f8; border-top: 1px solid #ddd; padding: 10px; text-align: center;">
-                        <span>Добавить приложение на домашний экран для быстрого доступа</span>
-                        <button onclick="showInstallPrompt()">Установить</button>
-                        <button style="float: right;" onclick="this.parentElement.style.display='none'">Закрыть</button>
-                    </div>
-                `;
-                document.body.appendChild(banner);
+                const banner = `<div style="position:fixed;bottom:0;width:100%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;">
+                <span>Добавьте приложение на домашний экран для быстрого доступа</span>
+                <button onclick="deferredPrompt.prompt();deferredPrompt.userChoice.then(choiceResult=>{if(choiceResult.outcome==='accepted'){console.log('User accepted the A2HS prompt');}deferredPrompt=null;});">Установить</button>
+                <button style="float:right;" onclick="this.parentElement.style.display='none'">Закрыть</button></div>`;
+                document.body.insertAdjacentHTML('beforeend', banner);
             });
-
-            function showInstallPrompt() {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('User accepted the A2HS prompt');
-                    } else {
-                        console.log('User dismissed the A2HS prompt');
-                    }
-                    deferredPrompt = null;
-                });
-            }
-
-            // ПК
-            if (!navigator.userAgent.includes('iPhone') && !navigator.userAgent.includes('Android')) {
-                const banner = document.createElement('div');
-                banner.innerHTML = `
-                    <div style="position: fixed; bottom: 0; width: 100%; background-color: #f8f8f8; border-top: 1px solid #ddd; padding: 10px; text-align: center;">
-                        <span>Добавьте это приложение на свой рабочий стол для удобного доступа.</span>
-                        <button style="float: right;" onclick="this.parentElement.style.display='none'">Закрыть</button>
-                    </div>
-                `;
-                document.body.appendChild(banner);
-            }
         });
-    </script>
 
-    <!-- Регистрация Service Worker -->
-    <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('./index.js').then(function(registration) {
-                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                }).catch(function(err) {
-                    console.log('ServiceWorker registration failed: ', err);
-                });
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./index.js').then(reg => console.log('ServiceWorker registered:', reg.scope)).catch(err => console.log('ServiceWorker registration failed:', err));
             });
-        } else {
-            console.log('service worker is not supported');
         }
     </script>
 </body>
