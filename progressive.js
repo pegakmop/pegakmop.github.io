@@ -6,7 +6,7 @@
             // Показ баннера для iOS
             if (isIOS && !isStandalone) {
                 const banner = `<div style="position:fixed;bottom:0;width:99%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;">
-                    <span>Установи приложение на iPhone/iPad: нажми <img src="/ios-share.svg" style="height:20px;vertical-align:middle;" alt="Поделиться">, а затем <img src="/ios-add.svg" style="height:20px;vertical-align:middle;" alt="Добавить"> На экран "Домой"</span>
+                    <span>Установи приложение на iPhone/iPad: </br>Нажми <img src="/ios-share.svg" style="height:20px;vertical-align:middle;" alt="Поделиться">, а затем <img src="/ios-add.svg" style="height:20px;vertical-align:middle;" alt="Добавить"> На экран "Домой"</span>
                     <button style="float:right;" onclick="this.parentElement.style.display='none'">Закрыть</button>
                 </div>`;
                 document.body.insertAdjacentHTML('beforeend', banner);
