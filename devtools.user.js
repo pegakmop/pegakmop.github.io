@@ -4,6 +4,7 @@
 // @version      1.0.1
 // @description  Автоматический запуск Eruda DevTools с fallback на локальную версию, если CDN недоступен
 // @author       @pegakmop
+// @icon	    https://github.com/pegakmop/pegakmop.github.io/raw/main/PiperPied.png
 // @match        *://*/*
 // @grant        none
 // @updateURL    https://github.com/pegakmop/pegakmop.github.io/raw/main/devtools.user.js
