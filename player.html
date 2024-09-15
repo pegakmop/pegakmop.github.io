@@ -14,11 +14,8 @@
         flex-direction: column;
     }
     iframe {
-        position: absolute;
-        top: 0;
-        left: 0;
         width: 100%;
-        height: 100%;
+        height: 80%;
         border: none;
     }
     .player-list {
@@ -31,6 +28,14 @@
     }
 </style>
 </head>
+<body>
+    <div id="player-container">
+        <!-- Здесь будет iframe -->
+    </div>
+    <div class="player-list" id="player-list">
+        <!-- Здесь появятся кнопки для выбора плеера -->
+    </div>
+
 <script>
 const id = new URLSearchParams(window.location.search).get('id');
 const baseURL = 'https://kinobox.tv/api/players/';
@@ -47,8 +52,7 @@ fetch(url)
     
     if (availablePlayers.length > 0) {
       // Отображаем список доступных плееров
-      const playerList = document.createElement('div');
-      playerList.className = 'player-list';
+      const playerList = document.getElementById('player-list');
       
       availablePlayers.forEach((player, index) => {
         const button = document.createElement('button');
@@ -56,8 +60,6 @@ fetch(url)
         button.onclick = () => loadPlayer(player.iframeUrl);
         playerList.appendChild(button);
       });
-      
-      document.body.appendChild(playerList);
     } else {
       console.error('Ошибка: фильм или сериал не найден.');
     }
@@ -65,7 +67,9 @@ fetch(url)
   .catch(error => console.error('Произошла ошибка при выполнении запроса:', error));
 
 function loadPlayer(url) {
-  document.body.innerHTML = `<iframe class="iframe" src="${url}" frameborder="0" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" oallowfullscreen="" msallowfullscreen="" seamless></iframe>`;
+  const playerContainer = document.getElementById('player-container');
+  playerContainer.innerHTML = `<iframe class="iframe" src="${url}" frameborder="0" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" oallowfullscreen="" msallowfullscreen="" seamless></iframe>`;
 }
 </script>
+</body>
 </html>
