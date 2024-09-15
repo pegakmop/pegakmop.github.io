@@ -29,7 +29,7 @@ if (id.startsWith('tt')) {
 } else {
   url = 'https://kinobox.tv/api/players/?kinopoisk=' + id + '&sources=Collaps,Alloha,Hdvb,Videocdn,Voidboost,Kodik';
 }
-alert(url);
+//alert(url);
 // отправляем запрос с помощью fetch API
 fetch(url)
   .then(response => response.json())
