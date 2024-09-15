@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Auto start DevTools
+// @name         DevTools расширение
 // @namespace    http://tampermonkey.net/
 // @version      1.0
-// @description  Автоматический запуск DevTools на любой странице
+// @description  Автоматический запуск инструментов DevTools на любой странице, возможны ошибки, тестовое решение.
 // @author       @pegakmop
 // @match        *://*/*
 // @grant        none
