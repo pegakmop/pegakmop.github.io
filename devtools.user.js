@@ -22,7 +22,7 @@
         script.onload = function() {
             console.log('Eruda loaded from CDN');
             eruda.init();
-            eruda.show();
+            eruda.hide();
         };
         script.onerror = function() {
             console.log('CDN unavailable, loading local version of Eruda');
