@@ -1,0 +1,112 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>@PiperPiedBot</title>
+<style type="text/css">
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        background-color: #f0f0f0;
+        font-family: 'Arial', sans-serif;
+    }
+    iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+    .player-list {
+        margin-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 80%;
+    }
+    .player-list button {
+        margin: 10px;
+        padding: 15px 25px;
+        font-size: 18px;
+        background-color: #4CAF50; /* Зеленый цвет кнопки */
+        color: white;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Тень */
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease; /* Плавные переходы */
+        width: 220px;
+        text-align: center;
+    }
+    .player-list button:hover {
+        background-color: #45a049; /* Более темный зеленый при наведении */
+        transform: translateY(-3px); /* Небольшой подъем кнопки */
+    }
+    .player-list button:active {
+        background-color: #3e8e41; /* Цвет при нажатии */
+        transform: translateY(0); /* Убираем подъем при нажатии */
+    }
+    #player-container {
+        width: 100%;
+        height: 100%;
+        display: none; /* Изначально скрыт */
+    }
+</style>
+</head>
+<body>
+    <div class="player-list" id="player-list">
+        <!-- Здесь появятся кнопки для выбора плеера -->
+    </div>
+    <div id="player-container">
+        <!-- Здесь будет iframe на весь экран -->
+    </div>
+
+<script>
+const id = new URLSearchParams(window.location.search).get('id');
+const baseURL = 'https://kinobox.tv/api/players/';
+const sources = ['Collaps', 'Alloha', 'Hdvb', 'Videocdn', 'Voidboost', 'Kodik'];
+
+const url = id.startsWith('tt') 
+    ? `${baseURL}?imdb=${id}&sources=${sources.join(',')}`
+    : `${baseURL}?kinopoisk=${id}&sources=${sources.join(',')}`;
+
+fetch(url)
+  .then(response => response.json())
+  .then(data => {
+    const availablePlayers = data.filter(item => item.iframeUrl);
+    
+    if (availablePlayers.length > 0) {
+      // Отображаем список доступных плееров
+      const playerList = document.getElementById('player-list');
+      
+      availablePlayers.forEach((player, index) => {
+        const button = document.createElement('button');
+        // Используем источник из данных для названия кнопки
+        button.textContent = `Плеер ${index + 1} (${player.source})`;
+        button.onclick = () => loadPlayer(player.iframeUrl);
+        playerList.appendChild(button);
+      });
+    } else {
+      console.error('Ошибка: фильм или сериал не найден.');
+    }
+  })
+  .catch(error => console.error('Произошла ошибка при выполнении запроса:', error));
+
+function loadPlayer(url) {
+  // Скрываем список кнопок после выбора
+  document.getElementById('player-list').style.display = 'none';
+
+  // Показываем контейнер с плеером и загружаем iframe
+  const playerContainer = document.getElementById('player-container');
+  playerContainer.style.display = 'block';
+  playerContainer.innerHTML = `<iframe class="iframe" src="${url}" frameborder="0" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" oallowfullscreen="" msallowfullscreen="" seamless></iframe>`;
+}
+</script>
+</body>
+</html>
