@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         Auto Eruda DevTools (Fallback to Local)
+// @name         AutoDevTools (Fallback to Local)
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.0.1
 // @description  Автоматический запуск Eruda DevTools с fallback на локальную версию, если CDN недоступен
-// @author       Your Name
+// @author       @pegakmop
 // @match        *://*/*
 // @grant        none
 
