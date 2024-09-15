@@ -6,6 +6,11 @@
 // @author       Your Name
 // @match        *://*/*
 // @grant        none
+
+// @updateURL    https://ваш-сайт.com/path/to/your-script.user.js
+// @downloadURL  https://ваш-сайт.com/path/to/your-script.user.js
+// @version      1.0
+
 // ==/UserScript==
 
 (function() {
