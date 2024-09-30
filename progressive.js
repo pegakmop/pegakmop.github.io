@@ -15,7 +15,7 @@
             // Показ баннера для Android
             if (isAndroid && !isStandalone) {
                 const banner = `<div style="position:fixed;bottom:0;width:calc(100% - 1vw);background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;margin:0 1px 1px 1px;">
-                    <span>Установи приложение на Android: </br>Нажми <img src="/ios-share.svg" style="height:20px;vertical-align:middle;" alt="Поделиться">, а затем <img src="/ios-add.svg" style="height:20px;vertical-align:middle;" alt="Добавить"> На экран "Домой"</br></span>
+                    <span>Установи приложение на Android: </br>Нажми <img src="/ios-share.svg" style="height:20px;vertical-align:middle;" alt="Поделиться">, а затем <img src="/ios-add.svg" style="height:20px;vertical-align:middle;" alt="Добавить"> Добавить на главный экран "Домой"</br></span>
                     <button style="float:center;" onclick="this.parentElement.style.display='none'">Закрыть уведомление</button>
                 </div>`;
                 document.body.insertAdjacentHTML('beforeend', banner);
