@@ -111,14 +111,14 @@
                   case 'left':
                      tg.MainButton.setParams({"color": "#ff0000"});
                      tg.MainButton.setText("Не подписан на канал!");
-                     tg.MainButton.disable();
+                     tg.MainButton.enable();
                      tg.MainButton.show();
                      window.location.href = left;
                      break;
                   default:
                      tg.MainButton.setParams({"color": "#ff0000"});
                      tg.MainButton.setText("Отказано! Нет доступа!");
-                     tg.MainButton.disable();
+                     tg.MainButton.enable();
                      tg.MainButton.show();
                      window.location.href = kick;
                }
