@@ -84,38 +84,38 @@
                switch (status) {
                   case 'creator':
                      //tg.MainButton.setParams({"color": "#ff0000"});
-                     tg.MainButton.setText("Отказано себе?😉");
+                     tg.MainButton.setText("Добро пожаловать, Создатель!");
                      tg.MainButton.enable();
                      tg.MainButton.show();
                      //window.location.href = creator;
                      break;
                   case 'administrator':
                      tg.MainButton.setParams({"color": "#ff0000"});
-                     tg.MainButton.setText("Отказано админу?😉");
+                     tg.MainButton.setText("Добро пожаловать, Админ!");
                      tg.MainButton.enable();
                      tg.MainButton.show();
                      //window.location.href = administrator;
                      break;
                   case 'member':
                      tg.MainButton.setParams({"color": "#ff0000"});
-                     tg.MainButton.setText("Отказано юзеру?😉");
+                     tg.MainButton.setText("Добро пожаловать, подписчик!");
                      tg.MainButton.disable();
                      tg.MainButton.show();
                      //window.location.href = member;
                      break;
                   case 'left':
                      tg.MainButton.setParams({"color": "#ff0000"});
-                     tg.MainButton.setText("Отказано! Отписан!");
+                     tg.MainButton.setText("Не подписан на канал!");
                      tg.MainButton.disable();
                      tg.MainButton.show();
-                     //window.location.href = left;
+                     window.location.href = left;
                      break;
                   default:
                      tg.MainButton.setParams({"color": "#ff0000"});
                      tg.MainButton.setText("Отказано! Нет доступа!");
                      tg.MainButton.disable();
                      tg.MainButton.show();
-                     //window.location.href = kick;
+                     window.location.href = kick;
                }
             })
             .catch(error => console.error('Error:', error));
