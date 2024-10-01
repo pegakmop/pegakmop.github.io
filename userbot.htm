@@ -83,23 +83,23 @@
                //let tg = window.Telegram.WebApp;
                switch (status) {
                   case 'creator':
-                     //tg.MainButton.setParams({"color": "#ff0000"});
+                     //tg.MainButton.setParams({"color": "#00ff00"});
                      tg.MainButton.setText("Добро пожаловать, Создатель!");
                      tg.MainButton.enable();
                      tg.MainButton.show();
                      //window.location.href = creator;
                      break;
                   case 'administrator':
-                     tg.MainButton.setParams({"color": "#ff0000"});
+                     tg.MainButton.setParams({"color": "#00ff00"});
                      tg.MainButton.setText("Добро пожаловать, Админ!");
                      tg.MainButton.enable();
                      tg.MainButton.show();
                      //window.location.href = administrator;
                      break;
                   case 'member':
-                     tg.MainButton.setParams({"color": "#ff0000"});
+                     tg.MainButton.setParams({"color": "#00ff00"});
                      tg.MainButton.setText("Добро пожаловать, подписчик!");
-                     tg.MainButton.disable();
+                     tg.MainButton.enable();
                      tg.MainButton.show();
                      //window.location.href = member;
                      break;
