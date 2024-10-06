@@ -4,7 +4,7 @@
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Test WebApps API</title>
+   <title>Test @PiperPiedBot WebApps API</title>
    <script src="https://telegram.org/js/telegram-web-app.js"></script>
    <style>
       body {
@@ -47,7 +47,11 @@
 <body>
    <div id="usercard"></div>
    <p>Добро пожаловать!</p>
-   <a class="link" href="https://pegakmop.t.me">Поддержка</a>
+   <a class="link" href="https://t.me/c/1699696734/166">💲Приватный Канал</a>
+   <a class="link" href="https://t.me/c/1733213073/5367">💲Приватная Группа</a>
+   <a class="link" href="https://t.me/piper_pied/284">🆓Публичный Канал</a>
+   <a class="link" href="https://t.me/piper_pied_discuss/22089">🆓Публичная Группа</a>
+   <a class="link" href="https://pegakmop.t.me">⚠️Контакты для связи</a>
    <p class="hint">Если вы не подписаны на наш приватный канал данный функционал вам недоступен, нечего и дергать бота в бестолку, приватный доступ только для наших подписчиков</p>
    <button id="btn" hidden class="button">Показать/Скрыть</button>
    <button hidden id="btnED" class="button">Разрешить/Запретить</button>
@@ -118,6 +122,7 @@
                      tg.MainButton.setText("Не подписан на канал!");
                      tg.MainButton.enable();
                      tg.MainButton.show();
+                     alert('⚠️ Вы еще не подписаны на наш приватный канал либо отписались от него, функционал теперь вам недоступен, пока не вернетесь в приватный канал');
                      window.location.href = left;
                      break;
                   default:
@@ -125,6 +130,7 @@
                      tg.MainButton.setText("Отказано! Нет доступа!");
                      tg.MainButton.enable();
                      tg.MainButton.show();
+                     alert('⛔️ Вы исключены и занесены в черный список, если хотите обжаловать напишите нашему администратору');
                      window.location.href = kick;
                }
             })
