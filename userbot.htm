@@ -53,7 +53,7 @@
    <a class="link" href="https://t.me/piper_pied_discuss/22089">🆓Публичная Группа</a>
    <a class="link" href="https://pegakmop.t.me">⚠️Контакты для связи</a>
    <p class="hint">Если вы не подписаны на наш приватный канал данный функционал вам недоступен, нечего и дергать бота в бестолку, приватный доступ только для наших подписчиков</p>
-   <button id="btn" hidden class="button">Показать/Скрыть</button>
+   <button id="btn" class="button">Показать/Скрыть</button>
    <button hidden id="btnED" class="button">Разрешить/Запретить</button>
 </body>
 
@@ -158,18 +158,54 @@
    });
 
    let btnED = document.getElementById("btnED");
-   btnED.addEventListener('click', function(){
-      if (tg.MainButton.isActive){
-         tg.MainButton.setParams({"color": "#ff0000"});
-         tg.MainButton.setText("Отказано");
-         tg.MainButton.disable();
-      } else {
-         tg.MainButton.setParams({"color": "#000000"});
-         tg.MainButton.textColor = "#00ff00";
-         tg.MainButton.setText("Доступно");
-         tg.MainButton.enable();
-      }
-   });
+
+btnED.addEventListener('click', function() {
+    let email = localStorage.getItem('email');
+    let password = localStorage.getItem('password');
+
+    // Если логин и пароль не найдены в localStorage, запрашиваем их у пользователя
+    if (!email || !password) {
+        email = prompt("Введите email:");
+        password = prompt("Введите пароль:");
+
+        // Сохраняем логин и пароль в localStorage
+        localStorage.setItem('email', email);
+        localStorage.setItem('password', password);
+    }
+
+    // Отправляем запрос на сервер с email и паролем
+    fetch('https://example.com/auth', { // Замените на ваш URL
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({email: email, password: password}) // Отправляем email и пароль
+    })
+    .then(response => response.json()) // Ожидаем ответ сервера в формате JSON
+    .then(data => {
+        let currentDate = new Date(); // Текущая дата
+        let startDate = new Date(data.start_date); // Получаем start_date с сервера
+        let endDate = new Date(data.end_date); // Получаем end_date с сервера
+
+        if (data.success && currentDate >= startDate && currentDate <= endDate) {
+            // Если авторизация успешна и текущая дата в пределах диапазона
+            tg.MainButton.setParams({"color": "#000000"});
+            tg.MainButton.textColor = "#00ff00";
+            tg.MainButton.setText("Доступно");
+            tg.MainButton.enable();
+        } else {
+            // Если авторизация неуспешна или дата не в пределах
+            tg.MainButton.setParams({"color": "#ff0000"});
+            tg.MainButton.setText("Отказано");
+            tg.MainButton.disable();
+            alert(data.message || "Доступ запрещён");
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        alert("Произошла ошибка при авторизации.");
+    });
+});
 
    Telegram.WebApp.onEvent('mainButtonClicked', function(){
       tg.MainButton.setText("Приятного просмотра");
