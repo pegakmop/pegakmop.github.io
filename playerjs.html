@@ -1,0 +1,83 @@
+<script>
+  // Создание базовой структуры страницы
+document.documentElement.style.height = '100%';
+document.body.style.cssText = 'height: 100%; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; flex-direction: column;';
+
+// Создаем стили для iframe и контейнеров
+const style = document.createElement('style');
+style.textContent = `
+    iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+    .player-list {
+        margin-top: 20px;
+    }
+    .player-list button {
+        margin: 5px;
+        padding: 10px 20px;
+        font-size: 16px;
+    }
+    #player-container {
+        width: 100%;
+        height: 100%;
+        display: none;
+    }
+`;
+document.head.appendChild(style);
+
+// Создаем контейнер для списка плееров
+const playerListDiv = document.createElement('div');
+playerListDiv.className = 'player-list';
+playerListDiv.id = 'player-list';
+document.body.appendChild(playerListDiv);
+
+// Создаем контейнер для плеера
+const playerContainerDiv = document.createElement('div');
+playerContainerDiv.id = 'player-container';
+document.body.appendChild(playerContainerDiv);
+
+// Получаем ID фильма или сериала из параметров URL
+const id = new URLSearchParams(window.location.search).get('id');
+const baseURL = 'https://kinobox.tv/api/players/';
+const sources = ['Collaps', 'Alloha', 'Hdvb', 'Videocdn', 'Voidboost', 'Kodik'];
+
+// Формируем URL для запроса к API
+const url = id.startsWith('tt') 
+    ? `${baseURL}?imdb=${id}&sources=${sources.join(',')}`
+    : `${baseURL}?kinopoisk=${id}&sources=${sources.join(',')}`;
+
+// Выполняем запрос к API для получения плееров
+fetch(url)
+  .then(response => response.json())
+  .then(data => {
+    const availablePlayers = data.filter(item => item.iframeUrl);
+    
+    if (availablePlayers.length > 0) {
+      // Отображаем кнопки с доступными плеерами
+      availablePlayers.forEach((player, index) => {
+        const button = document.createElement('button');
+        button.textContent = `Плеер ${index + 1} (${player.source})`;
+        button.onclick = () => loadPlayer(player.iframeUrl);
+        playerListDiv.appendChild(button);
+      });
+    } else {
+      console.error('Ошибка: фильм или сериал не найден.');
+    }
+  })
+  .catch(error => console.error('Произошла ошибка при выполнении запроса:', error));
+
+// Функция для загрузки выбранного плеера
+function loadPlayer(url) {
+  // Скрываем список кнопок
+  playerListDiv.style.display = 'none';
+
+  // Показываем контейнер с плеером и загружаем iframe
+  playerContainerDiv.style.display = 'block';
+  playerContainerDiv.innerHTML = `<iframe class="iframe" src="${url}" frameborder="0" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" oallowfullscreen="" msallowfullscreen="" seamless></iframe>`;
+}
+</script>
