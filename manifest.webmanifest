@@ -1,19 +1,47 @@
 {
-    "name": "Дудочник©️ PWA",
-    "short_name": "Дудочник©️ PWA",
-    "dir": "ltr",
-    "lang": "en-us",
-    "description": "тестирование PWA приложения для сайта",
-    "start_url": "/film",
-    "scope": "/",
-    "display": "standalone",
-    "theme_color": "#000000",
-    "background_color": "#000000",
-    "orientation": "any",
-    "icons": [
-        {
-            "src": "images/512x512.png",
-            "sizes": "512x512"
-        }
-    ]
+  "name": "🪈Пегий Дудочник®️ от @Piper_Pied",
+  "short_name": "🪈Дудочник®️",
+  "description": "PWA apps от нашего сайта для просмотра фильмов и сериалов",
+  "lang": "ru",
+  "start_url": "/",
+  "scope": "/",
+  "display": "fullscreen",
+  "theme_color": "#000000",
+  "background_color": "#000000",
+  "dir": "ltr",
+  "orientation": "any",
+  "permissions": [
+    "microphone",
+    "push",
+    "notifications",
+    "geolocation",
+    "camera",
+    "clipboard-read",
+    "clipboard-write",
+    "midi",
+    "ambient-light-sensor",
+    "accelerometer",
+    "gyroscope",
+    "magnetometer"
+  ],
+  "icons": [
+    {
+      "src": "/icons/192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/apple_touch_icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }
