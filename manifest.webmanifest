@@ -1,0 +1,19 @@
+{
+    "name": "Дудочник©️ PWA",
+    "short_name": "Дудочник©️ PWA",
+    "dir": "ltr",
+    "lang": "en-us",
+    "description": "тестирование PWA приложения для сайта",
+    "start_url": "/film",
+    "scope": "/",
+    "display": "standalone",
+    "theme_color": "#000000",
+    "background_color": "#000000",
+    "orientation": "any",
+    "icons": [
+        {
+            "src": "images/512x512.png",
+            "sizes": "512x512"
+        }
+    ]
+}
