@@ -38,7 +38,7 @@
       "purpose": "any"
     },
     {
-      "src": "/icons/apple_touch_icon.png",
+      "src": "/icons/180x180.png",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any maskable"
