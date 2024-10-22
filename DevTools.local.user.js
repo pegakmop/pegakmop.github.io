@@ -15,11 +15,9 @@
     'use strict';
 
     // Функция для загрузки Eruda с CDN
-    function loadErudaFromCDN() {
+    
             console.log('loading local version of Eruda');
-            loadLocalEruda();
-    }
-
+            
     // Локальная версия Eruda
     function loadLocalEruda() {
         /*! Вставьте локальный код Eruda здесь */
@@ -57,9 +55,7 @@
     }
 
     // Проверяем готовность документа
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', loadErudaFromCDN);
-    } else {
-        loadErudaFromCDN();
-    }
+    
+        loadLocalEruda();
+    
 })();
