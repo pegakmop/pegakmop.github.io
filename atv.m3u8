@@ -1,23 +1,4 @@
 #EXTM3U
-#EXTINF:0 tvg-rec="3",Sky Sports News HD 50 UK
-#EXTGRP:новости
-http://dp2lucrl.rostelekom.xyz/iptv/LL3FDFFCM2P2BM/9314/index.m3u8
-#EXTINF:0 tvg-rec="0",Экоспаскоми
-#EXTGRP:новости
-http://dp2lucrl.rostelekom.xyz/iptv/LL3FDFFCM2P2BM/17018/index.m3u8
-#EXTINF:0 tvg-rec="0",Крик-ТВ
-#EXTGRP:новости
-http://dp2lucrl.rostelekom.xyz/iptv/LL3FDFFCM2P2BM/15012/index.m3u8
-#EXTINF:0 tvg-rec="0",РБК HD 50
-#EXTGRP:новости
-http://dp2lucrl.rostelekom.xyz/iptv/LL3FDFFCM2P2BM/10029/index.m3u8
-#EXTINF:0 tvg-rec="0",BBC First UK
-#EXTGRP:новости
-http://dp2lucrl.rostelekom.xyz/iptv/LL3FDFFCM2P2BM/19181/index.m3u8
-#EXTINF:0 tvg-rec="0",BBC Scotland UK
-#EXTGRP:новости
-http://dp2lucrl.rostelekom.xyz/iptv/LL3FDFFCM2P2BM/19183/index.m3u8
-#EXTINF:0 tvg-rec="0",РБК HD
 #EXTGRP:новости
 http://dp2lucrl.rostelekom.xyz/iptv/LL3FDFFCM2P2BM/16075/index.m3u8
 #EXTINF:0 tvg-rec="0",Россия 1 +0 (Элиста)
