@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>script app installation</title>
+    <meta name="viewport" content="width=device-width" />
+    <style>
+        body {
+            background-image: url("https://www.dl.dropboxusercontent.com/s/wzc5g61s2ax0705/piper.pied.png");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 100% 100%;
+            background-attachment: fixed;
+            background-color: #00ff00;
+            color: silver;
+        }
+    </style>
+</head>
+<body>
+    <div> 
+        <h1>1) TrollinstallerX</h1>
+        <button style="font-size:13px;" onclick="get()">Установить приложение 📲</button>
+
+    </div>
+<script>
+var get = function(){
+			var hash = window.location.hash.slice(1);
+			if (hash == "") {
+			} else {
+			  window.location.href = '/PiperPied.js';
+			} 
+            }
+</script>
+</body>
+</html>
