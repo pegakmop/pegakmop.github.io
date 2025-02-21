@@ -3,7 +3,7 @@
   "short_name": "Дудочник®️",
   "description": "@Piper-Pied",
   "lang": "ru",
-  "start_url": "/",
+  "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",
   "background_color": "#000000",
