@@ -1,1 +1,1 @@
-## [https://pegakmop.github.io](https://pegakmop.github.io)
+## [pegakmop.github.io](https://pegakmop.github.io/index.html)
