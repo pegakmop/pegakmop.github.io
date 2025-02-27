@@ -3,7 +3,7 @@
   "short_name": "Дудочник®️",
   "description": "@Piper-Pied",
   "lang": "ru",
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
   "theme_color": "#000000",
   "background_color": "#000000",
@@ -11,43 +11,12 @@
   "orientation": "any",
   "icons": [
     {
-      "src": "/icons/16x16.png",
-      "sizes": "16x16",
-      "type": "image/png",
-      "density": "0.75"
-    },
-    {
-      "src": "/icons/32x32.png",
-      "sizes": "32x32",
-      "type": "image/png",
-      "density": "1.0"
-    },
-    {
-      "src": "/icons/152x152.png",
-      "sizes": "152x152",
-      "type": "image/png",
-      "density": "1.5"
-    },
-    {
-      "src": "/icons/167x167.png",
-      "sizes": "167x167",
-      "type": "image/png",
-      "density": "2.0"
-    },
-    {
-      "src": "/icons/180x180.png",
-      "sizes": "180x180",
-      "type": "image/png",
-      "density": "3.0"
-    },
-    {
-      "src": "/icons/512x512.png",
+      "src": "./512x512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "density": "4.0"
+      "type": "image/png"
     },
     {
-      "src": "/180x180.png",
+      "src": "./180x180.png",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any maskable"
