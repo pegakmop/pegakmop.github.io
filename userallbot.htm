@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Test @PiperPiedBot WebApps API</title>
+   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+   <style>
+      body {
+         color: var(--tg-theme-text-color);
+         background: var(--tg-theme-bg-color);
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+         font-size: 18px;
+      }
+
+      .hint {
+         color: var(--tg-theme-hint-color);
+      }
+
+      .link {
+         color: var(--tg-theme-link-color);
+      }
+
+      .button {
+         background: var(--tg-theme-button-color);
+         color: var(--tg-theme-button-text-color);
+         border: none;
+         font-size: 18px;
+         padding: 10px 20px;
+         cursor: pointer;
+      }
+
+      .button:not(:last-child) {
+         margin-bottom: 20px;
+      }
+
+      #usercard {
+         text-align: center;
+         margin-top: 20px;
+      }
+   </style>
+</head>
+
+<body>
+   <div id="usercard"></div>
+   <p>Добро пожаловать!</p>
+   <a class="link" href="https://t.me/c/1699696734/166">💲Приватный Канал</a>
+   <a class="link" href="https://t.me/c/1733213073/5367">💲Приватная Группа</a>
+   <a class="link" href="https://t.me/piper_pied/284">🆓Публичный Канал</a>
+   <a class="link" href="https://t.me/piper_pied_discuss/22089">🆓Публичная Группа</a>
+   <a class="link" href="https://pegakmop.t.me">⚠️Контакты для связи</a>
+   <p class="hint">Если вы не подписаны на наш приватный канал данный функционал вам недоступен, нечего и дергать бота в бестолку, приватный доступ только для наших подписчиков</p>
+   <button hidden id="btn" class="button">Показать/Скрыть</button>
+   <button hidden id="btnED" class="button">Разрешить/Запретить</button>
+</body>
+
+<script>
+   let tg = window.Telegram.WebApp;
+   tg.expand();
+   tg.sendData("some string that we need to send");
+   var search = window.location.search;
+         const tg_user_id = `${tg.initDataUnsafe.user.id}`
+         const url = 'https://api.telegram.org/bot5021692760:AAFP4REQhEq5n_8SD0g0JVxQCb6pIh6b0g4/GetChatMember';
+         const data = new URLSearchParams({ chat_id: '-1001215664002', user_id: tg_user_id });
+         const options = {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: data.toString()
+         };
+
+         fetch(url, options)
+            .then(response => response.json())
+            .then(data => {
+               const status = data.result.status;
+               const users = data.result.user.id;
+               //alert('айди  ' + users);
+               const q900950b = 'http://q900950b.beget.tech/bot.php';
+               const creator = `${window.location.pathname}?tg_user_id=${tg_user_id}&role=administrator&token=pegakmop`;
+               const administrator = `${window.location.pathname}?tg_user_id=${tg_user_id}&role=administrator&token=pegakmop`;
+               const member = `${window.location.pathname}?tg_user_id=${tg_user_id}&role=member&token=pegakmop`;
+               const left = 'https://t.me/+x-5Kce_5vIU2ZjJi';
+               const kick = 'https://t.me/piper_pied/3';
+               //let tg = window.Telegram.WebApp;
+               switch (status) {
+                  case 'creator':
+                     //tg.MainButton.setParams({"color": "#00ff00"});
+                     tg.MainButton.setText("Добро пожаловать, Создатель!");
+                     tg.MainButton.enable();
+                     //tg.MainButton.show();
+                     tg.MainButton.hide();
+                     setTimeout(function() {
+                        window.location.replace(q900950b);
+                     }, 3000);
+                     //window.location.href = q900950b;
+                     //window.location.replace(q900950b);
+                     //const newurl = '/q900950b.htm';
+                     break;
+                  case 'administrator':
+                     tg.MainButton.setParams({"color": "#00ff00"});
+                     tg.MainButton.setText("Добро пожаловать, Админ!");
+                     tg.MainButton.enable();
+                     tg.MainButton.hide();
+                     setTimeout(function() {
+                        window.location.replace(q900950b);
+                     }, 3000);
+                     //tg.MainButton.show();
+                     //window.location.href = administrator;
+                     //window.location.replace(q900950b);
+                     //const newurl = '/q900950b.htm';
+                     break;
+                  case 'member':
+                     tg.MainButton.setParams({"color": "#00ff00"});
+                     tg.MainButton.setText("Добро пожаловать, подписчик!");
+                     tg.MainButton.enable();
+                     tg.MainButton.hide();
+                     setTimeout(function() {
+                        window.location.replace(q900950b);
+                     }, 3000);
+                     //tg.MainButton.show();
+                     //window.location.href = member;
+                     //window.location.replace(q900950b);
+                     //const newurl = '/q900950b.htm';
+                     break;
+                  case 'left':
+                     tg.MainButton.setParams({"color": "#ff0000"});
+                     tg.MainButton.setText("Не подписан на канал!");
+                     tg.MainButton.enable();
+                     tg.MainButton.show();
+                     alert('⚠️ Вы еще не подписаны на наш приватный канал либо отписались от него, функционал теперь вам недоступен, пока не вернетесь в приватный канал');
+                     window.location.href = left;
+                     break;
+                  default:
+                     tg.MainButton.setParams({"color": "#ff0000"});
+                     tg.MainButton.setText("Отказано! Нет доступа!");
+                     tg.MainButton.enable();
+                     tg.MainButton.show();
+                     alert('⛔️ Вы исключены из приватного доступа и занесены в черный список, если видите данную проблему и хотите обжаловать напишите нашему администратору, если вы ничего не нарушали, значит вас вернут в приватный доступ');
+                     window.location.href = kick;
+               }
+            })
+            .catch(error => console.error('Error:', error));
+
+  // let tg = window.Telegram.WebApp;
+   tg.expand();
+
+   let btn = document.getElementById("btn");
+   btn.addEventListener('click', function(){
+      if (tg.MainButton.isVisible){
+         tg.MainButton.hide();
+      } else {
+         tg.MainButton.show();
+      }
+   });
+
+   let btnED = document.getElementById("btnED");
+
+btnED.addEventListener('click', function() {
+    let email = localStorage.getItem('email');
+    let password = localStorage.getItem('password');
+
+    // Если логин и пароль не найдены в localStorage, запрашиваем их у пользователя
+    if (!email || !password) {
+        email = prompt("Введите email:");
+        password = prompt("Введите пароль:");
+
+        // Сохраняем логин и пароль в localStorage
+        localStorage.setItem('email', email);
+        localStorage.setItem('password', password);
+    }
+
+    // Отправляем запрос на сервер с email и паролем
+    fetch('http://q900950b.beget.tech/login.php', { // Замените на ваш URL
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({email: email, password: password}) // Отправляем email и пароль
+    })
+    .then(response => response.json()) // Ожидаем ответ сервера в формате JSON
+    .then(data => {
+        let currentDate = new Date(); // Текущая дата
+        let startDate = new Date(data.start_date); // Получаем start_date с сервера
+        let endDate = new Date(data.end_date); // Получаем end_date с сервера
+
+        if (data.success && currentDate >= startDate && currentDate <= endDate) {
+            // Если авторизация успешна и текущая дата в пределах диапазона
+            tg.MainButton.setParams({"color": "#000000"});
+            tg.MainButton.textColor = "#00ff00";
+            tg.MainButton.setText("Доступно");
+            tg.MainButton.enable();
+        } else {
+            // Если авторизация неуспешна или дата не в пределах
+            tg.MainButton.setParams({"color": "#ff0000"});
+            tg.MainButton.setText("Отказано");
+            tg.MainButton.disable();
+            alert(data.message || "Доступ запрещён");
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        alert("Произошла ошибка при авторизации.");
+    });
+});
+
+   Telegram.WebApp.onEvent('mainButtonClicked', function(){
+      tg.MainButton.setText("Приятного просмотра");
+      tg.sendData("some string that we need to send");
+      //const newurl = `${window.location.origin}${window.location.pathname.replace('index', 'kino')}?tg_user_id=${tg.initDataUnsafe.user.id}`;
+      const newurl = 'https://t.me/piper_pied/281'; //const newurl = `${window.location.origin}${window.location.pathname}?tgX_user_id=${tg.initDataUnsafe.user.id}`
+      //alert(newurl);
+      tg.MainButton.hide();
+      window.location.replace(newurl);
+      
+   });
+
+   let usercard = document.getElementById("usercard");
+   let profName = document.createElement('p');
+   profName.innerText = `${tg.initDataUnsafe.user.first_name} ${tg.initDataUnsafe.user.last_name} ${tg.initDataUnsafe.user.username} (${tg.initDataUnsafe.user.language_code})`;
+   usercard.appendChild(profName);
+
+   let userid = document.createElement('p');
+   userid.innerText = `${tg.initDataUnsafe.user.id}`;
+   usercard.appendChild(userid);
+</script>
+
+</html>
