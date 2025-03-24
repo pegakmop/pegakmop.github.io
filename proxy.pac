@@ -64,7 +64,11 @@ proxy = [
     "*.seed4.me",
     "*.hide.me",
     // От самих сервисов:
+    "habr.com",
+    "4pda.to",
     "*.chatgpt.com",
+    "*.openai.com",
+    "*.oaistatic.com",
     "*.openai.com",
     "*.oaistatic.com",
     "*.oaiusercontent.com",
