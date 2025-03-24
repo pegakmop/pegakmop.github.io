@@ -64,11 +64,7 @@ proxy = [
     "*.seed4.me",
     "*.hide.me",
     // От самих сервисов:
-    "habr.com",
-    "4pda.to",
     "*.chatgpt.com",
-    "*.openai.com",
-    "*.oaistatic.com",
     "*.openai.com",
     "*.oaistatic.com",
     "*.oaiusercontent.com",
@@ -104,13 +100,22 @@ proxy = [
     "*.sora.com",
     "datalore.jetbrains.com",
     "plugins.jetbrains.com",
+    // Добавленные домены:
+    "*.spaces.im",
+    "*.clashofclans.com",
+    "*.supercell.com",
+    "*.brawlstars.com",
+    "*.habr.com",
+    "*.4pda.to",
+    "*.flibusta.is",
+    "*.kino.pub"
 ]
 
 function FindProxyForURL(url, host) {
     host = host.toLowerCase();
     for (var i = 0; i < proxy.length; i++) {
         if (shExpMatch(host, proxy[i])) {
-            return "PROXY 150.241.65.91:39666; DIRECT";
+            return "PROXY 45.95.233.23:2285; DIRECT";
         }
     }
     return "DIRECT";
