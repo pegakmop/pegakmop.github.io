@@ -101,14 +101,14 @@ proxy = [
     "datalore.jetbrains.com",
     "plugins.jetbrains.com",
     // Добавленные домены:
-    "*.spaces.im",
-    "*.clashofclans.com",
-    "*.supercell.com",
-    "*.brawlstars.com",
-    "*.habr.com",
-    "*.4pda.to",
-    "*.flibusta.is",
-    "*.kino.pub"
+    "spaces.im",
+    "clashofclans.com",
+    "supercell.com",
+    "brawlstars.com",
+    "habr.com",
+    "4pda.to",
+    "flibusta.is",
+    "kino.pub"
 ]
 
 function FindProxyForURL(url, host) {
