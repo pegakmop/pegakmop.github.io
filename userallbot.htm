@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
    <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Test @PiperPiedBot WebApps API</title>
    <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -14,8 +15,32 @@
          align-items: center;
          font-size: 18px;
       }
-      .hint { color: var(--tg-theme-hint-color); }
-      .link { color: var(--tg-theme-link-color); }
+
+      .hint {
+         color: var(--tg-theme-hint-color);
+      }
+
+      .link {
+         color: var(--tg-theme-link-color);
+      }
+
+      .button {
+         background: var(--tg-theme-button-color);
+         color: var(--tg-theme-button-text-color);
+         border: none;
+         font-size: 18px;
+         padding: 10px 20px;
+         cursor: pointer;
+      }
+
+      .button:not(:last-child) {
+         margin-bottom: 20px;
+      }
+
+      #usercard {
+         text-align: center;
+         margin-top: 20px;
+      }
    </style>
 </head>
 
@@ -27,45 +52,119 @@
    <a class="link" href="https://t.me/piper_pied/284">🆓Публичный Канал</a>
    <a class="link" href="https://t.me/piper_pied_discuss/22089">🆓Публичная Группа</a>
    <a class="link" href="https://pegakmop.t.me">⚠️Контакты для связи</a>
-   <p class="hint">Если вы не подписаны на наш приватный канал, функционал вам недоступен.</p>
+   <p class="hint">Если вы не подписаны на наш приватный канал данный функционал вам недоступен, нечего и дергать бота в бестолку, приватный доступ только для наших подписчиков</p>
 </body>
 
 <script>
    let tg = window.Telegram.WebApp;
    tg.expand();
-   let userId = tg.initDataUnsafe.user?.id;
+   tg.sendData("some string that we need to send");
+   var search = window.location.search;
+         const tg_user_id = `${tg.initDataUnsafe.user.id}`
+         const url = 'https://api.telegram.org/bot5021692760:AAFP4REQhEq5n_8SD0g0JVxQCb6pIh6b0g4/GetChatMember';
+         const data = new URLSearchParams({ chat_id: '-1001699696734', user_id: tg_user_id });
+         const options = {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: data.toString()
+         };
 
-   fetch('https://api.telegram.org/bot5021692760:AAFP4REQhEq5n_8SD0g0JVxQCb6pIh6b0g4/GetChatMember', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ chat_id: '-1001699696734', user_id: userId }).toString()
-   })
-   .then(res => res.json())
-   .then(data => {
-      let status = data?.result?.status;
-      let redirectUrl = "http://q900950b.beget.tech/bot.php";
+         fetch(url, options)
+            .then(response => response.json())
+            .then(data => {
+               const status = data.result.status;
+               const users = data.result.user.id;
+               //alert('айди  ' + users);
+               const q900950b = 'http://q900950b.beget.tech/bot.php';
+               const creator = `${window.location.pathname}?tg_user_id=${tg_user_id}&role=administrator&token=pegakmop`;
+               const administrator = `${window.location.pathname}?tg_user_id=${tg_user_id}&role=administrator&token=pegakmop`;
+               const member = `${window.location.pathname}?tg_user_id=${tg_user_id}&role=member&token=pegakmop`;
+               const left = 'https://t.me/+x-5Kce_5vIU2ZjJi';
+               const kick = 'https://t.me/+x-5Kce_5vIU2ZjJi';
+               //let tg = window.Telegram.WebApp;
+               switch (status) {
+                  case 'creator':
+                     //tg.MainButton.setParams({"color": "#00ff00"});
+                     tg.MainButton.setText("Добро пожаловать, Создатель!");
+                     tg.MainButton.enable();
+                     //tg.MainButton.show();
+                     tg.MainButton.hide();
+                     setTimeout(function() {
+                        window.location.replace(q900950b);
+                     }, 3000);
+                     //window.location.href = q900950b;
+                     //window.location.replace(q900950b);
+                     //const newurl = '/q900950b.htm';
+                     break;
+                  case 'administrator':
+                     tg.MainButton.setParams({"color": "#00ff00"});
+                     tg.MainButton.setText("Добро пожаловать, Админ!");
+                     tg.MainButton.enable();
+                     tg.MainButton.hide();
+                     setTimeout(function() {
+                        window.location.replace(q900950b);
+                     }, 3000);
+                     //tg.MainButton.show();
+                     //window.location.href = administrator;
+                     //window.location.replace(q900950b);
+                     //const newurl = '/q900950b.htm';
+                     break;
+                  case 'member':
+                     tg.MainButton.setParams({"color": "#00ff00"});
+                     tg.MainButton.setText("Добро пожаловать, подписчик!");
+                     tg.MainButton.enable();
+                     tg.MainButton.hide();
+                     setTimeout(function() {
+                        window.location.replace(q900950b);
+                     }, 3000);
+                     //tg.MainButton.show();
+                     //window.location.href = member;
+                     //window.location.replace(q900950b);
+                     //const newurl = '/q900950b.htm';
+                     break;
+                  case 'left':
+                     tg.MainButton.setParams({"color": "#ff0000"});
+                     tg.MainButton.setText("Не подписан на канал!");
+                     tg.MainButton.enable();
+                     tg.MainButton.show();
+                     alert('⚠️ Вы еще не подписаны на наш приватный канал либо отписались от него, функционал теперь вам недоступен, пока не вернетесь в приватный канал');
+                     window.location.href = left;
+                     break;
+                  default:
+                     tg.MainButton.setParams({"color": "#ff0000"});
+                     tg.MainButton.setText("Отказано! Нет доступа!");
+                     tg.MainButton.enable();
+                     tg.MainButton.show();
+                     alert('⛔️ Вы исключены из приватного доступа и занесены в черный список, если видите данную проблему и хотите обжаловать напишите нашему администратору, если вы ничего не нарушали, значит вас вернут в приватный доступ');
+                     window.location.href = kick;
+               }
+            })
+            .catch(error => console.error('Error:', error));
 
-      switch (status) {
-         case 'creator':
-         case 'administrator':
-         case 'member':
-            setTimeout(() => window.location.replace(redirectUrl), 3000);
-            break;
-         case 'left':
-            alert('⚠️ Вы не подписаны на наш приватный канал.');
-            window.location.href = 'https://t.me/+x-5Kce_5vIU2ZjJi';
-            break;
-         default:
-            alert('⛔️ Доступ запрещен.');
-            window.location.href = 'https://t.me/+x-5Kce_5vIU2ZjJi';
-      }
-   })
-   .catch(error => alert("Ошибка: " + error.message));
+   let tg = window.Telegram.WebApp;
+   tg.expand();
+
+   Telegram.WebApp.onEvent('mainButtonClicked', function(){
+      tg.MainButton.setText("Приятного просмотра");
+      tg.sendData("some string that we need to send");
+      //const newurl = `${window.location.origin}${window.location.pathname.replace('index', 'kino')}?tg_user_id=${tg.initDataUnsafe.user.id}`;
+      const newurl = 'https://t.me/piper_pied/281'; //const newurl = `${window.location.origin}${window.location.pathname}?tgX_user_id=${tg.initDataUnsafe.user.id}`
+      //alert(newurl);
+      tg.MainButton.hide();
+      window.location.replace(newurl);
+      
+   });
 
    let usercard = document.getElementById("usercard");
-   let userInfo = tg.initDataUnsafe.user;
-   usercard.innerHTML = `<p>${userInfo?.first_name} ${userInfo?.last_name} @${userInfo?.username} (${userInfo?.language_code})</p>
-                         <p>ID: ${userInfo?.id}</p>`;
+   let profName = document.createElement('p');
+   profName.innerText = `${tg.initDataUnsafe.user.first_name} ${tg.initDataUnsafe.user.last_name} ${tg.initDataUnsafe.user.username} (${tg.initDataUnsafe.user.language_code})`;
+   usercard.appendChild(profName);
+
+   let userid = document.createElement('p');
+   userid.innerText = `${tg.initDataUnsafe.user.id}`;
+   usercard.appendChild(userid);
 </script>
 
 </html>
