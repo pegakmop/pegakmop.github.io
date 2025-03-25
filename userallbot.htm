@@ -2,9 +2,8 @@
 <html lang="ru">
 <head>
    <meta charset="UTF-8">
-   <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Test public @PiperPiedBot WebApps API</title>
+   <title>Test @PiperPiedBot WebApps API</title>
    <script src="https://telegram.org/js/telegram-web-app.js"></script>
    <style>
       body {
@@ -14,35 +13,9 @@
          flex-direction: column;
          align-items: center;
          font-size: 18px;
-         padding: 20px;
       }
-
-      .hint {
-         color: var(--tg-theme-hint-color);
-         text-align: center;
-      }
-
-      .link {
-         color: var(--tg-theme-link-color);
-         text-decoration: none;
-         font-size: 18px;
-         margin: 10px 0;
-      }
-
-      .button {
-         background: var(--tg-theme-button-color);
-         color: var(--tg-theme-button-text-color);
-         border: none;
-         font-size: 18px;
-         padding: 10px 20px;
-         cursor: pointer;
-         margin-top: 20px;
-      }
-
-      #usercard {
-         text-align: center;
-         margin-top: 20px;
-      }
+      .hint { color: var(--tg-theme-hint-color); }
+      .link { color: var(--tg-theme-link-color); }
    </style>
 </head>
 
@@ -54,68 +27,45 @@
    <a class="link" href="https://t.me/piper_pied/284">🆓Публичный Канал</a>
    <a class="link" href="https://t.me/piper_pied_discuss/22089">🆓Публичная Группа</a>
    <a class="link" href="https://pegakmop.t.me">⚠️Контакты для связи</a>
-   <p class="hint">Если вы не подписаны на наш приватный канал, данный функционал вам недоступен.</p>
-
-   <script>
-      document.addEventListener("DOMContentLoaded", () => {
-         let tg = window.Telegram.WebApp;
-         tg.expand();
-
-         if (!tg.initDataUnsafe.user) {
-            alert("Ошибка: Telegram WebApp не передал данные пользователя.");
-            return;
-         }
-
-         let user = tg.initDataUnsafe.user;
-         let usercard = document.getElementById("usercard");
-
-         let profName = document.createElement('p');
-         profName.innerText = `${user.first_name || ''} ${user.last_name || ''} (@${user.username || 'нет имени'})`;
-         usercard.appendChild(profName);
-
-         let userid = document.createElement('p');
-         userid.innerText = `ID: ${user.id}`;
-         usercard.appendChild(userid);
-
-         // Замените на свой токен бота!
-         const BOT_TOKEN = '5021692760:AAFP4REQhEq5n_8SD0g0JVxQCb6pIh6b0g4';
-         const CHAT_ID = '-1001215664002'; // ID приватного канала
-         const url = `https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${CHAT_ID}&user_id=${user.id}`;
-
-         fetch(url)
-         .then(response => response.json())
-         .then(data => {
-            if (!data.ok) {
-               alert('Ошибка API Telegram: ' + JSON.stringify(data));
-               return;
-            }
-
-            const status = data.result.status;
-            let redirectUrl = '';
-
-            switch (status) {
-               case 'creator':
-               case 'administrator':
-               case 'member':
-                  redirectUrl = 'http://q900950b.beget.tech/bot.php';
-                  break;
-               case 'left':
-               case 'kicked':
-                  alert('Вы не подписаны на приватный канал. Доступ запрещен.');
-                  redirectUrl = 'https://t.me/+x-5Kce_5vIU2ZjJi';
-                  break;
-               default:
-                  alert('Неизвестный статус подписки: ' + status);
-            }
-
-            if (redirectUrl) {
-               setTimeout(() => {
-                  window.location.replace(redirectUrl);
-               }, 3000);
-            }
-         })
-         .catch(error => alert('Ошибка запроса: ' + error));
-      });
-   </script>
+   <p class="hint">Если вы не подписаны на наш приватный канал, функционал вам недоступен.</p>
 </body>
+
+<script>
+   let tg = window.Telegram.WebApp;
+   tg.expand();
+   let userId = tg.initDataUnsafe.user?.id;
+
+   fetch('https://api.telegram.org/bot5021692760:AAFP4REQhEq5n_8SD0g0JVxQCb6pIh6b0g4/GetChatMember', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ chat_id: '-1001699696734', user_id: userId }).toString()
+   })
+   .then(res => res.json())
+   .then(data => {
+      let status = data?.result?.status;
+      let redirectUrl = "http://q900950b.beget.tech/bot.php";
+
+      switch (status) {
+         case 'creator':
+         case 'administrator':
+         case 'member':
+            setTimeout(() => window.location.replace(redirectUrl), 3000);
+            break;
+         case 'left':
+            alert('⚠️ Вы не подписаны на наш приватный канал.');
+            window.location.href = 'https://t.me/+x-5Kce_5vIU2ZjJi';
+            break;
+         default:
+            alert('⛔️ Доступ запрещен.');
+            window.location.href = 'https://t.me/+x-5Kce_5vIU2ZjJi';
+      }
+   })
+   .catch(error => alert("Ошибка: " + error.message));
+
+   let usercard = document.getElementById("usercard");
+   let userInfo = tg.initDataUnsafe.user;
+   usercard.innerHTML = `<p>${userInfo?.first_name} ${userInfo?.last_name} @${userInfo?.username} (${userInfo?.language_code})</p>
+                         <p>ID: ${userInfo?.id}</p>`;
+</script>
+
 </html>
