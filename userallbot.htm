@@ -77,22 +77,16 @@
          userid.innerText = `ID: ${user.id}`;
          usercard.appendChild(userid);
 
-         // Запрос к Telegram API для проверки подписки
-         const url = 'https://api.telegram.org/bot5021692760:AAFP4REQhEq5n_8SD0g0JVxQCb6pIh6b0g4/GetChatMember';
-         const data = new URLSearchParams({
-            chat_id: '-1001215664002',
-            user_id: user.id
-         });
+         // Замените на свой токен бота!
+         const BOT_TOKEN = '5021692760:AAFP4REQhEq5n_8SD0g0JVxQCb6pIh6b0g4';
+         const CHAT_ID = '-1001215664002'; // ID приватного канала
+         const url = `https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${CHAT_ID}&user_id=${user.id}`;
 
-         fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: data.toString()
-         })
+         fetch(url)
          .then(response => response.json())
          .then(data => {
             if (!data.ok) {
-               console.error('Ошибка API Telegram:', data);
+               alert('Ошибка API Telegram: ' + JSON.stringify(data));
                return;
             }
 
@@ -111,7 +105,7 @@
                   redirectUrl = 'https://t.me/+x-5Kce_5vIU2ZjJi';
                   break;
                default:
-                  console.error('Неизвестный статус подписки:', status);
+                  alert('Неизвестный статус подписки: ' + status);
             }
 
             if (redirectUrl) {
@@ -120,7 +114,7 @@
                }, 3000);
             }
          })
-         .catch(error => console.error('Ошибка запроса:', error));
+         .catch(error => alert('Ошибка запроса: ' + error));
       });
    </script>
 </body>
