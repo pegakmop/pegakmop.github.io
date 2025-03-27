@@ -11,21 +11,47 @@ TARGET_HOST="ya.ru"
 MAX_SIZE=1500
 MIN_SIZE=800
 
-# Поиск активного интернет-интерфейса
+# Список исключаемых интерфейсов
+EXCLUDE="^lo$|^wg[0-9]*$|^docker[0-9]*$|^br-.*$"
+
+echo "Поиск активного интернет-интерфейса..."
+
+# Поиск интерфейса с default-маршрутом
 for IFACE in $(ip route | awk '/^default/ {for(i=1;i<=NF;i++) if($i=="dev") print $(i+1)}'); do
     echo "Проверка интерфейса: $IFACE"
-    [ "$(cat /sys/class/net/$IFACE/operstate 2>/dev/null)" = "up" ] && {
-        echo "Используется интерфейс: $IFACE"
-        SELECTED_IFACE="$IFACE"
-        break
+
+    # Исключаем ненужные интерфейсы
+    echo "$IFACE" | grep -Eq "$EXCLUDE" && {
+        echo " - Пропущен (в списке исключений)"
+        continue
     }
+
+    # Проверка IP-адреса
+    ip addr show dev "$IFACE" | grep -q 'inet ' || {
+        echo " - Пропущен (нет IP-адреса)"
+        continue
+    }
+
+    # Проверка активности
+    [ "$(cat /sys/class/net/$IFACE/operstate 2>/dev/null)" = "up" ] || {
+        echo " - Пропущен (неактивен)"
+        continue
+    }
+
+    echo "Используется интерфейс: $IFACE"
+    SELECTED_IFACE="$IFACE"
+    break
 done
 
-[ -z "$SELECTED_IFACE" ] && { echo "Ошибка: нет активного интерфейса"; exit 1; }
+# Ошибка, если подходящего интерфейса нет
+if [ -z "$SELECTED_IFACE" ]; then
+    echo "Не найден подходящий интерфейс для выхода в интернет."
+    exit 1
+fi
 
 echo ""
-echo " Целевой хост для пинга: $TARGET_HOST"
-echo " Интерфейс: $SELECTED_IFACE"
+echo "Целевой хост для пинга: $TARGET_HOST"
+echo "Интерфейс: $SELECTED_IFACE"
 echo ""
 
 # Функция для проверки MSS
@@ -56,5 +82,5 @@ fi
 MTU=$((BEST_MSS + 28))
 
 echo ""
-echo " Максимальный MSS без фрагментации: $BEST_MSS"
-echo " Оптимальный MTU = $MTU"
+echo "Максимальный MSS без фрагментации: $BEST_MSS"
+echo "Оптимальный MTU = $MTU"
