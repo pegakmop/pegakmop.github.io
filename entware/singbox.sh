@@ -129,16 +129,16 @@ chmod +x /opt/etc/ndm/netfilter.d/020-sing-box.sh
 
 echo "Запуск скрипта фаервола"
 /opt/etc/ndm/netfilter.d/020-sing-box.sh
-
+sleep 3
 echo "Перезапуск службы sing-box"
 /opt/etc/init.d/S99sing-box restart
-
+sleep 20
 echo "Проверка состояния службы"
 /opt/etc/init.d/S99sing-box check
-
+sleep 3
 echo "Проверка iptables"
 iptables-save | grep tun+
-
+sleep 3
 echo "Проверка через curl"
 curl --interface tun0 ifconfig.me
 
