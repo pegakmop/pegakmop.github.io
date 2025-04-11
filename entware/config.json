@@ -1,0 +1,38 @@
+{
+  "experimental": {
+    "cache_file": {
+      "enabled": true
+    },
+    "clash_api": {
+      "external_controller": "вписать_адрес_роутера:9090",
+      "external_ui": "ui",
+      "access_control_allow_private_network": true
+    }
+  },
+  "log": {
+    "level": "debug"
+  },
+  "inbounds": [
+    {
+      "type": "tun",
+      "interface_name": "tun0",
+      "domain_strategy": "ipv4_only",
+      "address": "172.16.250.1/30",
+      "auto_route": false,
+      "strict_route": false,
+      "sniff": true
+   }, 
+   {
+      "type": "mixed",
+      "tag": "mixed-in",
+      "listen": "0.0.0.0",
+      "listen_port": 1080
+    }
+  ],
+  "outbounds": [
+    
+  ],
+  "route": {
+    "auto_detect_interface": false
+  }
+}
