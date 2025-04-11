@@ -1,0 +1,73 @@
+{
+  "experimental": {
+    "cache_file": {
+      "enabled": true
+    },
+    "clash_api": {
+      "external_controller": "192.168.1.1:9090",
+      "external_ui": "ui",
+      "access_control_allow_private_network": true
+    }
+  },
+  "log": {
+    "level": "debug"
+  },
+  "inbounds": [
+    {
+      "type": "tun",
+      "interface_name": "tun0",
+      "domain_strategy": "ipv4_only",
+      "address": "172.16.250.1/30",
+      "auto_route": true,
+      "strict_route": false,
+      "sniff": true
+    },
+    {
+      "type": "mixed",
+      "tag": "mixed-in",
+      "listen": "0.0.0.0",
+      "listen_port": 1080
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "selector",
+      "tag": "select",
+      "outbounds": [
+        "test server"
+      ],
+      "default": "test server",
+      "interrupt_exist_connections": false
+    },
+    {
+      "type": "vless",
+      "tag": "test server",
+      "server": "en.nattyzwerg.org",
+      "server_port": 443,
+      "uuid": "65c395b9-a287-4249-b9db-c4ccfbfbc356",
+      "packet_encoding": "xudp",
+      "tls": {
+        "enabled": true,
+        "server_name": "compucalitv.com",
+        "insecure": false,
+        "utls": {
+          "enabled": true,
+          "fingerprint": "chrome"
+        }
+      },
+      "transport": {
+        "type": "ws",
+        "path": "/"
+      }
+    }
+  ],
+  "route": {
+    "auto_detect_interface": false,
+    "rules": [
+      {
+        "inbound": ["tun"],
+        "outbound": "select"
+      }
+    ]
+  }
+}
