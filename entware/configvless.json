@@ -1,0 +1,117 @@
+{
+  "experimental": {
+    "cache_file": {
+      "enabled": true
+    },
+    "clash_api": {
+      "external_controller": "192.168.1.1:9090",
+      "external_ui": "ui",
+      "access_control_allow_private_network": true
+    }
+  },
+  "log": {
+    "level": "debug"
+  },
+  "inbounds": [
+    {
+      "type": "tun",
+      "interface_name": "tun0",
+      "domain_strategy": "ipv4_only",
+      "address": "172.16.250.1/30",
+      "auto_route": true,
+      "strict_route": false,
+      "sniff": true
+    },
+    {
+      "type": "mixed",
+      "tag": "mixed-in",
+      "listen": "0.0.0.0",
+      "listen_port": 1080
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "selector",
+      "tag": "select",
+      "outbounds": [
+        "Telegram_VlessConfig_FR",
+        "Telegram_VlessConfig_DE",
+        "Telegram_VlessConfig_SE"
+      ],
+      "default": "Telegram_VlessConfig_FR",
+      "interrupt_exist_connections": false
+    },
+    {
+      "type": "vless",
+      "tag": "Telegram_VlessConfig_FR",
+      "server": "15.236.34.176",
+      "server_port": 22222,
+      "uuid": "05519058-d2ac-4f28-9e4a-2b2a1386749e",
+      "packet_encoding": "xudp",
+      "tls": {
+        "enabled": true,
+        "server_name": "telegram-channel-vlessconfig.sohala.uk",
+        "insecure": false,
+        "utls": {
+          "enabled": true,
+          "fingerprint": "chrome"
+        }
+      },
+      "transport": {
+        "type": "ws",
+        "path": "/telegram-channel-vlessconfig-ws"
+      }
+    },
+    {
+      "type": "vless",
+      "tag": "Telegram_VlessConfig_DE",
+      "server": "18.198.52.153",
+      "server_port": 22222,
+      "uuid": "05519058-d2ac-4f28-9e4a-2b2a1386749e",
+      "packet_encoding": "xudp",
+      "tls": {
+        "enabled": true,
+        "server_name": "telegram-channel-vlessconfig.sohala.uk",
+        "insecure": false,
+        "utls": {
+          "enabled": true,
+          "fingerprint": "chrome"
+        }
+      },
+      "transport": {
+        "type": "ws",
+        "path": "/telegram-channel-vlessconfig-ws"
+      }
+    },
+    {
+      "type": "vless",
+      "tag": "Telegram_VlessConfig_SE",
+      "server": "13.61.83.154",
+      "server_port": 22222,
+      "uuid": "05519058-d2ac-4f28-9e4a-2b2a1386749e",
+      "packet_encoding": "xudp",
+      "tls": {
+        "enabled": true,
+        "server_name": "telegram-channel-vlessconfig.sohala.uk",
+        "insecure": false,
+        "utls": {
+          "enabled": true,
+          "fingerprint": "chrome"
+        }
+      },
+      "transport": {
+        "type": "ws",
+        "path": "/telegram-channel-vlessconfig-ws"
+      }
+    }
+  ],
+  "route": {
+    "auto_detect_interface": false,
+    "rules": [
+      {
+        "inbound": ["tun"],
+        "outbound": "select"
+      }
+    ]
+  }
+}
