@@ -1,9 +1,9 @@
 {
-  "name": "wПегий Дудочник®️ от @Piper_Pied",
-  "short_name": "wДудочник®️",
+  "name": "Пегий Дудочник®️ от @Piper_Pied",
+  "short_name": "Дудочник®️",
   "description": "PWA apps от нашего сайта для просмотра фильмов и сериалов",
   "lang": "ru",
-  "start_url": "/index2",
+  "start_url": "/login",
   "scope": "/",
   "display": "fullscreen",
   "theme_color": "#000000",
