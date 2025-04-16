@@ -2,7 +2,7 @@
 var doCache = true;
 
 // Имя кэша
-var CACHE_NAME = 'my-pwa-cache-v2';
+var CACHE_NAME = 'pegakmop';
 
 // Очищает старый кэш
 self.addEventListener('activate', event => {
@@ -34,7 +34,7 @@ self.addEventListener('install', function(event) {
                        .then(assets => {
                        // Открываем и кэшируем нужные страницы и файлы
                            const urlsToCache = [
-                               '/',
+                               '/black.png',
                                '/180x180.png',
                            ]
                            cache.addAll(urlsToCache)
