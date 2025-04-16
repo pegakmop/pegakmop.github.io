@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        let tg=window.Telegram.WebApp;
+        tg.expand();
+    </script>
+    <meta charset='UTF-8'>
+    <meta http-equiv='X-UA-Compatible'content='IE=edge'>
+    <meta name='viewport'content='width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no'>
+    <!-- Иконки для PWA и WebClip -->
+<link rel="apple-touch-icon" sizes="180x180" href="/180x180.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="shortcut icon" href="/favicon.ico">
+
+<!-- Windows Tiles -->
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-config" content="/browserconfig.xml">
+
+<!-- Цветовая тема -->
+<meta name="theme-color" content="#ffffff">
+
+<!-- Политика реферера -->
+<meta name="referrer" content="no-referrer">
+
+    <title>Личный кабинет</title>
+    <style>
+        body{
+            font-family:Arial,sans-serif;
+            background-color:#f4f4f4;
+            margin:0;
+            padding:20px;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+        }
+        .container{
+            width:500px;
+            background-color:#fff;
+            padding:40px;
+            border-radius:5px;
+            box-shadow:0 0 10px rgba(0,0,0,0.1);
+        }
+        h2{
+            color:#333;
+            text-align:center;
+        }
+        form{
+            margin-bottom:30px;
+        }
+        input[type="text"],
+        input[type="password"]{
+            width:100%;
+            padding:15px;
+            margin:10px 0;
+            border:1px solid #ccc;
+            border-radius:5px;
+            font-size:16px;
+        }
+        button{
+            background-color:#5cb85c;
+            color:white;
+            padding:15px;
+            border:none;
+            border-radius:5px;
+            cursor:pointer;
+            width:100%;
+            font-size:16px;
+        }
+        button:hover{
+            background-color:#4cae4c;
+        }
+        .message{
+            padding:15px;
+            border-radius:5px;
+            text-align:center;
+            font-size:16px;
+            margin-bottom:15px;
+        }
+        .message-success{
+            background-color:#dff0d8;
+            color:#3c763d;
+        }
+        .message-error{
+            background-color:#f2dede;
+            color:#a94442;
+        }
+        .message-warning{
+            background-color:#fcf8e3;
+            color:#8a6d3b;
+        }
+        .welcome{
+            font-size:20px;
+            margin-bottom:30px;
+            text-align:center;
+            background-color:#f8f8f8;
+            padding:20px;
+            border-radius:5px;
+            box-shadow:0 2px 5px rgba(0,0,0,0.1);
+        }
+        .welcome h2{
+            color:#333;
+            margin-bottom:10px;
+        }
+        .welcome p{
+            color:#666;
+            margin-bottom:20px;
+        }
+        .welcome a{
+            display:inline-block;
+            background-color:#5cb85c;
+            color:white;
+            padding:10px 20px;
+            border-radius:5px;
+            text-decoration:none;
+            font-size:16px;
+            margin:5px 0;
+            transition:background-color 0.3s;
+        }
+        .welcome a:hover{
+            background-color:#4cae4c;
+        }
+        .device-list {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .device {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+	<script>
+	        document.addEventListener('DOMContentLoaded', () => {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+            const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) && !navigator.standalone;
+            const isAndroid = /Android/.test(navigator.userAgent);
+
+            // Показ баннера для iOS
+            if (isIOS && !isStandalone) {
+                const banner = `<div style="position:fixed;bottom:0;width:calc(100% - 1vw);background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;margin:0 1px 1px 1px;">
+                    <span>Установи приложение на iPhone/iPad: </br>Нажми <img src="/ios-share.svg" style="height:20px;vertical-align:middle;" alt="Поделиться">, а затем <img src="/ios-add.svg" style="height:20px;vertical-align:middle;" alt="Добавить"> На экран "Домой"</br></span>
+                    <button style="float:center;" onclick="this.parentElement.style.display='none'">Закрыть уведомление</button>
+                </div>`;
+                document.body.insertAdjacentHTML('beforeend', banner);
+            }
+
+            // Показ баннера для Android
+            if (isAndroid && !isStandalone) {
+                let deferredPrompt;
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                    const banner = `<div style="position:fixed;bottom:0;width:calc(100% - 2px);background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;">
+                        <span>Добавить приложение на домашний экран для быстрого доступа</span>
+                        <button onclick="deferredPrompt.prompt();deferredPrompt.userChoice.then(choiceResult => { if (choiceResult.outcome === 'accepted') console.log('User accepted the A2HS prompt'); deferredPrompt = null; });">Установить</button>
+                        <button style="float:right;" onclick="this.parentElement.style.display='none'">Закрыть уведомление</button>
+                    </div>`;
+                    document.body.insertAdjacentHTML('beforeend', banner);
+                });
+            }
+
+            // Показ баннера для ПК
+            if (!isStandalone && !isIOS && !isAndroid) {
+                let deferredPrompt;
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                    const banner = `<div style="position:fixed;bottom:0;width:calc(100% - 2px);background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;">
+                        <span>Добавить приложение на домашний экран для быстрого доступа</span>
+                        <button onclick="deferredPrompt.prompt();deferredPrompt.userChoice.then(choiceResult => { if (choiceResult.outcome === 'accepted') console.log('User accepted the A2HS prompt'); deferredPrompt = null; });">Установить</button>
+                        <button style="float:right;" onclick="this.parentElement.style.display='none'">Закрыть</button>
+                    </div>`;
+                    document.body.insertAdjacentHTML('beforeend', banner);
+                });
+            }
+        });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./index.js').then(reg => console.log('ServiceWorker registered:', reg.scope)).catch(err => console.log('ServiceWorker registration failed:', err));
+            });
+        }
+	</script>
+</head>
+<body>
+    <form action="http://q900950b.beget.tech" method="POST">
+        <input type="text" name="username" placeholder="email пользователя" required><br><br>
+        <input type="password" name="password" placeholder="Пароль" required><br><br>
+        <button type="submit" name="login">Авторизоваться</button>
+    </form>
+</body>
+</html>
