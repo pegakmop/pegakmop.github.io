@@ -16,7 +16,6 @@ if ($id) {
     if ($response !== FALSE) {
         $data = json_decode($response, true);
 
-        // Собираем ВСЕ доступные iframeUrl
         foreach ($data as $item) {
             if (isset($item['iframeUrl'])) {
                 $iframeUrls[] = $item['iframeUrl'];
@@ -41,18 +40,25 @@ echo '</head>';
 echo '<body>';
 
 if (!empty($iframeUrls)) {
-    // Выводим кнопку и iframe
-    echo '<button onclick="nextPlayer()">Следующий доступный плеер</button>';
+    echo '<button onclick="nextPlayer()">сменить на другой доступный плеер</button>';
     echo '<iframe id="playerFrame" src="' . htmlspecialchars($iframeUrls[0]) . '" allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen seamless></iframe>';
 
-    // Выводим массив iframeUrl в JavaScript
     echo '<script>';
     echo 'var iframeUrls = ' . json_encode($iframeUrls) . ';';
     echo 'var current = 0;';
+    echo 'var playerFrame = document.getElementById("playerFrame");';
+
     echo 'function nextPlayer() {';
     echo '    current = (current + 1) % iframeUrls.length;';
-    echo '    document.getElementById("playerFrame").src = iframeUrls[current];';
+    echo '    playerFrame.src = iframeUrls[current];';
     echo '}';
+
+    // Автоматическая смена плеера при ошибке загрузки
+    echo 'playerFrame.onerror = function() {';
+    echo '    console.log("Ошибка загрузки плеера. Переключаемся на следующий.");';
+    echo '    nextPlayer();';
+    echo '};';
+
     echo '</script>';
 } else {
     echo '<p>Ошибка: фильм или сериал не найден.</p>';
