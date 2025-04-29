@@ -4,6 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Форматтер доменов для HydraRoute</title>
+      <!-- Основные иконки для платформ -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+    <link rel="manifest" href="/entware/domain.json">
+    
+    <!-- Цвет для Android и Windows -->
+    <meta name="theme-color" content="#000000">
+    <meta name="msapplication-TileColor" content="#000000">
+    <meta name="msapplication-TileImage" content="icons/ms-icon-144x144.png">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -95,7 +105,58 @@ cdn.discordapp.com
       <button onclick="copyToClipboard()">Скопировать результат</button>
     </div>
   </div>
+<script>
+          document.addEventListener('DOMContentLoaded', () => {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+            const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) && !navigator.standalone;
+            const isAndroid = /Android/.test(navigator.userAgent);
 
+            // Показ баннера для iOS
+            if (isIOS && !isStandalone) {
+                const banner = `<div style="position:fixed;bottom:0;width:100%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;">
+                    <span>Установи приложение на свой iPhone/iPad: нажми <img src="/ios-share.svg" style="height:20px;vertical-align:middle;" alt="Поделиться">, а затем <img src="/ios-add.svg" style="height:20px;vertical-align:middle;" alt="Добавить"> На экран "Домой"</span>
+                    <button style="float:center;" onclick="this.parentElement.style.display='none'">Закрыть уведомление об установке приложения</button> </br>
+                </div>`;
+                document.body.insertAdjacentHTML('beforeend', banner);
+            }
+
+            // Показ баннера для Android
+            if (isAndroid && !isStandalone) {
+                let deferredPrompt;
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                    const banner = `<div style="position:fixed;bottom:0;width:100%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;">
+                        <span>Добавить приложение на домашний экран для быстрого доступа</span>
+                        <button onclick="deferredPrompt.prompt();deferredPrompt.userChoice.then(choiceResult => { if (choiceResult.outcome === 'accepted') console.log('User accepted the A2HS prompt'); deferredPrompt = null; });">Установить</button>
+                        <button style="float:right;" onclick="this.parentElement.style.display='none'">Закрыть</button>
+                    </div>`;
+                    document.body.insertAdjacentHTML('beforeend', banner);
+                });
+            }
+
+            // Показ баннера для ПК
+            if (!isStandalone && !isIOS && !isAndroid) {
+                let deferredPrompt;
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                    const banner = `<div style="position:fixed;bottom:0;width:100%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;">
+                        <span>Добавить приложение на домашний экран для быстрого доступа</span>
+                        <button onclick="deferredPrompt.prompt();deferredPrompt.userChoice.then(choiceResult => { if (choiceResult.outcome === 'accepted') console.log('User accepted the A2HS prompt'); deferredPrompt = null; });">Установить</button>
+                        <button style="float:right;" onclick="this.parentElement.style.display='none'">Закрыть</button>
+                    </div>`;
+                    document.body.insertAdjacentHTML('beforeend', banner);
+                });
+            }
+        });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./index.js').then(reg => console.log('ServiceWorker registered:', reg.scope)).catch(err => console.log('ServiceWorker registration failed:', err));
+            });
+        }
+</script>
 <script>
   function convertDomains() {
     const input = document.getElementById('domainInput').value;
