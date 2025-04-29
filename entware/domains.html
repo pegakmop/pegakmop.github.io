@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Форматтер доменов для HydraRoute</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 0;
+      background-color: #f4f6f9;
+      color: #333;
+    }
+
+    h2, h3 {
+      text-align: center;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+      resize: vertical;
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    button {
+      padding: 10px 15px;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    @media (max-width: 600px) {
+      textarea {
+        font-size: 0.9em;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Форматирование списка доменов</h2>
+    <p>Вставьте список доменов по одному в строке или загрузите файл.</p>
+    
+    <textarea id="domainInput" rows="10" placeholder="Пример:
+discord.com
+cdn.discordapp.com
+..."></textarea>
+
+    <div class="button-group">
+      <button onclick="convertDomains()">Преобразовать</button>
+      <button onclick="loadFromFile()">Загрузить из файла</button>
+    </div>
+
+    <h3>Результат:</h3>
+    <textarea id="output" rows="6" readonly placeholder="Здесь появится результат..."></textarea>
+
+    <div class="button-group">
+      <button onclick="copyToClipboard()">Скопировать результат</button>
+    </div>
+  </div>
+
+  <script>
+    function convertDomains() {
+      const input = document.getElementById('domainInput').value;
+      const domains = input
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(Boolean);
+
+      const result = domains.join(',') + '/pegakmop';
+      document.getElementById('output').value = result;
+    }
+
+    function loadFromFile() {
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = '.txt';
+
+      fileInput.onchange = (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+          const content = event.target.result.trim();
+          document.getElementById('domainInput').value = content;
+          alert("Список загружен. Немного подождите, изменяю структуру списков доменов под hydraroute...");
+        };
+
+        reader.readAsText(file, 'UTF-8');
+      };
+
+      fileInput.click();
+    }
+
+    function copyToClipboard() {
+      const output = document.getElementById('output');
+      output.select();
+      output.setSelectionRange(0, 99999); // для мобильных
+      navigator.clipboard.writeText(output.value)
+        .then(() => alert("Результат скопирован в буфер обмена!"))
+        .catch(err => alert("Ошибка копирования: " + err));
+    }
+  </script>
+</body>
+</html>
