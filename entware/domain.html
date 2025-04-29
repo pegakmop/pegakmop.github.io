@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Форматирование доменов под HydraRoute</title>
+</head>
+<body>
+  <h2>Введите список доменов (по одному в строке):</h2>
+  <textarea id="domainInput" rows="15" cols="50" placeholder="Например:&#10;discord.app&#10;cdn.discordapp.com"></textarea>
+  <br><br>
+  <button onclick="convertDomains()">Преобразовать</button>
+  <button onclick="loadFromFile()">Загрузить из domain.txt</button>
+  <br><br>
+  <h3>Результат:</h3>
+  <textarea id="output" rows="10" cols="80" readonly></textarea>
+
+  <script>
+    function convertDomains() {
+      const input = document.getElementById('domainInput').value;
+      const domains = input
+        .split(/\s+/)
+        .filter(Boolean);
+      const result = domains.join(',') + '/pegakmop';
+      document.getElementById('output').value = result;
+    }
+
+    function loadFromFile() {
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = '.txt';
+
+      fileInput.onchange = (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          document.getElementById('domainInput').value = event.target.result;
+        };
+        reader.readAsText(file);
+      };
+
+      fileInput.click();
+    }
+  </script>
+</body>
+</html>
