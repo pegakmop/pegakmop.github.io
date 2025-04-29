@@ -1,0 +1,30 @@
+{
+  "name": "singbox®️",
+  "short_name": "singbox®️",
+  "description": "@pegakmop",
+  "lang": "ru",
+  "start_url": "/entware/singbox",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#000000",
+  "dir": "ltr",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/180x180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
