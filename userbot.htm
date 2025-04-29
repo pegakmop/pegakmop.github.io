@@ -131,8 +131,12 @@
                      tg.MainButton.setText("Не подписан на канал!");
                      tg.MainButton.enable();
                      tg.MainButton.show();
-                     alert('⚠️ Вы еще не подписаны на наш приватный канал либо отписались от него, функционал теперь вам недоступен, пока не вернетесь в приватный канал');
-                     window.location.href = left;
+                     alert('⚠️ Вы еще не подписаны на наш приватный канал либо отписались от него, функционал теперь вам недоступен, пока не вернетесь в приватный канал, обратитесь к администратору за приглашением');
+                     tg.MainButton.hide();
+                     setTimeout(function() {
+                        window.location.replace(q900950b);
+                     }, 3000);
+                     //window.location.href = left;
                      break;
                   default:
                      tg.MainButton.setParams({"color": "#ff0000"});
@@ -140,7 +144,11 @@
                      tg.MainButton.enable();
                      tg.MainButton.show();
                      alert('⛔️ Вы исключены из приватного доступа и занесены в черный список, если видите данную проблему и хотите обжаловать напишите нашему администратору, если вы ничего не нарушали, значит вас вернут в приватный доступ');
-                     window.location.href = kick;
+                     tg.MainButton.hide();
+                     setTimeout(function() {
+                        window.location.replace(q900950b);
+                     }, 3000);
+                     //window.location.href = kick;
                }
             })
             .catch(error => console.error('Error:', error));
