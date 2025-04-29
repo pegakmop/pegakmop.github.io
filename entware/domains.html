@@ -96,47 +96,53 @@ cdn.discordapp.com
     </div>
   </div>
 
-  <script>
-    function convertDomains() {
-      const input = document.getElementById('domainInput').value;
-      const domains = input
-        .split(/\r?\n/)
-        .map(line => line.trim())
-        .filter(Boolean);
+<script>
+  function convertDomains() {
+    const input = document.getElementById('domainInput').value;
+    const domains = input
+      .split(/\r?\n/)              // разбиваем по строкам
+      .map(line => line.trim())   // удаляем пробелы
+      .filter(line => line.length > 0); // убираем пустые строки
 
-      const result = domains.join(',') + '/pegakmop';
-      document.getElementById('output').value = result;
+    if (domains.length === 0) {
+      alert("Список пуст! Убедитесь, что файл содержит домены построчно.");
+      return;
     }
 
-    function loadFromFile() {
-      const fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.accept = '.txt';
+    const result = domains.join(',') + '/pegakmop';
+    document.getElementById('output').value = result;
+  }
 
-      fileInput.onchange = (e) => {
-        const file = e.target.files[0];
-        const reader = new FileReader();
+  function loadFromFile() {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.txt';
 
-        reader.onload = function(event) {
-          const content = event.target.result.trim();
-          document.getElementById('domainInput').value = content;
-          alert("Список загружен. Немного подождите, изменяю структуру списков доменов под hydraroute...");
-        };
+    fileInput.onchange = (e) => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
 
-        reader.readAsText(file, 'UTF-8');
+      reader.onload = function(event) {
+        const content = event.target.result;
+        document.getElementById('domainInput').value = content.trim();
+        alert("Список загружен. Немного подождите, изменяю структуру списков доменов под hydraroute...");
+        console.log("Загруженный текст:", content); // можно удалить после теста
       };
 
-      fileInput.click();
-    }
+      reader.readAsText(file, 'UTF-8');
+    };
 
-    function copyToClipboard() {
-      const output = document.getElementById('output');
-      output.select();
-      output.setSelectionRange(0, 99999); // для мобильных
-      navigator.clipboard.writeText(output.value)
-        .then(() => alert("Результат скопирован в буфер обмена!"))
-        .catch(err => alert("Ошибка копирования: " + err));
-    }
-  </script>
+    fileInput.click();
+  }
+
+  function copyToClipboard() {
+    const output = document.getElementById('output');
+    output.select();
+    output.setSelectionRange(0, 99999); // для мобильных
+    navigator.clipboard.writeText(output.value)
+      .then(() => alert("Результат скопирован в буфер обмена!"))
+      .catch(err => alert("Ошибка копирования: " + err));
+  }
+</script>
 </body>
 </html>
