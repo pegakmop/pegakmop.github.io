@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Singbox Tun Config Generator</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+  <style>
+    /* Глобальный box-sizing */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    /* Переменные тем */
+    body {
+      --bg-color: #f9f9f9;
+      --text-color: #333;
+      --border-color: #ccc;
+      --card-bg: #fff;
+      --button-bg: #007BFF;
+      --button-text: #fff;
+
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      transition: background-color 0.3s, color 0.3s;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+
+    body.dark-theme {
+      --bg-color: #1e1e1e;
+      --text-color: #c9d1d9;
+      --border-color: #555;
+      --card-bg: #282c34;
+      --button-bg: #444;
+      --button-text: #fff;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background-color: var(--button-bg);
+      color: var(--button-text);
+      border: none;
+      border-radius: 20px;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: opacity 0.3s;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .link-field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      transition: border-color 0.3s;
+    }
+
+    .config-display {
+      border: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 10px;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+
+    .trash-btn {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      background-color: var(--button-bg);
+      color: var(--button-text);
+      transition: opacity 0.3s;
+    }
+
+    .trash-btn:hover {
+      opacity: 0.9;
+    }
+
+    #warnings {
+      color: #ff6b6b;
+      margin-top: 10px;
+    }
+
+    #theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      background-color: var(--button-bg);
+      color: var(--button-text);
+      border: none;
+      cursor: pointer;
+      z-index: 1000;
+    }
+
+    @media (min-width: 600px) {
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+    }
+
+    .config-display pre {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      border: none;
+    }
+
+    .config-display code {
+      display: block;
+      padding: 10px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <div class="container">
+    <h1>Singbox Tun Config Generator</h1>
+
+    <!-- Кнопки управления -->
+    <div class="controls">
+      <button onclick="addLinkField()">Добавить</button>
+      <button onclick="showUploadDialog()">Загрузить</button>
+      <button onclick="generateConfig()">Сгенерировать</button>
+      <button onclick="saveConfig()">Сохранить</button>
+    </div>
+
+    <!-- Скрытый элемент для загрузки файла -->
+    <input type="file" id="jsonFileInput" accept=".json" style="display:none;">
+
+    <!-- Контейнер для полей ввода ссылок -->
+    <div id="linkFieldsContainer"></div>
+
+    <!-- Единая область отображения конфига -->
+    <div id="configDisplay" class="config-display" style="display: none;">
+      <pre><code id="output" class="language-json"></code></pre>
+    </div>
+
+    <!-- Предупреждения -->
+    <div id="warnings"></div>
+  </div>
+
+  <!-- Кнопка переключения темы -->
+  <button id="theme-toggle" onclick="toggleTheme()">🌓</button>
+
+  <!-- Подключение highlight.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+
+  <script>
+    // Глобальные переменные
+    let config = {};
+    let loadedConfig = null;
+    let linkFields = [];
+
+    function resizeOutputContainer() {
+      const container = document.getElementById('configDisplay');
+      if (!container || !container.style.display || container.style.display === 'none') return;
+
+      requestAnimationFrame(() => {
+        container.style.height = 'auto';
+        container.style.height = Math.min(container.scrollHeight, 600) + 'px';
+      });
+    }
+
+    function addLinkField() {
+      // Очистка отображения загруженного конфига
+      document.getElementById('configDisplay').style.display = 'none';
+      
+      // Создаем контейнер для нового поля
+      const container = document.createElement('div');
+      container.className = 'link-field';
+
+      // Создаем поле ввода
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = 'vless://...';
+
+      // Создаем кнопку удаления
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'trash-btn';
+      deleteBtn.innerHTML = '🗑️';
+      deleteBtn.title = 'Удалить ссылку';
+      deleteBtn.addEventListener('click', () => {
+        // Удаляем поле из DOM и из массива
+        container.remove();
+        linkFields = linkFields.filter(field => field !== input);
+        
+        // Если удалили последнее поле и есть загруженный конфиг - показываем его
+        if (linkFields.length === 0 && loadedConfig) {
+          showLoadedConfig();
+        }
+      });
+
+      // Добавляем элементы в контейнер
+      container.appendChild(input);
+      container.appendChild(deleteBtn);
+      
+      // Добавляем контейнер в форму
+      document.getElementById('linkFieldsContainer').appendChild(container);
+      
+      // Добавляем поле в массив
+      linkFields.push(input);
+    }
+
+    function showUploadDialog() {
+      document.getElementById('jsonFileInput').click();
+    }
+
+    document.getElementById('jsonFileInput').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          loadedConfig = JSON.parse(e.target.result);
+          
+          // Очищаем поля ввода ссылок
+          document.getElementById('linkFieldsContainer').innerHTML = '';
+          linkFields = [];
+          
+          // Отображаем содержимое загруженного конфига в общем окне
+          const output = document.getElementById('output');
+          output.textContent = JSON.stringify(loadedConfig, null, 2);
+          hljs.highlightElement(output);
+          
+          // Показываем окно конфига
+          const configDisplay = document.getElementById('configDisplay');
+          configDisplay.style.display = 'block';
+          
+          // Адаптируем высоту
+          resizeOutputContainer();
+          
+          // Очищаем предупреждения
+          document.getElementById('warnings').innerHTML = "";
+        } catch (err) {
+          document.getElementById('warnings').innerHTML = "Ошибка парсинга JSON: " + err.message;
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    function updateRouteRules() {
+      if (!config.inbounds) return;
+      
+      let rules = [];
+      config.inbounds.forEach(inbound => {
+        if (inbound.tag === "tun-in") {
+          rules.push({ "inbound": inbound.tag, "outbound": "proxy" });
+        } else if (inbound.tag && inbound.tag.startsWith("tun-in-add")) {
+          let num = inbound.tag.slice("tun-in-add".length);
+          rules.push({ "inbound": inbound.tag, "outbound": "proxy" + num });
+        }
+      });
+      
+      config.route = {
+        "auto_detect_interface": false,
+        "rules": rules,
+        "final": "blocked"
+      };
+    }
+
+    function generateConfig() {
+      // Получаем все ссылки из полей ввода
+      const links = linkFields.map(input => input.value.trim()).filter(link => link !== "");
+      
+      // Проверяем на дубликаты
+      const uniqueLinks = [...new Set(links)];
+      
+      if (uniqueLinks.length === 0 && !loadedConfig) {
+        document.getElementById('warnings').innerHTML = "Введите хотя бы одну VLESS ссылку или загрузите конфиг";
+        return;
+      }
+      
+      // Если есть загруженный конфиг, используем его как основу
+      if (loadedConfig) {
+        config = JSON.parse(JSON.stringify(loadedConfig));
+      } else {
+        // Иначе создаем новый конфиг
+        config = {
+          "log": { "disabled": true },
+          "inbounds": [],
+          "outbounds": []
+        };
+      }
+      
+      // Обрабатываем основную ссылку
+      const regex = /vless:\/\/([^@]+)@([^:]+):(\d+)/;
+      let warnings = [];
+      let tunCount = (config.inbounds || []).filter(item => item.type === "tun").length;
+      
+      // Обрабатываем все уникальные ссылки
+      uniqueLinks.forEach(link => {
+        const match = link.match(regex);
+        if (match) {
+          const uuid = match[1];
+          const server = match[2];
+          const server_port = parseInt(match[3], 10);
+          const parsedUrl = new URL(link);
+          const params = new URLSearchParams(parsedUrl.search);
+          
+          // Проверяем порт
+          if (server_port !== 443) {
+            warnings.push(`⚠️ Для ссылки ${link} рекомендуется использовать порт 443.`);
+          }
+          
+          // Создаем outbound
+          const outbound = {
+            "type": "vless",
+            "server": server,
+            "server_port": server_port,
+            "uuid": uuid,
+            "flow": params.get("flow") || "xtls-rprx-vision",
+            "packet_encoding": "xudp",
+            "domain_strategy": "ipv4_only",
+            "tag": tunCount === 0 ? "proxy" : `proxy${tunCount}`,
+            "tls": {
+              "enabled": true,
+              "server_name": params.get("sni") || (tunCount === 0 ? server : "cloudflare.com"),
+              "utls": {
+                "enabled": true,
+                "fingerprint": params.get("fp") || "chrome"
+              },
+              "reality": {
+                "enabled": params.get("security") === "reality",
+                "public_key": params.get("pbk") || "",
+                "short_id": params.get("sid") || ""
+              }
+            }
+          };
+          
+          // Создаем inbound
+          const inbound = {
+            "type": "tun",
+            "interface_name": tunCount === 0 ? "tun0" : `tun${tunCount}`,
+            "address": [`172.19.0.${tunCount + 1}/32`],
+            "mtu": 9000,
+            "auto_route": false,
+            "strict_route": false,
+            "domain_strategy": "ipv4_only",
+            "endpoint_independent_nat": true,
+            "sniff": false,
+            "sniff_override_destination": false,
+            "stack": "gvisor",
+            "tag": tunCount === 0 ? "tun-in" : `tun-in-add${tunCount}`
+          };
+          
+          // Добавляем outbound и inbound в конфиг
+          config.outbounds.push(outbound);
+          config.inbounds.push(inbound);
+          tunCount++;
+        } else {
+          warnings.push("⚠️ Неверный формат VLESS ссылки: " + link);
+        }
+      });
+      
+      // Добавляем outbound для блокировки если его нет
+      if (!config.outbounds.some(outbound => outbound.tag === "blocked")) {
+        config.outbounds.push({
+          "type": "block",
+          "tag": "blocked"
+        });
+      }
+      
+      // Обновляем правила маршрутизации
+      updateRouteRules();
+      
+      // Отображаем предупреждения
+      if (warnings.length > 0) {
+        document.getElementById('warnings').innerHTML = warnings.join("<br>");
+      } else {
+        document.getElementById('warnings').innerHTML = "";
+      }
+      
+      // Отображаем сгенерированный конфиг
+      const output = document.getElementById('output');
+      output.textContent = JSON.stringify(config, null, 2);
+      hljs.highlightElement(output);
+      
+      // Показываем область сгенерированного конфига
+      const configDisplay = document.getElementById('configDisplay');
+      configDisplay.style.display = 'block';
+      
+      // Адаптируем высоту
+      resizeOutputContainer();
+    }
+
+    function saveConfig() {
+      if (!config) {
+        document.getElementById('warnings').innerHTML = "Нет конфига для сохранения";
+        return;
+      }
+      
+      const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'config.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('dark-theme');
+    }
+
+    function showLoadedConfig() {
+      const output = document.getElementById('output');
+      output.textContent = JSON.stringify(loadedConfig, null, 2);
+      hljs.highlightElement(output);
+      
+      const configDisplay = document.getElementById('configDisplay');
+      configDisplay.style.display = 'block';
+      
+      resizeOutputContainer();
+    }
+  </script>
+</body>
+</html>
