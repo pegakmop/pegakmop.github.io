@@ -270,7 +270,7 @@
 
     addGroupBtn.addEventListener('click', () => {
       if (!jsonData) jsonData={groups:[]}; updateDataFromDOM();
-      jsonData.groups.push({ id: generateId(), name:'', interface:'', enable:true, rules:[] }); renderGroups();
+      jsonData.groups.unshift({ id: generateId(), name:'', interface:'', enable:true, rules:[] }); renderGroups();
     });
 
     saveBtn.addEventListener('click', () => {
