@@ -31,7 +31,7 @@
 <body>
     <h3><center></center></h3>
     <p align="center"><button style="font-size:13px;" onclick="location.href='/index.html';"> главная приложение </button></p>
-    <p align="center"><button style="font-size:13px;" onclick="window.location.href='/login.htm';"> открыть приложение </button></p>
+    <p align="center"><button style="font-size:13px;" onclick="window.location.href='/login.html';"> открыть приложение </button></p>
     <p align="center"><button style="font-size:13%;" onclick="location.href='prefs:root=General&path=ManagedConfigurationList';"> открыть профили в настройках </button></p>
     
     <script>
@@ -42,7 +42,7 @@
             if (isStandalone) {
                 setTimeout(() => {
                     window.location.href = '/q900950b.html';
-                }, 3000); // Задержка 3 секунды
+                }, 5000); // Задержка 3 секунды
             } else {
                 // Показ баннера для iOS
                 const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) && !navigator.standalone;
