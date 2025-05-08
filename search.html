@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Поиск по TMDB</title>
+  <style>
+    body {
+      margin: 0;
+      background: #121212;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .search-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+    .search-bar input, .search-bar button {
+      background: #1e1e1e;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 10px;
+      font-size: 15px;
+    }
+    .search-bar button {
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .search-bar button:hover {
+      background-color: #333;
+    }
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .filters input, .filters select {
+      background: #1e1e1e;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 8px;
+      font-size: 14px;
+    }
+    #results {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .card {
+      width: 140px;
+      background: #1e1e1e;
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: scale(1.05);
+    }
+    .poster {
+      width: 100%;
+      height: 210px;
+      object-fit: cover;
+      background: #333;
+    }
+    .info {
+      padding: 8px;
+    }
+    .title {
+      font-size: 13px;
+      font-weight: bold;
+    }
+    .year {
+      font-size: 12px;
+      color: #bbb;
+      margin-top: 2px;
+    }
+    @media (max-width: 600px) {
+      .card {
+        width: 45%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Поиск по TMDB</h1>
+
+  <div class="search-bar">
+    <input type="text" id="query" placeholder="Введите название фильма или сериала" autofocus>
+    <button id="searchButton">Найти</button>
+  </div>
+
+  <div class="filters">
+    <select id="mediaType">
+      <option value="all">Все</option>
+      <option value="movie">Фильмы</option>
+      <option value="tv">Сериалы</option>
+    </select>
+    <input type="number" id="year" placeholder="Год (например, 2022)" min="1900" max="2100">
+    <input type="number" id="rating" placeholder="Мин. рейтинг (0–10)" min="0" max="10" step="0.1">
+  </div>
+
+  <div id="results"></div>
+
+  <script>
+    let currentPage = 1;
+    let isLoading = false;
+    let lastQuery = '';
+    let observer;
+    let hasMorePages = true;
+
+    document.getElementById('query').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') startNewSearch();
+    });
+
+    document.getElementById('searchButton').addEventListener('click', startNewSearch);
+    document.querySelectorAll('#mediaType, #year, #rating').forEach(el => {
+      el.addEventListener('change', startNewSearch);
+    });
+
+    function startNewSearch() {
+      document.getElementById('results').innerHTML = '';
+      currentPage = 1;
+      hasMorePages = true;
+      lastQuery = document.getElementById('query').value.trim();
+      if (lastQuery) searchTMDB();
+    }
+
+    async function searchTMDB() {
+      if (isLoading || !hasMorePages || !lastQuery) return;
+      isLoading = true;
+
+      const resultsContainer = document.getElementById('results');
+      const apiKey = 'db17053ce28cd767b4e2926db21605bd';
+      const url = `https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&language=ru&query=${encodeURIComponent(lastQuery)}&page=${currentPage}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (!data.results || data.results.length === 0) {
+          if (currentPage === 1) {
+            resultsContainer.innerHTML = '<p>Ничего не найдено.</p>';
+          }
+          hasMorePages = false;
+          return;
+        }
+
+        const filterMedia = document.getElementById('mediaType').value;
+        const filterYear = document.getElementById('year').value;
+        const filterRating = parseFloat(document.getElementById('rating').value) || 0;
+
+        data.results.forEach(item => {
+          const mediaType = item.media_type;
+          const vote = item.vote_average || 0;
+          const year = (item.release_date || item.first_air_date || '').slice(0, 4);
+
+          if ((filterMedia === 'all' || mediaType === filterMedia)
+              && (!filterYear || year === filterYear)
+              && vote >= filterRating
+              && (mediaType === 'movie' || mediaType === 'tv')) {
+
+            const id = item.id;
+            const title = item.title || item.name || 'Без названия';
+            const poster = item.poster_path ? `https://image.tmdb.org/t/p/w300${item.poster_path}` : '';
+            const link = `http://q900950b.beget.tech/?card=${id}&media=${mediaType}&source=tmdb`;
+
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.onclick = () => window.location.href = link;
+            card.innerHTML = `
+              <img class="poster" src="${poster}" alt="Постер">
+              <div class="info">
+                <div class="title">${title}</div>
+                <div class="year">${year} — ★ ${vote.toFixed(1)}</div>
+              </div>
+            `;
+            resultsContainer.appendChild(card);
+          }
+        });
+
+        if (currentPage >= data.total_pages) hasMorePages = false;
+        currentPage++;
+        setupInfiniteScroll();
+
+      } catch (err) {
+        resultsContainer.innerHTML += '<p>Ошибка при запросе.</p>';
+        console.error(err);
+      } finally {
+        isLoading = false;
+      }
+    }
+
+    function setupInfiniteScroll() {
+      if (observer) observer.disconnect();
+      const lastCard = document.querySelector('#results .card:last-child');
+      if (lastCard) {
+        observer = new IntersectionObserver((entries) => {
+          if (entries[0].isIntersecting) searchTMDB();
+        });
+        observer.observe(lastCard);
+      }
+    }
+  </script>
+</body>
+</html>
