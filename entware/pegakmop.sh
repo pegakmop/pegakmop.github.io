@@ -50,7 +50,7 @@ generate_local_ip() {
 peer_ip=$(generate_ip)
 peer_port=$(generate_port)
 local_ip=$(generate_local_ip)
-
+echo "Генерируем конфиг WG"
 # ====== Конфигурация WireGuard-интерфейса через ndmc для роутеров keenetic ======
 configure_wireguard() {
   ndmc -c "interface $iface_name"
@@ -66,7 +66,7 @@ configure_wireguard() {
   ndmc -c 'system configuration save'
   ndmc -c "interface $iface_name up"
 }
-
+echo "Закидываем конфиг на роутер кинетик"
 # ====== Запуск настройки ======
 if configure_wireguard; then
   echo "Автор скрипта @pegakmop и против изменений в скрипте"
@@ -75,6 +75,6 @@ if configure_wireguard; then
   echo "Для генерации нового конфига введи команду в терминале:    ./pegakmop.sh"
   echo "Интерфейс $iface_name настроен и запущен!"
 else
-  echo "Ошибка при настройке интерфейса $iface_name!"
+  echo "Ошибка при настройке интерфейса $iface_name! на роутере"
   exit 1
 fi
