@@ -12,7 +12,7 @@ if [ ! -f "$INPUT_FILE" ]; then
   exit 1
 fi
 
-# Путь к выходному файлу sing-box config.json
+# Путь к выходному файлу config.json
 OUTPUT_FILE="/opt/root/config.json"  # Для тестов
 
 echo "Обновляю источники пакетов..."
@@ -21,9 +21,28 @@ opkg update
 echo "Обновляю установленные пакеты..."
 opkg upgrade
 
-echo "Устанавливаю sing-box на ваше устройство, если он ещё не установлен..."
+echo "Проверяю наличие необходимых утилит..."
+
+# Проверка и установка jq
+if ! command -v jq >/dev/null 2>&1; then
+  echo "Утилита jq не найдена. Устанавливаю..."
+  opkg install jq || {
+    echo "ОШИБКА: не удалось установить jq"
+    exit 1
+  }
+else
+  echo "jq уже установлен."
+fi
+
+# Проверка и установка sing-box
 if ! command -v sing-box >/dev/null 2>&1; then
-  opkg install sing-box-go
+  echo "Утилита sing-box не найдена. Устанавливаю..."
+  opkg install sing-box-go || {
+    echo "ОШИБКА: не удалось установить sing-box-go"
+    exit 1
+  }
+else
+  echo "sing-box уже установлен."
 fi
 
 sleep 1
@@ -43,12 +62,12 @@ if [ -z "$SERVER_ADDRESS" ] || [ -z "$UUID" ] || [ -z "$PUBLIC_KEY" ]; then
   exit 1
 fi
 
-# Удаление старого конфига
+# Удаление старой конфигурации
 rm -f "$OUTPUT_FILE"
 echo "Удалена предыдущая конфигурация: $OUTPUT_FILE"
 sleep 1
 
-# Создаём новый config.json
+# Создание нового config.json
 cat <<EOF > "$OUTPUT_FILE"
 {
   "experimental": {
@@ -127,7 +146,7 @@ EOF
 
 echo "Конфигурация успешно создана: $OUTPUT_FILE"
 sleep 1
-echo "Перезагрузка роутера произойдет через 60 секунд для активации конфигурации и проверки настройки sing-box."
+echo "Перезагрузка роутера произойдет через 60 секунд для активации конфигурации и запуска sing-box."
 echo "После перезагрузки веб-интерфейс будет доступен по адресу: http://192.168.1.1:9090"
 
 # sleep 60
