@@ -1,33 +1,34 @@
 #!/bin/sh
-chmod +x "$0"
+
 # Путь к исходному файлу amnezia_for_xray.json
 INPUT_FILE="/opt/root/amnezia_for_xray.json"
 
 # Проверка наличия файла
 if [ ! -f "$INPUT_FILE" ]; then
-  echo "ОШИБКА:  $INPUT_FILE файл не найден. Прекращаю выполнение установки и настройки sing box на вашем устройстве. в приложении Amnezia VPN выберите вкладку поделиться протокол xray и оригинальный формат xray и сохраните конфигурационный файл на роутере: $INPUT_FILE и после запустите скрипт "$0""
+  echo "ОШИБКА: $INPUT_FILE файл не найден. Прекращаю выполнение установки и настройки sing-box на вашем устройстве."
+  echo "В приложении Amnezia VPN выберите вкладку \"Поделиться протокол XRay\" и формат \"Оригинальный XRay\"."
+  echo "Сохраните конфигурационный файл на роутере по пути: $INPUT_FILE"
+  echo "Затем снова запустите скрипт: $0"
   exit 1
 fi
 
-# Путь к выходному файлу sing box с настройкой config.json 
-#OUTPUT_FILE="/opt/etc/sing-box/config.json"
+# Путь к выходному файлу sing-box config.json
+OUTPUT_FILE="/opt/root/config.json"  # Для тестов
 
-#для тестов использовал
-OUTPUT_FILE="/opt/root/config.json"
-
-echo "обновляю источники пакетов..."
+echo "Обновляю источники пакетов..."
 opkg update
 
-echo "обновляю установленные пакеты..."
+echo "Обновляю установленные пакеты..."
 opkg upgrade
 
-echo "устанавливаю sing-box на ваше устройство, если он еще не установлен..."
-opkg install sing-box-go
+echo "Устанавливаю sing-box на ваше устройство, если он ещё не установлен..."
+if ! command -v sing-box >/dev/null 2>&1; then
+  opkg install sing-box-go
+fi
 
 sleep 1
 
-
-# Извлекаем значения для "vnext" из исходного файла
+# Извлекаем значения из исходного файла
 SERVER_ADDRESS=$(jq -r '.outbounds[0].settings.vnext[0].address' "$INPUT_FILE")
 SERVER_PORT=$(jq -r '.outbounds[0].settings.vnext[0].port' "$INPUT_FILE")
 UUID=$(jq -r '.outbounds[0].settings.vnext[0].users[0].id' "$INPUT_FILE")
@@ -36,11 +37,18 @@ SERVER_NAME=$(jq -r '.outbounds[0].streamSettings.realitySettings.serverName' "$
 PUBLIC_KEY=$(jq -r '.outbounds[0].streamSettings.realitySettings.publicKey' "$INPUT_FILE")
 SHORT_ID=$(jq -r '.outbounds[0].streamSettings.realitySettings.shortId' "$INPUT_FILE")
 
+# Проверка на пустые значения
+if [ -z "$SERVER_ADDRESS" ] || [ -z "$UUID" ] || [ -z "$PUBLIC_KEY" ]; then
+  echo "Ошибка: не удалось извлечь необходимые данные из $INPUT_FILE"
+  exit 1
+fi
+
+# Удаление старого конфига
 rm -f "$OUTPUT_FILE"
-echo "дефолтная конфигурация успешно удалена: $OUTPUT_FILE"
+echo "Удалена предыдущая конфигурация: $OUTPUT_FILE"
 sleep 1
 
-# Создаем новый config.json
+# Создаём новый config.json
 cat <<EOF > "$OUTPUT_FILE"
 {
   "experimental": {
@@ -117,8 +125,10 @@ cat <<EOF > "$OUTPUT_FILE"
 }
 EOF
 
-echo "Конфигурация успешно создана и настроена: $OUTPUT_FILE"
+echo "Конфигурация успешно создана: $OUTPUT_FILE"
 sleep 1
-echo "перезагрузка роутера произойдет через 60 секунд для активации конфигурации и проверки настройки sing-box, после перезагрузки вам будет доступен веб-интерфейс по адресу http://192.168.1.1:9090"
-#sleep 60
-#reboot
+echo "Перезагрузка роутера произойдет через 60 секунд для активации конфигурации и проверки настройки sing-box."
+echo "После перезагрузки веб-интерфейс будет доступен по адресу: http://192.168.1.1:9090"
+
+# sleep 60
+# reboot
