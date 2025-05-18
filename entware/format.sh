@@ -1,27 +1,27 @@
 #!/bin/sh
 
-# Получаем UUID раздела, смонтированного как /opt (где установлен Entware)
+# Определяем текущий раздел с Entware (/opt)
 ENTWARE_DEV=$(mount | grep 'on /opt ' | awk '{print $1}')
 ENTWARE_UUID=$(blkid "$ENTWARE_DEV" | sed -n 's/.*UUID="\([^"]*\)".*/\1/p')
-echo "Данный скрипт предназначен для форматирования одного из нескольких разделов ext4 не включая раздел на котором сейчас entware"
-echo "Текущий раздел Entware: $ENTWARE_DEV (UUID: $ENTWARE_UUID)"
+ENTWARE_LABEL=$(blkid "$ENTWARE_DEV" | sed -n 's/.*LABEL="\([^"]*\)".*/\1/p')
+[ -z "$ENTWARE_LABEL" ] && ENTWARE_LABEL="(без метки)"
 echo
-
-# Список доступных разделов
-echo "Доступные разделы для очистки:"
-AVAILABLE_PARTS=""
+echo "Скрипт для очистки одного из разделов(если их несколько) не затрагивает текущий активный entware"
+echo
+echo "Активный раздел с Entware: $ENTWARE_LABEL ($ENTWARE_DEV, UUID: $ENTWARE_UUID)"
+echo
+echo "Доступные разделы для очистки."
+echo
+# Поиск других разделов ext4, исключая Entware
 i=1
-
 for MNT in /tmp/mnt/*; do
     DEV=$(mount | grep "on $MNT " | awk '{print $1}')
     if [ -n "$DEV" ]; then
         UUID=$(blkid "$DEV" | sed -n 's/.*UUID="\([^"]*\)".*/\1/p')
         LABEL=$(blkid "$DEV" | sed -n 's/.*LABEL="\([^"]*\)".*/\1/p')
-
-        # Пропускаем, если это раздел с Entware
+        [ -z "$LABEL" ] && LABEL="(без метки)"
         if [ "$UUID" != "$ENTWARE_UUID" ]; then
-            [ -z "$LABEL" ] && LABEL="(без метки)"
-            echo "$i) $LABEL -> $MNT"
+            echo "$i) $LABEL -> $MNT ($DEV)"
             eval OPTION_$i=\"$MNT\"
             i=$((i + 1))
         fi
@@ -29,7 +29,7 @@ for MNT in /tmp/mnt/*; do
 done
 
 if [ "$i" -eq 1 ]; then
-    echo "Нет доступных разделов (все заняты или используется Entware)."
+    echo "Нет доступных разделов для очистки."
     exit 1
 fi
 
@@ -45,13 +45,17 @@ if [ -z "$SELECTED_MNT" ]; then
 fi
 
 echo
-echo "Вы действительно хотите удалить ВСЁ содержимое из $SELECTED_MNT? [yes/NO]"
+echo "Вы действительно хотите удалить ВСЁ содержимое раздела $SELECTED_MNT? [yes/NO]"
+echo
 read CONFIRM
 
 if [ "$CONFIRM" = "yes" ]; then
+    echo
     echo "Очистка $SELECTED_MNT..."
     rm -rf "$SELECTED_MNT"/*
-    echo "Раздел очищен."
+    echo
+    echo "Раздел очищен $SELECTED_MNT"
 else
-    echo "Операция отменена."
+    echo
+    echo "Операция отменена пользователем."
 fi
