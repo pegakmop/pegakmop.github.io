@@ -12,10 +12,10 @@ log "🔧 Обновление списка пакетов..."
 opkg update
 
 log "🌐 Установка wget с поддержкой HTTPS..."
-opkg install ca-certificates wget-ssl curl&& opkg remove wget-nossl
-#ndmc -c "no interface Proxy0" 2>/dev/null
+opkg install wget-ssl curl&& opkg remove wget-nossl
+ndmc -c "no interface Proxy0" 2>/dev/null
 # Проверка необходимых утилит
-#command -v jq >/dev/null 2>&1 || opkg install jq
+command -v jq >/dev/null 2>&1 || opkg install jq
 command -v ndmc >/dev/null 2>&1 || { log "❌ Ошибка: ndmc не найден"; exit 1; }
 if [ ! -f /opt/bin/opkg ]; then
     echo "Не удалось определить принадлежность данного устройства к Entware"
@@ -310,42 +310,8 @@ esac
 
 
   log "✅ Веб-интерфейс доступен: http://192.168.1.1:9090"
-  log "⚠️ Это тестовая конфигурация. по всем ошибкам установки обращаться @pegakmop либо https://t.me/vpnconfiguration/62"
-  
-
-echo "Выберите, что установить:"
-echo "1) magitrickle"
-echo "2) hrneo"
-echo "3) hydraroute"
-echo "4) Пропустить установку"
-
-read -p "Введите номер (1-4): " choice
-
-case "$choice" in
-    1)
-        echo "🛠 Установка magitrickle..."
-        opkg update && opkg install magitrickle
-        ;;
-    2)
-        echo "🛠 Установка hrneo..."
-        opkg update && opkg install hrneo
-        ;;
-    3)
-        echo "🛠 Установка hydraroute..."
-        opkg update && opkg install hydraroute
-        ;;
-    4)
-        echo "🚫 Установка пропущена."
-        ;;
-    *)
-        echo "❌ Неверный выбор. Введите число от 1 до 4."
-        exit 1
-        ;;
-esac
-  sb restart && sb status
-  sing-box -c "$OUTPUT_FILE" check
-  log "✅ Установка завершена."
-  rm -f "$0"
+  log "⚠️ Это тестовая конфигурация. Сконвертируй свою на https://kiarant.github.io/converter"
+  sing-box -c "$OUTPUT_FILE" run
   exit 0
 fi
 
@@ -453,44 +419,10 @@ sleep 8
 log "🔎 Проверка состояния Proxy0:"
 ndmc -c "show interface Proxy0" | awk '/summary:/,0' | awk '/layer:/,0' | sed -n '/layer:/,$p' | sed '1d' | sed 's/^[[:space:]]*//'
 
-  log "⚠️ Это тестовая конфигурация. по всем ошибкам установки обращаться @pegakmop либо https://t.me/vpnconfiguration/62"
-  
-echo "Выберите, что установить числом:"
-echo "1) magitrickle"
-echo "2) hrneo"
-echo "3) hydraroute"
-echo "4) Пропустить установку"
-
-read -p "Введите номер (1-4): " choice
-
-case "$choice" in
-    1)
-        echo "🛠 Установка magitrickle..."
-        opkg update && opkg install magitrickle
-        ;;
-    2)
-        echo "🛠 Установка hrneo..."
-        opkg update && opkg install hrneo
-        ;;
-    3)
-        echo "🛠 Установка hydraroute..."
-        opkg update && opkg install hydraroute
-        ;;
-    4)
-        echo "🚫 Установка пропущена."
-        ;;
-    *)
-        echo "❌ Неверный выбор. Введите число от 1 до 4."
-        exit 1
-        ;;
-esac
-
 log "🌐 Веб-интерфейс доступен по адресу: http://192.168.1.1:9090"
-
-
-sb restart && sb status
-sing-box -c "$OUTPUT_FILE" check
+sing-box -c "$OUTPUT_FILE" run
+exit0
 # Удаление скрипта (пока отключено)
-rm -f "$0"
+#rm -f "$0"
 
 log "✅ Установка завершена."
