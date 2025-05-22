@@ -13,9 +13,9 @@ opkg update
 
 log "🌐 Установка wget с поддержкой HTTPS..."
 opkg install ca-certificates wget-ssl curl&& opkg remove wget-nossl
-ndmc -c "no interface Proxy0" 2>/dev/null
+#ndmc -c "no interface Proxy0" 2>/dev/null
 # Проверка необходимых утилит
-command -v jq >/dev/null 2>&1 || opkg install jq
+#command -v jq >/dev/null 2>&1 || opkg install jq
 command -v ndmc >/dev/null 2>&1 || { log "❌ Ошибка: ndmc не найден"; exit 1; }
 if [ ! -f /opt/bin/opkg ]; then
     echo "Не удалось определить принадлежность данного устройства к Entware"
