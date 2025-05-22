@@ -311,7 +311,7 @@ esac
 
   log "✅ Веб-интерфейс доступен: http://192.168.1.1:9090"
   log "⚠️ Это тестовая конфигурация. Сконвертируй свою на https://kiarant.github.io/converter"
-  sing-box -c "$OUTPUT_FILE" run
+  sing-box run -c "$OUTPUT_FILE"
   exit 0
 fi
 
@@ -420,7 +420,7 @@ log "🔎 Проверка состояния Proxy0:"
 ndmc -c "show interface Proxy0" | awk '/summary:/,0' | awk '/layer:/,0' | sed -n '/layer:/,$p' | sed '1d' | sed 's/^[[:space:]]*//'
 
 log "🌐 Веб-интерфейс доступен по адресу: http://192.168.1.1:9090"
-sing-box -c "$OUTPUT_FILE" run
+sing-box run -c "$OUTPUT_FILE"
 exit0
 # Удаление скрипта (пока отключено)
 #rm -f "$0"
