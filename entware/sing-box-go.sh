@@ -149,8 +149,8 @@ case "$LINK" in
       "sniff": true
     },
     {
-      "type": "mixed",
-      "tag": "mixed-in",
+      "type": "socks",
+      "tag": "socks",
       "listen": "0.0.0.0",
       "listen_port": 1080
     }
@@ -223,8 +223,8 @@ EOF
       "sniff": true
     },
     {
-      "type": "mixed",
-      "tag": "mixed-in",
+      "type": "socks",
+      "tag": "socks",
       "listen": "0.0.0.0",
       "listen_port": 1080
     }
@@ -387,8 +387,8 @@ cat <<EOF > "$OUTPUT_FILE"
       "sniff": true
     },
     {
-      "type": "mixed",
-      "tag": "mixed-in",
+      "type": "socks",
+      "tag": "socks",
       "listen": "0.0.0.0",
       "listen_port": 1080
     }
