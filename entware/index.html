@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Установка Entware Скриптов</title>
+  <style>
+    :root {
+      --bg-light: #f4f4f4;
+      --bg-dark: #121212;
+      --text-light: #333;
+      --text-dark: #eee;
+      --btn-bg-light: #007bff;
+      --btn-bg-dark: #3399ff;
+      --btn-hover-light: #0056b3;
+      --btn-hover-dark: #2277dd;
+      --shadow-light: rgba(0, 0, 0, 0.1);
+      --shadow-dark: rgba(0, 0, 0, 0.7);
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-light);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 30px 20px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    body.dark {
+      background-color: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    header {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: 2rem;
+      margin: 0;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      justify-content: center;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    button.menu-btn {
+      background-color: var(--btn-bg-light);
+      border: none;
+      color: white;
+      font-size: 1.1rem;
+      padding: 14px 28px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      box-shadow: 0 6px 14px rgba(0, 123, 255, 0.5);
+      min-width: 160px;
+      font-weight: 600;
+      user-select: none;
+      flex: 1 1 160px;
+      max-width: 250px;
+      text-align: center;
+    }
+
+    button.menu-btn:hover {
+      background-color: var(--btn-hover-light);
+      box-shadow: 0 8px 18px rgba(0, 86, 179, 0.7);
+    }
+
+    body.dark button.menu-btn {
+      background-color: var(--btn-bg-dark);
+      box-shadow: 0 6px 14px rgba(51, 153, 255, 0.7);
+    }
+
+    body.dark button.menu-btn:hover {
+      background-color: var(--btn-hover-dark);
+      box-shadow: 0 8px 18px rgba(34, 119, 221, 0.9);
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      cursor: pointer;
+      background: none;
+      border: 2px solid currentColor;
+      border-radius: 24px;
+      width: 50px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 8px;
+      font-size: 18px;
+      user-select: none;
+      transition: border-color 0.3s, color 0.3s;
+      z-index: 1000;
+    }
+
+    .theme-toggle:hover {
+      border-color: #007bff;
+      color: #007bff;
+    }
+
+    .theme-toggle span {
+      pointer-events: none;
+      user-select: none;
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 20px 10px;
+      font-size: 0.9rem;
+      color: #888;
+      user-select: none;
+    }
+
+    body.dark footer {
+      color: #666;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.6rem;
+      }
+
+      button.menu-btn {
+        font-size: 1rem;
+        padding: 12px 20px;
+        min-width: 140px;
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" aria-label="Переключить тему" onclick="toggleTheme()">
+    <span>🌞</span><span>🌙</span>
+  </button>
+
+  <header>
+    <h1>Установка Entware Скриптов</h1>
+    <p>Выберите нужный скрипт для установки</p>
+  </header>
+
+  <nav aria-label="Меню установки скриптов">
+    <button class="menu-btn" onclick="openScript('sing-box')">Sing-box</button>
+    <button class="menu-btn" onclick="openScript('wg')">WireGuard (wg)</button>
+    <button class="menu-btn" onclick="openScript('awg')">AWG</button>
+    <!-- Тут можно добавлять новые кнопки -->
+  </nav>
+
+  <footer>
+    &copy; 2025 pegakmop
+  </footer>
+
+  <script>
+    function openScript(script) {
+      // Сопоставляем имя скрипта с URL файла страницы
+      const pages = {
+        'sing-box': 'sing-box.html',
+        'wg': 'wg.html',
+        'awg': 'awg.html'
+      };
+
+      if (pages[script]) {
+        // Открываем соответствующую страницу
+        window.location.href = pages[script];
+      } else {
+        alert('Страница пока недоступна');
+      }
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('dark');
+      if (document.body.classList.contains('dark')) {
+        localStorage.setItem('theme', 'dark');
+      } else {
+        localStorage.setItem('theme', 'light');
+      }
+    }
+
+    window.onload = () => {
+      if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark');
+      }
+    }
+  </script>
+</body>
+</html>
