@@ -61,7 +61,7 @@ configure_wireguard() {
   ndmc -c "interface $iface_name ip address $local_ip"
   ndmc -c "interface $iface_name wireguard private-key CHSL4T1CxVhMoah1SgDQyc7QFgl4bZw/QaHQc3lopUg="
   ndmc -c "interface $iface_name wireguard listen-port 2408"
-  ndmc -c "interface $iface_name wireguard peer bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+  ndmc -c "interface $iface_name wireguard peer bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo= !AWG"
   ndmc -c "interface $iface_name wireguard peer bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo= description Cloudflare-WARP"
   ndmc -c "interface $iface_name wireguard peer bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo= allow-ips 0.0.0.0/0"
   ndmc -c "interface $iface_name wireguard peer bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo= endpoint $peer_ip:$peer_port"
