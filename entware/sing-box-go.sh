@@ -281,7 +281,7 @@ esac
   sleep 3
 
   if [ -f "$RULES_SCRIPT_PATH" ]; then
-    log "Заменяю новым: $RULES_SCRIPT_PATH"
+    log "chmod +x $RULES_SCRIPT_PATH"
     rm "$RULES_SCRIPT_PATH"
   else
     log "Файл не найден: $RULES_SCRIPT_PATH"
@@ -432,7 +432,7 @@ cat <<EOF > "$OUTPUT_FILE"
 }
 EOF
 if [ -f "$RULES_SCRIPT_PATH" ]; then
-    log "Заменяю новым: $RULES_SCRIPT_PATH"
+    log "chmod +x $RULES_SCRIPT_PATH"
     rm "$RULES_SCRIPT_PATH"
 else
     log "Файл не найден: $RULES_SCRIPT_PATH"
@@ -495,8 +495,6 @@ case "$choice" in
 esac
 sb restart && neo restart
 #sing-box run -c "$OUTPUT_FILE"
-# Удаление скрипта (пока отключено)
-rm -f "$0"
 
 log "✅ Установка завершена."
 log "✅ Веб-интерфейс sb: http://$IP_ADDRESS:9090"
