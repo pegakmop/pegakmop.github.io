@@ -72,6 +72,7 @@ configure_wireguard() {
 
 # ====== Запуск настройки ======
 if configure_wireguard; then
+  echo "Wireguard уже на вашем роутере..."
   echo "Интерфейс $iface_name настроен и запущен!"
   echo "Локальный IP: $local_ip"
   echo "Пир: $peer_ip:$peer_port"
