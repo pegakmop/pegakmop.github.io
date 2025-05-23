@@ -278,7 +278,7 @@ EOF
 esac
 
   log "✅ Конфигурация сохранена в $CONFIG_PATH"
-  sleep p 3
+  sleep 3
 
   if [ -f "$RULES_SCRIPT_PATH" ]; then
     log "Заменяю новым: $RULES_SCRIPT_PATH"
