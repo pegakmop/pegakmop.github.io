@@ -78,7 +78,7 @@ if configure_wireguard; then
   echo "Интерфейс $iface_name настроен и запущен!"
   echo "Локальный IP: $local_ip"
   echo "Пир: $peer_ip:$peer_port"
-  echo "Для генерации нового конфига введи команду заново в терминале:  ./awg.sh"
+  echo "Для генерации нового конфига введи команду в терминал:  /opt/tmp/awg.sh"
 else
   echo "Ошибка при настройке интерфейса $iface_name!"
   exit 1
