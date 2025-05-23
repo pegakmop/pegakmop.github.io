@@ -7,16 +7,14 @@ log() {
 }
 
 IP_ADDRESS=$(ip addr show br0 | grep 'inet ' | awk '{print $2}' | cut -d/ -f1)
-
+log "Запускаю скрипт установки sing-box на ваше устройство"
 ndmc -c "no interface Proxy0" >/dev/null 2>&1
-ndmc -c 'system configuration save'
-log "не обращайте внимания на эту ошибку, перестраховка на случай повторного запуска скрипта и переустановки сделано, что бы удалить прокси и заново поставить потом в конце установки"
-sleep 3
+ndmc -c "system configuration save" >/dev/null 2>&1
 log "🔧 Обновление списка пакетов..."
 opkg update
 log "🌐 Установка wget с поддержкой HTTPS..."
 opkg install wget-ssl curl && opkg remove wget-nossl
-#ndmc -c "no interface Proxy0" 2>/dev/null
+#ndmc -c "no interface Proxy0" >/dev/null 2>&1
 # Проверка необходимых утилит
 
 ARCH=$(opkg print-architecture | awk '{print $3, $2}' | sort -n | tail -n1 | awk '{print $2}')
@@ -301,7 +299,8 @@ esac
   /opt/etc/init.d/S99sing-box stop
 
   log "🧪 Настройка интерфейса Proxy0..."
-  ndmc -c "no interface Proxy0" 2>/dev/null
+  ndmc -c "no interface Proxy0" >/dev/null 2>&1
+  ndmc -c "system configuration save" >/dev/null 2>&1
   ndmc -c "interface Proxy0"
   ndmc -c "interface Proxy0 description @pegakmop-$IP_ADDRESS:1080"
   ndmc -c "interface Proxy0 proxy protocol socks5"
@@ -309,8 +308,8 @@ esac
   ndmc -c "interface Proxy0 proxy upstream $IP_ADDRESS 1080"
   ndmc -c "interface Proxy0 up"
   ndmc -c "interface Proxy0 ip global 1"
-  ndmc -c 'ip policy HydraRoute permit global Proxy0 order 0'
-  ndmc -c 'system configuration save'
+  ndmc -c "ip policy HydraRoute permit global Proxy0 order 0"
+  ndmc -c "system configuration save"
 
   sleep 4
   log "🔎 Проверка состояния Proxy0:"
