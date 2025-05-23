@@ -8,7 +8,7 @@ log() {
 
 IP_ADDRESS=$(ip addr show br0 | grep 'inet ' | awk '{print $2}' | cut -d/ -f1)
 
-ndmc -c "no interface Proxy0"
+ndmc -c "no interface Proxy0" >/dev/null 2>&1
 ndmc -c 'system configuration save'
 log "не обращайте внимания на эту ошибку, перестраховка на случай повторного запуска скрипта и переустановки сделано, что бы удалить прокси и заново поставить потом в конце установки"
 sleep 3
@@ -16,7 +16,7 @@ log "🔧 Обновление списка пакетов..."
 opkg update
 log "🌐 Установка wget с поддержкой HTTPS..."
 opkg install wget-ssl curl&& opkg remove wget-nossl
-ndmc -c "no interface Proxy0" 2>/dev/null
+#ndmc -c "no interface Proxy0" 2>/dev/null
 # Проверка необходимых утилит
 
 ARCH=$(opkg print-architecture | awk '{print $3, $2}' | sort -n | tail -n1 | awk '{print $2}')
