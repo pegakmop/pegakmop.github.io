@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Генератор VLESS-ссылки из JSON</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 1em; background: #fafafa; }
+  textarea { width: 100%; height: 200px; font-family: monospace; font-size: 1rem; padding: 0.5em; box-sizing: border-box; }
+  input[type="text"], button {
+    font-size: 1rem;
+    padding: 0.5em;
+    margin-top: 0.5em;
+  }
+  button {
+    background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;
+    width: 100%;
+  }
+  button:active {
+    background-color: #0056b3;
+  }
+  #result {
+    margin-top: 1em;
+    background: white;
+    padding: 1em;
+    border-radius: 8px;
+    box-shadow: 0 0 6px rgba(0,0,0,0.1);
+    word-break: break-word;
+    position: relative;
+  }
+  #resultText {
+    user-select: all;
+  }
+  #copyBtn {
+    position: absolute;
+    top: 1em;
+    right: 1em;
+    background: #28a745;
+    border: none;
+    color: white;
+    padding: 0.3em 0.6em;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  #copyBtn:active {
+    background: #1e7e34;
+  }
+</style>
+</head>
+<body>
+
+<h2>Генератор vless:// ключа из amnezia_for_xray.json</h2>
+
+<textarea id="jsonInput" placeholder="Вставьте текстом JSON конфигурацию сюда amnezia_for_xray.json"></textarea>
+<br />
+<label hidden for="customName">Название (будет после #, необязательно):</label>
+<input hidden type="text" id="customName" placeholder="например, telegram-reality" />
+<button id="generateBtn">Сгенерировать VLESS-ссылку</button>
+
+<div id="result" style="display:none;">
+  <div id="resultText" tabindex="0" role="textbox" aria-label="Сгенерированная VLESS-ссылка"></div>
+  <button id="copyBtn">Копировать</button>
+</div>
+
+<script>
+function safeGet(obj, path, defaultValue = '') {
+  return path.reduce((acc, key) => (acc && acc[key] !== undefined) ? acc[key] : defaultValue, obj);
+}
+
+function generateVlessLink(data, customName) {
+  const uuid = safeGet(data, ['outbounds', 0, 'settings', 'vnext', 0, 'users', 0, 'id']);
+  const host = safeGet(data, ['outbounds', 0, 'settings', 'vnext', 0, 'address']);
+  const port = safeGet(data, ['outbounds', 0, 'settings', 'vnext', 0, 'port']);
+  const flow = safeGet(data, ['outbounds', 0, 'settings', 'vnext', 0, 'users', 0, 'flow'], '');
+  const encryption = safeGet(data, ['outbounds', 0, 'settings', 'vnext', 0, 'users', 0, 'encryption'], 'none');
+  const security = safeGet(data, ['outbounds', 0, 'streamSettings', 'security']);
+  const net = safeGet(data, ['outbounds', 0, 'streamSettings', 'network']);
+  const sni = safeGet(data, ['outbounds', 0, 'streamSettings', 'realitySettings', 'serverName']);
+  const fp = safeGet(data, ['outbounds', 0, 'streamSettings', 'realitySettings', 'fingerprint']);
+  const pbk = safeGet(data, ['outbounds', 0, 'streamSettings', 'realitySettings', 'publicKey']);
+  const sid = safeGet(data, ['outbounds', 0, 'streamSettings', 'realitySettings', 'shortId'], '');
+
+  if (!uuid || !host || !port || !security || !net) {
+    return null;
+  }
+
+  const flowParam = flow ? `&flow=${encodeURIComponent(flow)}` : '';
+  const sidParam = sid ? `&sid=${encodeURIComponent(sid)}` : '';
+
+  let name = customName.trim();
+  if (!name) {
+    name = safeGet(data, ['name'], '') || safeGet(data, ['outbounds', 0, 'tag'], '') || 'amnezia_for_xray.json-xray-to-vless-create-by-@pegakmop';
+  }
+
+  const url = `vless://${uuid}@${host}:${port}?encryption=${encryption}&security=${security}&type=${net}${flowParam}&sni=${encodeURIComponent(sni)}&fp=${encodeURIComponent(fp)}&pbk=${encodeURIComponent(pbk)}${sidParam}#${encodeURIComponent(name)}`;
+
+  return url;
+}
+
+document.getElementById('generateBtn').addEventListener('click', () => {
+  const jsonText = document.getElementById('jsonInput').value.trim();
+  const customName = document.getElementById('customName').value;
+  const resultDiv = document.getElementById('result');
+  const resultText = document.getElementById('resultText');
+
+  if (!jsonText) {
+    alert('Пожалуйста, вставьте JSON конфигурацию');
+    return;
+  }
+
+  try {
+    const data = JSON.parse(jsonText);
+    const vlessLink = generateVlessLink(data, customName);
+
+    if (!vlessLink) {
+      alert('Ошибка: не найдены необходимые поля в JSON для генерации ссылки.');
+      resultDiv.style.display = 'none';
+      return;
+    }
+
+    resultText.textContent = vlessLink;
+    resultDiv.style.display = 'block';
+  } catch (e) {
+    alert('Ошибка разбора JSON: ' + e.message);
+    resultDiv.style.display = 'none';
+  }
+});
+
+document.getElementById('copyBtn').addEventListener('click', () => {
+  const resultText = document.getElementById('resultText');
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(resultText.textContent).then(() => {
+      alert('Ссылка скопирована в буфер обмена');
+    }).catch(() => {
+      alert('Ошибка копирования, попробуйте вручную');
+    });
+  } else {
+    // fallback для старых браузеров
+    const range = document.createRange();
+    range.selectNode(resultText);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    try {
+      document.execCommand('copy');
+      alert('Ссылка скопирована в буфер обмена');
+    } catch {
+      alert('Ошибка копирования, попробуйте вручную');
+    }
+    window.getSelection().removeAllRanges();
+  }
+});
+</script>
+
+</body>
+</html>
