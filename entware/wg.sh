@@ -1,5 +1,5 @@
 #!/bin/sh
-
+echo "На все всплывающие ошибки не обращайте внимания, конфиг всё равно добавится в роутер, с уважением автор конфига @pegakmop"
 # ====== Получение следующего доступного номера интерфейса ======
 interfaces=$(ls /sys/class/net/ | grep '^nwg[0-9]\+$')
 
@@ -53,6 +53,9 @@ local_ip=$(generate_local_ip)
 
 # ====== Конфигурация WireGuard-интерфейса через ndmc ======
 configure_wireguard() {
+  ndmc -c "no interface $iface_name"
+  ndmc -c 'system configuration save'
+  sleep 3
   ndmc -c "interface $iface_name"
   ndmc -c "interface $iface_name description @pegakmop-$iface_name"
   ndmc -c "interface $iface_name ip address $local_ip"
