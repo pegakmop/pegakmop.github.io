@@ -348,6 +348,8 @@ esac
   #sing-box run -c "$OUTPUT_FILE"
   log "✅ Установка завершена."
   log "✅ Веб-интерфейс sb: http://$IP_ADDRESS:9090"
+  # Удаление скрипта (пока отключено)
+  #rm -f "$0"
   exit 0
 fi
 
