@@ -140,6 +140,8 @@ EOF
 }
 
 log "=== Запуск скрипта установки Sing-Box на ваше устройство ==="
+ndmc -c "no interface Proxy0" >/dev/null 2>&1
+ndmc -c 'system configuration save' >/dev/null 2>&1
 log "ℹ Обновление списка пакетов..."
 opkg update
 log "ℹ Установка wget с поддержкой HTTPS и curl..."
