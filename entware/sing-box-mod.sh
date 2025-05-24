@@ -64,7 +64,7 @@ EOF
     ndmc -c "interface Proxy0 proxy socks5-udp"
     ndmc -c "interface Proxy0 proxy upstream $IP_ADDRESS 1080"
     ndmc -c "interface Proxy0 up"
-    ndmc -c "interface Proxy0 ip global 1"
+    ndmc -c "interface Proxy0 ip global 65000"
 	ndmc -c "system configuration save"
 	sleep 5
 	
