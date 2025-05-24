@@ -65,7 +65,6 @@ EOF
     ndmc -c "interface Proxy0 proxy upstream $IP_ADDRESS 1080"
     ndmc -c "interface Proxy0 up"
     ndmc -c "interface Proxy0 ip global 1"
-	ndmc -c 'ip policy HydraRoute permit global Proxy0 order 0'
 	ndmc -c "system configuration save"
 	sleep 5
 	
