@@ -185,9 +185,9 @@ FEED_LINE="src/gz HydraRoute $FEED_URL"
 
 if ! grep -qF "$FEED_LINE" "$FEED_CONF" 2>/dev/null; then
   echo "$FEED_LINE" >> "$FEED_CONF"
-  log "✅ Репозиторий HyrdaRoute добавлен."
+  log "✅ Репозиторий HydraRoute добавлен."
 else
-  log "✅ Репозиторий HyrdaRoute был добавлен ранее."
+  log "✅ Репозиторий HydraRoute был добавлен ранее."
 fi
 
 log "ℹ Обновление списка пакетов из добавленных репозиториев..."
