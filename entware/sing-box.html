@@ -210,7 +210,10 @@ curl -o /opt/tmp/sing-box.sh https://raw.githubusercontent.com/pegakmop/pegakmop
     <button onclick="copyCommand()" aria-live="polite" aria-describedby="copiedText">Скопировать команду</button>
     <div class="copied" id="copiedText" role="status" aria-live="polite" aria-atomic="true">Скопировано!</div>
   </div>
-
+<script>
+   let tg = window.Telegram.WebApp;
+   tg.expand();
+</script>
   <script>
     function copyCommand() {
       const command = document.getElementById('command').innerText.trim();
