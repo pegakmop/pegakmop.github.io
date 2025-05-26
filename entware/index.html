@@ -219,19 +219,13 @@
     }
   </script>
   <script>
-            if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./entware.js').then(reg => console.log('ServiceWorker registered:', reg.scope)).catch(err => console.log('ServiceWorker registration failed:', err));
-            });
-  </script>
-  <script>
         document.addEventListener('DOMContentLoaded', () => {
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 
             // Если открыто в PWA, перенаправляем через 3 секунды
             if (isStandalone) {
                 setTimeout(() => {
-                    window.location.href = '/q900950b.html';
+                    window.location.href = '/entware/';
                 }, 5000); // Задержка 3 секунды
             } else {
                 // Показ баннера для iOS
