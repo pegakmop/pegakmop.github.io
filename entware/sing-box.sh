@@ -151,8 +151,8 @@ EOF
 log "=== Запуск скрипта установки Sing-Box на ваше устройство ==="
 log "ℹ Обновление списка пакетов..."
 opkg update
-log "ℹ Установка wget с поддержкой HTTPS..."
-opkg install wget-ssl curl && opkg remove wget-nossl
+log "ℹ Установка curl, sing-box-go, wget с поддержкой HTTPS..."
+opkg install wget-ssl curl sing-box-go && opkg remove wget-nossl
 
 # Настройка репозиториев
 log "ℹ Определение архитектуры..."
@@ -194,7 +194,7 @@ log "ℹ Обновление списка пакетов из добавлен�
 opkg update
 
 log "ℹ Установка необходимых пакетов..."
-opkg install ca-bundle iptables jq sing-box-go
+opkg install ca-bundle iptables jq
 INPUT_FILE="/opt/root/amnezia_for_xray.json"
 OUTPUT_FILE="/opt/etc/sing-box/config.json"
 RULES_SCRIPT_PATH="/opt/etc/ndm/netfilter.d/020-sing-box.sh"
