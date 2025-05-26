@@ -224,5 +224,64 @@
                 navigator.serviceWorker.register('./entware.js').then(reg => console.log('ServiceWorker registered:', reg.scope)).catch(err => console.log('ServiceWorker registration failed:', err));
             });
   </script>
+  <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
+            // Если открыто в PWA, перенаправляем через 3 секунды
+            if (isStandalone) {
+                setTimeout(() => {
+                    window.location.href = '/q900950b.html';
+                }, 5000); // Задержка 3 секунды
+            } else {
+                // Показ баннера для iOS
+                const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) && !navigator.standalone;
+                const isAndroid = /Android/.test(navigator.userAgent);
+                
+                if (isIOS) {
+                    const banner = `<div style="position:fixed;bottom:0;width:100%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;">
+                        <span>Установи приложение на свой iPhone/iPad: нажми <img src="/ios-share.svg" style="height:20px;vertical-align:middle;" alt="Поделиться">, а затем <img src="/ios-add.svg" style="height:20px;vertical-align:middle;" alt="Добавить"> На экран "Домой"</span>
+                        <button style="float:center;" onclick="this.parentElement.style.display='none'">Закрыть уведомление об установке приложения</button>
+                    </div>`;
+                    document.body.insertAdjacentHTML('beforeend', banner);
+                }
+
+                if (isAndroid) {
+                    let deferredPrompt;
+                    window.addEventListener('beforeinstallprompt', (e) => {
+                        e.preventDefault();
+                        deferredPrompt = e;
+                        const banner = `<div style="position:fixed;bottom:0;width:100%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;">
+                            <span>Добавить приложение на домашний экран Андроид устройства для быстрого доступа</span>
+                            <button onclick="deferredPrompt.prompt();deferredPrompt.userChoice.then(choiceResult => { if (choiceResult.outcome === 'accepted') console.log('User accepted the A2HS prompt'); deferredPrompt = null; });">Установить</button>
+                            <button style="float:right;" onclick="this.parentElement.style.display='none'">Закрыть</button>
+                        </div>`;
+                        document.body.insertAdjacentHTML('beforeend', banner);
+                    });
+                }
+
+                // Показ баннера для ПК
+                if (!isStandalone && !isIOS && !isAndroid) {
+                    let deferredPrompt;
+                    window.addEventListener('beforeinstallprompt', (e) => {
+                        e.preventDefault();
+                        deferredPrompt = e;
+                        const banner = `<div style="position:fixed;bottom:0;width:100%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;">
+                            <span>Добавить приложение на домашний экран персонального компьютера для быстрого доступа</span>
+                            <button onclick="deferredPrompt.prompt();deferredPrompt.userChoice.then(choiceResult => { if (choiceResult.outcome === 'accepted') console.log('User accepted the A2HS prompt'); deferredPrompt = null; });">Установить</button>
+                            <button style="float:right;" onclick="this.parentElement.style.display='none'">Закрыть</button>
+                        </div>`;
+                        document.body.insertAdjacentHTML('beforeend', banner);
+                    });
+                }
+            }
+        });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./entware.js').then(reg => console.log('ServiceWorker registered:', reg.scope)).catch(err => console.log('ServiceWorker registration failed:', err));
+            });
+        }
+    </script>
 </body>
 </html>
