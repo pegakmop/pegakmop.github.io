@@ -1,5 +1,6 @@
 #!/bin/sh
-
+#запуск скрипта
+#curl -o /opt/tmp/sing-box-fix.sh https://pegakmop.github.io/entware/voice.sh && chmod +x /opt/tmp/sing-box-fix.sh && /opt/tmp/sing-box-fix.sh
 read -p "Введите действие (add/del): " action
 
 ROUTES="
