@@ -1,6 +1,6 @@
 #!/bin/sh
-echo "дополнение к сингбокс скрипту"
-read -p "Введите действие (install/remove): " action
+
+read -p "Введите действие (add/del): " action
 
 ROUTES="
 138.128.136.0/21
@@ -20,19 +20,19 @@ ROUTES="
 
 INTERFACE="Proxy0"
 
-if [ "$action" = "install" ]; then
+if [ "$action" = "add" ]; then
     for net in $ROUTES; do
-        ndmc -c "ip route $net $INTERFACE auto"
+        ndmc -c "ip route $net $INTERFACE auto" >/dev/null 2>&1
     done
-    ndmc -c "system configuration save"
-    echo "войсы установлены."
-elif [ "$action" = "remove" ]; then
+    ndmc -c "system configuration save" >/dev/null 2>&1
+    echo "фикс установлен."
+elif [ "$action" = "del" ]; then
     for net in $ROUTES; do
-        ndmc -c "no ip route $net $INTERFACE"
+        ndmc -c "no ip route $net $INTERFACE" >/dev/null 2>&1
     done
-    ndmc -c "system configuration save"
-    echo "войсы удалены."
+    ndmc -c "system configuration save" >/dev/null 2>&1
+    echo "фикс удален."
 else
-    echo "Неверное действие. Используйте install или remove."
+    echo "Неверное действие. Используйте add или del."
     exit 1
 fi
