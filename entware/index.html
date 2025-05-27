@@ -227,7 +227,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 
     // Условие: если есть hash — ничего не делать
-    if (hash) return;
+        if (hash) {
+        if (window.Telegram && Telegram.WebApp) {
+            let tg = window.Telegram.WebApp;
+            tg.expand();
+            console.log('Telegram WebApp expanded из-за наличия hash:', hash);
+        }
+        return; // не выполнять остальной код (баннеры и т.д.)
+    }
+
+    // Если st
+    //if (hash) return;
 
     // Условие: если standalone (например, PWA) — тоже ничего не делать
     if (isStandalone) return;
