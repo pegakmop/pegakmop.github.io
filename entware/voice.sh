@@ -1,0 +1,38 @@
+#!/bin/sh
+echo "дополнение к сингбокс скрипту"
+read -p "Введите действие (install/remove): " action
+
+ROUTES="
+138.128.136.0/21
+162.158.0.0/15
+172.64.0.0/13
+34.0.0.0/15
+34.2.0.0/16
+34.3.0.0/23
+34.3.2.0/24
+35.192.0.0/12
+35.208.0.0/12
+35.224.0.0/12
+35.240.0.0/13
+5.200.14.128/25
+66.22.192.0/18
+"
+
+INTERFACE="Proxy0"
+
+if [ "$action" = "install" ]; then
+    for net in $ROUTES; do
+        ndmc -c "ip route $net $INTERFACE auto"
+    done
+    ndmc -c "system configuration save"
+    echo "войсы установлены."
+elif [ "$action" = "remove" ]; then
+    for net in $ROUTES; do
+        ndmc -c "no ip route $net $INTERFACE"
+    done
+    ndmc -c "system configuration save"
+    echo "войсы удалены."
+else
+    echo "Неверное действие. Используйте install или remove."
+    exit 1
+fi
