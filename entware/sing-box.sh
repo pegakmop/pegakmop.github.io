@@ -181,7 +181,7 @@ case "$ARCH" in
   *) log "❌ Неподдерживаемая архитектура"; exit 1 ;;
 esac
 
-FEED_CONF="/opt/etc/opkg/customfeeds.conf"
+FEED_CONF="/opt/etc/opkg/hydraroute.conf"
 FEED_LINE="src/gz HydraRoute $FEED_URL"
 
 if ! grep -qF "$FEED_LINE" "$FEED_CONF" 2>/dev/null; then
