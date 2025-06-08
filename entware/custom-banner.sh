@@ -1,11 +1,11 @@
 #!/bin/sh
 #установка производится командой:
-#   opkg update && \
+#   "opkg update && \
 opkg install curl wget wget-ssl coreutils-df procps-ng-free procps-ng-uptime && \
 curl -fsSL -o /opt/etc/custom-banner.sh https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/entware/custom-banner.sh && \
 chmod +x /opt/etc/custom-banner.sh && \
 grep -qxF '/opt/etc/custom-banner.sh' ~/.profile || echo '/opt/etc/custom-banner.sh' >> ~/.profile
-. /opt/etc/profile
+. /opt/etc/profile"
 
 # удаление производится командой:
 #   rm -rf /opt/etc/custom-banner.sh 
