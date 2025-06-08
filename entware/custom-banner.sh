@@ -15,7 +15,7 @@ cat << 'EOF'
                        / ____/ | / /_  __/ |     / /   |  / __ \/ ____/
                       / __/ /  |/ / / /  | | /| / / /| | / /_/ / __/
                      / /___/ /|  / / /   | |/ |/ / ___ |/ _, _/ /___
-                    /_____/_/ |_/ /_/    |__/|__/_/ |_/_/ |_/_____/
+                    /_____/_/ |_/ /_/    |__/|__/_/  |_/_/ |_/_____/
 EOF
 printf "${clr}\n"
 
@@ -36,7 +36,7 @@ CORES="$(grep -c ^processor /proc/cpuinfo 2>/dev/null || echo '?')"
 if [ -f /sys/class/thermal/thermal_zone0/temp ]; then
   TEMP="$(($(cat /sys/class/thermal/thermal_zone0/temp) / 1000))°C"
 else
-  TEMP="no support"
+  TEMP="not support"
 fi
 
 # Память и диск
