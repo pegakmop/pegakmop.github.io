@@ -1,6 +1,14 @@
 #!/bin/sh
-
+#установка производится командой:
+#   opkg update && \
+opkg install curl wget wget-ssl coreutils-df procps-ng-free procps-ng-uptime && \
+curl -fsSL -o /opt/etc/custom-banner.sh https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/entware/custom-banner.sh && \
+chmod +x /opt/etc/custom-banner.sh && \
+grep -qxF '/opt/etc/custom-banner.sh' ~/.profile || echo '/opt/etc/custom-banner.sh' >> ~/.profile
 . /opt/etc/profile
+
+# удаление производится командой:
+#   rm -rf /opt/etc/custom-banner.sh 
 
 # PROMPT
 # colors
@@ -32,21 +40,19 @@ print_menu() {
 EOF
 }
 
-# Вызов функции для отображения меню
+# Вызов баннера
 print_menu
 
-# Set the prompt.
+# Установка приглашения
 sh_prompt() {
     PS1=${cyn}' \w '${grn}' \$ '${clr}
 }
 sh_prompt
 
-# Обновление opkg
+# Обновление списка пакетов
 opkg update > /dev/null 2>&1
 
-# Зависимости: coreutils-df procps-ng-free procps-ng-uptime
-
-# Определение типа процессора
+# Определение типа CPU
 _CPU_TYPE="$(cat /proc/cpuinfo | awk -F: '/(model|system)/{print $2}' | head -1 | sed 's, ,,')"
 
 if [ "$(uname -m)" = "aarch64" ]; then
@@ -58,7 +64,7 @@ fi
 # Получение внешнего IP
 EXT_IP="$(curl -s https://ipinfo.io/ip 2>/dev/null || echo 'N/A')"
 
-# Вывод информации
+# Основной вывод
 printf "\n"
 printf "   ${wht} %-10s ${ylw} %-30s ${wht} %-10s ${ylw}    %-30s ${clr}\n" \
     "Date:" "📆 $(date)" \
@@ -72,6 +78,18 @@ printf "   ${wht} %-10s ${grn} %-30s ${wht}   %-10s ${grn}    %-30s ${clr}\n" \
 printf "   ${wht} %-10s ${grn} %-30s ${wht} %-10s ${grn} %-30s ${clr}\n" \
     "Kernel:" "$(uname -r)" \
     "Architecture:" "$(uname -m)"
+
+# Температура CPU — только если доступен файл
+if [ -f /sys/class/thermal/thermal_zone0/temp ]; then
+    CPU_TEMP_C=$(cat /sys/class/thermal/thermal_zone0/temp)
+    if echo "$CPU_TEMP_C" | grep -Eq '^[0-9]+$'; then
+        CPU_TEMP="$(($CPU_TEMP_C / 1000))°C"
+        printf "   ${wht} %-10s ${red} %-30s ${clr}\n" \
+            "CPU Temp:" "$CPU_TEMP"
+    fi
+fi
+
+# Остальная информация
 printf "   ${wht} %-10s ${pur} %-30s ${clr}\n" \
     "Disk:" "$(df -h | grep '/opt' | awk '{print $2" (size) / "$3" (used) / "$4" (free) / "$5" (used %) : 💾 "$6}')"
 printf "   ${wht} %-10s ${pur} %-30s ${clr}\n" \
@@ -92,7 +110,7 @@ else
         "Dist:" "Entware"
 fi
 
-# Установленные и доступные обновления
+# Установленные пакеты и обновления
 printf "   ${wht} %-10s ${cyn} %-30s ${wht}     %-10s ${cyn} %-30s ${clr}\n" \
     "Installed:" "📦📦 $(opkg list-installed | wc -l)" \
     "Upgrade:" "📦 $(opkg list-upgradable | wc -l)"
