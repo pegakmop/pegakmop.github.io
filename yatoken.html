@@ -77,6 +77,32 @@
       border-radius: 5px;
       text-align: center;
       margin: 10px 0;
+      user-select: text;
+    }
+
+    #token-display.hidden-text {
+      color: transparent;
+      text-shadow: 0 0 5px #aaa;
+    }
+
+    #token-display.copiable {
+      cursor: pointer;
+      position: relative;
+    }
+
+    #copy-hint {
+      position: absolute;
+      top: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--success);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 0.9em;
+      white-space: nowrap;
+      display: none;
+      z-index: 10;
     }
 
     footer {
@@ -108,21 +134,27 @@
         <li>
           Перейдите в приватном режиме в Teak браузере для авторизации:<br />
           <a href="https://oauth.yandex.ru/authorize?response_type=token&client_id=23cabbbdc6cd418abb4b39c32c41195d">
-            🔑 Авторизация в Яндекс (я авторизовался по номеру и вводил код из пуш уведомления)
+            🔑 Авторизация в Яндекс
           </a>
         </li>
       </ol>
-      <p>После входа вы будете перенаправлены сюда же, и токен автоматически скопируется в буфер обмена, если нет, то предложит выделить и скопировать вручную.</p>
+      <p>После входа вы будете перенаправлены сюда же, и токен автоматически скопируется в буфер обмена, если нет — можно будет скопировать вручную.</p>
     </div>
 
     <div id="done" class="hidden">
       <h2>✅ Токен скопирован!</h2>
-      <div id="token-display"></div>
+      <div id="token-container">
+        <div style="position: relative;">
+          <div id="copy-hint">Скопировано!</div>
+          <div id="token-display" class="hidden-text copiable">••••••••••••••••••••••••••••••••</div>
+        </div>
+        <button id="reveal-button">👁 Показать токен</button>
+      </div>
       <a class="button" href="/yatoken">
-        🔙 Вернуться на главную страницу.
+        🔙 Вернуться на главную страницу
       </a>
       <a class="button" href="https://yoomoney.ru/to/410012481566554" target="_blank">
-        💸 Тут при желании можно поддержать автора на новые свершения, использует юмани.
+        💸 Поддержать автора на новые свершения
       </a>
     </div>
   </div>
@@ -137,20 +169,41 @@
       const token = hash.startsWith("#") ? hash.substring(1) : null;
 
       if (token && token.length > 30) {
+        const tokenDisplay = document.getElementById("token-display");
+        const revealButton = document.getElementById("reveal-button");
+        const copyHint = document.getElementById("copy-hint");
+
         document.getElementById("instructions").classList.add("hidden");
         document.getElementById("done").classList.remove("hidden");
-        document.getElementById("token-display").textContent = token;
 
-        // Попытка скопировать
+        tokenDisplay.textContent = token;
+
+        // Попытка автоматического копирования
         navigator.clipboard.writeText(token).then(() => {
           alert("✅ Токен скопирован в буфер обмена!");
         }).catch(() => {
-          alert("⚠️ Не удалось скопировать автоматически. Придется копировать дальше вручную");
-          prompt("Выделите всё и скопируйте токен вручную:", token);
+          alert("⚠️ Не удалось скопировать автоматически. Придётся вручную.");
         });
 
-        // Удаляем хеш
+        // Очистка хеша
         history.replaceState(null, "", location.pathname);
+
+        // Показать токен
+        revealButton.addEventListener("click", () => {
+          tokenDisplay.classList.remove("hidden-text");
+          tokenDisplay.style.color = "#222";
+          revealButton.style.display = "none";
+        });
+
+        // Копирование при нажатии
+        tokenDisplay.addEventListener("click", () => {
+          navigator.clipboard.writeText(tokenDisplay.textContent.trim()).then(() => {
+            copyHint.style.display = "block";
+            setTimeout(() => copyHint.style.display = "none", 1500);
+          }).catch(() => {
+            alert("❌ Не удалось скопировать.");
+          });
+        });
       }
     })();
   </script>
