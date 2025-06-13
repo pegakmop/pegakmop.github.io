@@ -1,94 +1,152 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Получение токена Яндекс</title>
   <style>
+    :root {
+      --primary: #0066cc;
+      --success: #00a000;
+      --danger: #d9534f;
+      --light: #f4f4f4;
+      --dark: #222;
+      --accent: #ffc107;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: sans-serif;
-      line-height: 1.5;
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--light);
+      color: var(--dark);
       padding: 20px;
+    }
+
+    .container {
       max-width: 600px;
-      margin: auto;
+      margin: 0 auto;
+      background: white;
+      border-radius: 10px;
+      padding: 25px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
-    h1 {
-      color: #333;
+
+    h1, h2 {
+      color: var(--primary);
+      text-align: center;
     }
-    code {
-      background: #eee;
-      padding: 2px 5px;
-      border-radius: 4px;
+
+    ol {
+      padding-left: 20px;
     }
+
+    a {
+      color: var(--primary);
+      word-break: break-word;
+    }
+
+    .button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      text-align: center;
+      background-color: var(--success);
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+
     .hidden {
       display: none;
     }
-    a.button {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 10px 15px;
-      background-color: #00a300;
-      color: white;
-      text-decoration: none;
+
+    #token-display {
+      font-family: monospace;
+      font-size: 1rem;
+      word-break: break-all;
+      background: #f9f9f9;
+      border: 1px dashed #ccc;
+      padding: 10px;
       border-radius: 5px;
-      font-weight: bold;
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 0.9em;
+      text-align: center;
+      color: #777;
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <div id="instructions">
+      <h1>🎟 Получение токена Яндекс</h1>
+      <ol>
+        <li>
+          Установите браузер <strong>Teak</strong> из App Store:<br />
+          <a href="https://apps.apple.com/ru/app/теаk-браузер-tampermonkey/id6443938027" target="_blank">
+            📥 Скачать Teak
+          </a>
+        </li>
+        <li>В настройках браузера Teak запретите открытие в связанных приложениях</li>
+        <li>
+          Установите расширение:<br />
+          <a href="https://github.com/pegakmop/pegakmop.github.io/raw/main/yatoken.user.js" target="_blank">
+            📜 Установить расширение
+          </a>
+        </li>
+        <li>
+          Перейдите в приватном режиме в Teak браузере для авторизации:<br />
+          <a href="https://oauth.yandex.ru/authorize?response_type=token&client_id=23cabbbdc6cd418abb4b39c32c41195d">
+            🔑 Авторизация в Яндекс
+          </a>
+        </li>
+      </ol>
+      <p>После входа вы будете перенаправлены сюда же, и токен автоматически скопируется в буфер обмена.</p>
+    </div>
 
-  <div id="instructions">
-    <h1>Инструкция по получению токена Яндекс</h1>
-    <ol>
-      <li>Установите браузер <strong>Teak</strong> из App Store:<br>
-        <a href="https://apps.apple.com/ru/app/теаk-браузер-tampermonkey/id6443938027" target="_blank">
-          📥 Скачать Teak
-        </a>
-      </li>
-      <li>В настройках боаузера teak включите: <strong>Запрет на открытие в связанных приложениях</strong>.</li>
-      <li>Установите расширение:<br>
-        <a href="https://github.com/pegakmop/pegakmop.github.io/raw/main/yatoken.user.js" target="_blank">
-          📜 Установить расширение
-        </a>
-      </li>
-      <li>Перейдите по ссылке для авторизации:<br>
-        <a href="https://oauth.yandex.ru/authorize?response_type=token&client_id=23cabbbdc6cd418abb4b39c32c41195d">
-          🔑 Авторизоваться в Яндекс
-        </a>
-      </li>
-    </ol>
-    <p>После авторизации вы будете перенаправлены на эту страницу с токеном. Он автоматически скопируется в буфер обмена.</p>
+    <div id="done" class="hidden">
+      <h2>✅ Токен скопирован!</h2>
+      <div id="token-display"></div>
+      <a class="button" href="https://yoomoney.ru/to/410012481566554" target="_blank">
+        💸 Тут при желании можно поддержать автора на новые свершения, использует юмани.
+      </a>
+    </div>
   </div>
 
-  <div id="done" class="hidden">
-    <h2>✅ Токен скопирован!</h2>
-    <p><strong id="token-display"></strong></p>
-    <p>Если скрипт помог — поблагодари автора рублём 👇</p>
-    <a class="button" href="https://yoomoney.ru/to/410012481566554" target="_blank">
-      💸 Поддержать автора рублем(юмани)
-    </a>
-  </div>
+  <footer>
+    Сделано с заботой @pegakmop
+  </footer>
 
   <script>
-    (function() {
+    (function () {
       const hash = location.hash;
-      const token = hash.startsWith('#') ? hash.substring(1) : null;
+      const token = hash.startsWith("#") ? hash.substring(1) : null;
 
       if (token && token.length > 30) {
-        // Обновляем UI
         document.getElementById("instructions").classList.add("hidden");
         document.getElementById("done").classList.remove("hidden");
         document.getElementById("token-display").textContent = token;
 
-        // Пытаемся скопировать токен
+        // Попытка скопировать
         navigator.clipboard.writeText(token).then(() => {
           alert("✅ Токен скопирован в буфер обмена!");
         }).catch(() => {
-          // Если не получилось — prompt
-          alert("⚠️ Не удалось скопировать автоматически.");
-          prompt("Скопируй токен вручную:", token);
+          alert("⚠️ Не удалось скопировать автоматически. Придется копировать дальше вручную");
+          prompt("Выделите всё и скопируйте токен вручную:", token);
         });
 
-        // Убираем хеш из адреса
+        // Удаляем хеш
         history.replaceState(null, "", location.pathname);
       }
     })();
