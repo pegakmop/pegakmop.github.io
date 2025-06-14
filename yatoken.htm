@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Получение токена Яндекс</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1, h2 {
+      color: #333;
+    }
+    ol {
+      padding-left: 20px;
+    }
+    li {
+      margin-bottom: 10px;
+    }
+    a {
+      color: #0056b3;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .hidden {
+      display: none;
+    }
+    .button {
+      display: inline-block;
+      margin: 10px 5px 0 0;
+      padding: 10px 15px;
+      background: #007bff;
+      color: white;
+      border-radius: 4px;
+      text-decoration: none;
+    }
+    #token-container {
+      margin-top: 20px;
+    }
+    .copiable {
+      background: #f0f0f0;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 18px;
+      user-select: all;
+    }
+    .hidden-text {
+      color: transparent;
+      text-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    #reveal-button {
+      margin-top: 10px;
+      padding: 8px 14px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #copy-hint {
+      display: none;
+      position: absolute;
+      top: -25px;
+      right: 0;
+      background: #4caf50;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- iOS Instructions -->
+    <div id="instructions-ios" class="hidden">
+      <h1>📱 Получение токена (iPhone/iPad)</h1>
+      <ol>
+        <li>
+          Установите браузер <strong>Teak</strong> из App Store:<br />
+          <a href="https://apps.apple.com/ru/app/теаk-браузер-tampermonkey/id6443938027" target="_blank">
+            📥 Скачать Teak
+          </a>
+        </li>
+        <li>В настройках Teak отключите "Открытие в приложениях"</li>
+        <li>
+          Установите расширение:<br />
+          <a href="https://github.com/pegakmop/pegakmop.github.io/raw/main/yatoken.user.js" target="_blank">
+            📜 Установить расширение
+          </a>
+        </li>
+        <li>
+          Откройте в приватном режиме:<br />
+          <a href="https://oauth.yandex.ru/authorize?response_type=token&client_id=23cabbbdc6cd418abb4b39c32c41195d">
+            🔑 Авторизация в Яндекс
+          </a>
+        </li>
+      </ol>
+      <p>После входа токен скопируется или появится для ручного копирования.</p>
+    </div>
+
+    <!-- Android Instructions -->
+    <div id="instructions-android" class="hidden">
+      <h1>🤖 Получение токена (Android)</h1>
+      <ol>
+        <li>Установите Tampermonkey из Play Market</li>
+        <li>
+          Установите скрипт:<br />
+          <a href="https://github.com/pegakmop/pegakmop.github.io/raw/main/yatoken.user.js" target="_blank">
+            📜 Установить скрипт
+          </a>
+        </li>
+        <li>
+          Перейдите по ссылке авторизации:<br />
+          <a href="https://oauth.yandex.ru/authorize?response_type=token&client_id=23cabbbdc6cd418abb4b39c32c41195d">
+            🔑 Авторизация в Яндекс
+          </a>
+        </li>
+      </ol>
+      <p>После входа токен появится и будет доступен для копирования.</p>
+    </div>
+
+    <!-- Desktop Instructions -->
+    <div id="instructions-desktop" class="hidden">
+      <h1>🖥 Получение токена (ПК)</h1>
+      <ol>
+        <li>Откройте сайт в браузере с Tampermonkey (Chrome, Firefox, Safari)</li>
+        <li>
+          Установите скрипт:<br />
+          <a href="https://github.com/pegakmop/pegakmop.github.io/raw/main/yatoken.user.js" target="_blank">
+            📜 Установить скрипт
+          </a>
+        </li>
+        <li>
+          Перейдите по ссылке авторизации:<br />
+          <a href="https://oauth.yandex.ru/authorize?response_type=token&client_id=23cabbbdc6cd418abb4b39c32c41195d">
+            🔑 Авторизация в Яндекс
+          </a>
+        </li>
+      </ol>
+      <p>После входа токен скопируется автоматически или отобразится для ручного копирования.</p>
+    </div>
+
+    <!-- Token Display -->
+    <div id="done" class="hidden">
+      <h2>Скопировать токен можно, тапнув по скрытому тексту!</h2>
+      <div id="token-container">
+        <div style="position: relative;">
+          <div id="copy-hint">Скопировано!</div>
+          <div id="token-display" class="hidden-text copiable">••••••••••••••••••••••••••••••••</div>
+        </div>
+        <button id="reveal-button">👁 Показать токен</button>
+      </div>
+      <a class="button" href="/yatoken">🔙 Вернуться на главную</a>
+      <a class="button" href="https://yoomoney.ru/to/410012481566554" target="_blank">💸 Поддержать</a>
+    </div>
+  </div>
+
+  <!-- JS Logic -->
+  <script>
+  (function () {
+    const ua = navigator.userAgent;
+    const isiOS = /iPhone|iPad|iPod/.test(ua);
+    const isAndroid = /Android/.test(ua);
+    const token = location.hash.startsWith("#") ? location.hash.substring(1) : null;
+
+    if (token && token.length > 30) {
+      const tokenDisplay = document.getElementById("token-display");
+      const revealButton = document.getElementById("reveal-button");
+      const copyHint = document.getElementById("copy-hint");
+
+      document.getElementById("instructions-ios").classList.add("hidden");
+      document.getElementById("instructions-android").classList.add("hidden");
+      document.getElementById("instructions-desktop").classList.add("hidden");
+      document.getElementById("done").classList.remove("hidden");
+
+      tokenDisplay.textContent = token;
+
+      navigator.clipboard.writeText(token).then(() => {
+        alert("✅ Токен скопирован в буфер обмена!");
+      }).catch(() => {
+        alert("⚠️ Не удалось скопировать автоматически.");
+      });
+
+      history.replaceState(null, "", location.pathname);
+
+      revealButton.addEventListener("click", () => {
+        tokenDisplay.classList.remove("hidden-text");
+        tokenDisplay.style.color = "#222";
+        revealButton.style.display = "none";
+      });
+
+      tokenDisplay.addEventListener("click", () => {
+        navigator.clipboard.writeText(tokenDisplay.textContent.trim()).then(() => {
+          copyHint.style.display = "block";
+          setTimeout(() => copyHint.style.display = "none", 1500);
+        }).catch(() => {
+          alert("❌ Не удалось скопировать.");
+        });
+      });
+
+    } else {
+      if (isiOS) {
+        document.getElementById("instructions-ios").classList.remove("hidden");
+      } else if (isAndroid) {
+        document.getElementById("instructions-android").classList.remove("hidden");
+      } else {
+        document.getElementById("instructions-desktop").classList.remove("hidden");
+      }
+    }
+  })();
+  </script>
+</body>
+</html>
