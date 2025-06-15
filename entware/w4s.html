@@ -196,7 +196,7 @@
     <p><button style="font-size:12px;" onclick="history.back();return false;"> 🔙 Назад на главную </button></p>
     <h1>Установка Web4static</h1>
     <code id="command" tabindex="0" aria-label="Команда для установки WireGuard">
-opkg update && opkg install curl && curl -L -s "https://raw.githubusercontent.com/spatiumstas/web4static/main/install.sh" > /tmp/install.sh && sh /tmp/install.sh
+opkg update && opkg install curl wget-ssl && opkg install https://github.com/spatiumstas/web4static/releases/download/1.9/web4static_1.9_kn.ipk
     </code>
     <button onclick="copyCommand()" aria-live="polite" aria-describedby="copiedText">Скопировать команду</button>
     <div class="copied" id="copiedText" role="status" aria-live="polite" aria-atomic="true">Скопировано!</div>
