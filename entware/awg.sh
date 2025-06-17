@@ -1,85 +1,115 @@
-#!/bin/sh
-echo "На все всплывающие ошибки не обращайте внимания, конфиг всё равно добавится в роутер, с уважением автор конфига @pegakmop"
-# ====== Получение следующего доступного номера интерфейса ======
+echo "Приветствую всех запустивших и просматривающих скрипт, @pegakmop снова с вами, по всем вопросам пишите мне в телеграмм"
+echo ""
+echo "Данный скрипт представляет собой генерацию WARP конфигурации Cloudflare  и установку её на роутеры фирмы Keenetic при активной поддержке сайта https://warp-gen.vercel.app если бы не они я бы и не стал заморачиваться с данным скриптом"
+logger "Данный скрипт представляет собой генерацию WARP конфигурации Cloudflare  и установку её на роутеры фирмы Keenetic при активной поддержке сайта https://warp-gen.vercel.app если бы не они я бы и не стал заморачиваться с данным скриптом"
+echo ""
 interfaces=$(ls /sys/class/net/ | grep '^nwg[0-9]\+$')
-
 if [ -z "$interfaces" ]; then
     iface_num=0
 else
     max=$(echo "$interfaces" | sed 's/nwg//' | sort -n | tail -n1)
     iface_num=$((max + 1))
 fi
-
 iface_name="Wireguard$iface_num"
-
-# ====== Генерация случайного байта (0-255) ======
-rand_byte() {
-  hexdump -n 1 -e '/1 "%u"' /dev/urandom
-}
-
-# ====== Генерация случайного IP-адреса Cloudflare WARP ======
-generate_warp_ip() {
-  n=$(rand_byte)
-  n=$((n % 2))  # Ограничиваем выбор до двух вариантов
-  case $n in
-    0) ip="188.114.96" ;;
-    1) ip="188.114.97" ;;
-  esac
-
-  last_octet=$(rand_byte)
-  echo "$ip.$((last_octet % 256))"
-}
-
-# ====== Генерация случайного порта ======
-generate_port() {
-  ports="500 854 859 864 878 880 890 891 894 903 908 928 934 939 942 943 945 946 955 968 987 988 1002 1010 1014 1018 1070 1074 1180 1387 1701 1843 2371 2408 2506 3138 3476 3581 3854 4177 4198 4233 4500 5279 5956 7103 7152 7156 7281 7559 8319 8742 8854 8886"
-  count=$(echo "$ports" | wc -w)
-  rand_index=$(rand_byte)
-  index=$(( (rand_index % count) + 1 ))
-  echo "$ports" | cut -d' ' -f"$index"
-}
-
-# ====== Генерация случайного локального IP-адреса ======
-generate_local_ip() {
-  last_octet=$(rand_byte)
-  last_octet=$(( (last_octet % 255) + 1 ))  # от 1 до 255
-  echo "172.16.0.$last_octet/32"
-}
-
-# ====== Генерация всех параметров ======
-peer_ip=$(generate_warp_ip)
-peer_port=$(generate_port)
-local_ip=$(generate_local_ip)
-
-# ====== Конфигурация WireGuard-интерфейса через ndmc ======
 configure_wireguard() {
-  ndmc -c "no interface $iface_name"
-  ndmc -c 'system configuration save'
+  ndmc -c "no interface $iface_name" >/dev/null 2>&1
+  ndmc -c "system configuration save" >/dev/null 2>&1
+  echo "Устанавливаю конфигурацию на роутер..."
+  logger "Устанавливаю конфигурацию на роутер..."
+  logger "Возможно будет 1 или 2 ошибки красным гореть, не обращайте внимания на них, если у вас интернет только ip4, то это ошибки попытки добавления ip6 адресов. Если вы пользуетесь ip4 + ip6 ошибок не будет вообще."
+  echo ""
   sleep 3
-  ndmc -c "interface $iface_name"
-  ndmc -c "interface $iface_name description @pegakmop-$iface_name"
-  ndmc -c "interface $iface_name ip address $local_ip"
-  ndmc -c "interface $iface_name wireguard private-key CHSL4T1CxVhMoah1SgDQyc7QFgl4bZw/QaHQc3lopUg="
-  ndmc -c "interface $iface_name wireguard listen-port 2408"
-  ndmc -c "interface $iface_name wireguard peer bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo= !AWG"
-  ndmc -c "interface $iface_name wireguard peer bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo= description Cloudflare-WARP"
-  ndmc -c "interface $iface_name wireguard peer bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo= allow-ips 0.0.0.0/0"
-  ndmc -c "interface $iface_name wireguard peer bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo= endpoint $peer_ip:$peer_port"
-  ndmc -c "interface $iface_name wireguard peer bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo= keepalive-interval 30"
-  ndmc -c 'system configuration save'
-  ndmc -c "interface $iface_name up"
-  ndmc -c "interface Wireguard3 wireguard asc 4 40 70 0 0 1 2 3 4"
-  ndmc -c 'system configuration save'
+  ndmc -c "interface $iface_name" >/dev/null 2>&1
+  ndmc -c "interface $iface_name description @pegakmop-$iface_name" >/dev/null 2>&1
+  ndmc -c "interface $iface_name ip address $address_ip4/32" >/dev/null 2>&1
+  ndmc -c "interface $iface_name ip address $address_ip6/128" >/dev/null 2>&1
+  ndmc -c "interface $iface_name wireguard private-key $private_key" >/dev/null 2>&1
+  ndmc -c "interface $iface_name wireguard listen-port $endpoint_port" >/dev/null 2>&1
+  ndmc -c "interface $iface_name wireguard peer $public_key !AWG-ENTWARE" >/dev/null 2>&1
+  ndmc -c "interface $iface_name wireguard peer $public_key allow-ips $allowed_ips_ip4" >/dev/null 2>&1
+  ndmc -c "interface $iface_name wireguard peer $public_key allow-ips $allowed_ips_ip6" >/dev/null 2>&1
+  ndmc -c "interface $iface_name wireguard peer $public_key endpoint $endpoint" >/dev/null 2>&1
+  ndmc -c "interface $iface_name wireguard peer $public_key keepalive-interval 30" >/dev/null 2>&1
+  ndmc -c "system configuration save" >/dev/null 2>&1
+  ndmc -c "interface $iface_name up" >/dev/null 2>&1
+  ndmc -c "interface $iface_name ip global 1" >/dev/null 2>&1
+  ndmc -c "interface $iface_name wireguard asc $jc $jmin $jmax $s1 $s2 $h1 $h2 $h3 $h4" >/dev/null 2>&1
+  ndmc -c "system configuration save" >/dev/null 2>&1
+  echo "В веб-интерфейсе роутера на вкладке других подключений @pegakmop-$iface_name уже доступен."
+  logger "В веб-интерфейсе роутера на вкладке других подключений @pegakmop-$iface_name уже доступен."
+  echo ""
+  echo "Вы всегда можете поддержать автора скрипта рублем на новые свершения задонатив ему на юмани кошелек 410012481566554"
+  logger "Вы всегда можете поддержать автора скрипта рублем на новые свершения задонатив ему на юмани кошелек 410012481566554"
+  echo ""
+  echo "Установка конфигурации на роутер завершена."
+  logger "Установка конфигурации на роутер завершена."
 }
 
-# ====== Запуск настройки ======
-if configure_wireguard; then
-  echo "AmneziaWG уже на вашем роутере..."
-  echo "Интерфейс $iface_name настроен и запущен!"
-  echo "Локальный IP: $local_ip"
-  echo "Пир: $peer_ip:$peer_port"
-  echo "Для генерации нового конфига введи команду в терминал:  /opt/tmp/awg.sh"
-else
-  echo "Ошибка при настройке интерфейса $iface_name!"
+response=$(curl -s https://warp-gen.vercel.app/generate-config)
+success=$(echo "$response" | jq -r '.success')
+if [ "$success" != "true" ]; then
+  echo "Ошибка генерации конфига, попробуйте еще раз, либо вернитесь позднее, заодно напиши @pegakmop пусть проверит всё ли нормально."
+  logger "Ошибка генерации конфига, попробуйте еще раз, либо вернитесь позднее, заодно напиши @pegakmop пусть проверит всё ли нормально."
   exit 1
 fi
+config=$(echo "$response" | jq -r '.config')
+cleaned_config=$(echo "$config" | grep -v -e '^\[Interface\]$' -e '^\[Peer\]$' -e '^$')
+echo "Генерирую конфигурацию..."
+logger "Генерирую конфигурацию..."
+sleep 1
+private_key=$(echo "$cleaned_config" | grep '^PrivateKey' | head -n1 | cut -d '=' -f2- | sed 's/^ *//;s/ *$//')
+s1=$(echo "$cleaned_config" | grep '^S1' | head -n1 | cut -d '=' -f2- | sed 's/^ *//;s/ *$//')
+s2=$(echo "$cleaned_config" | grep '^S2' | head -n1 | cut -d '=' -f2- | sed 's/^ *//;s/ *$//')
+jc=$(echo "$cleaned_config" | grep '^Jc' | head -n1 | cut -d '=' -f2- | sed 's/^ *//;s/ *$//')
+jmin=$(echo "$cleaned_config" | grep '^Jmin' | head -n1 | cut -d '=' -f2- | sed 's/^ *//;s/ *$//')
+jmax=$(echo "$cleaned_config" | grep '^Jmax' | head -n1 | cut -d '=' -f2- | sed 's/^ *//;s/ *$//')
+h1=$(echo "$cleaned_config" | grep '^H1' | head -n1 | cut -d '=' -f2- | sed 's/^ *//;s/ *$//')
+h2=$(echo "$cleaned_config" | grep '^H2' | head -n1 | cut -d '=' -f2- | sed 's/^ *//;s/ *$//')
+h3=$(echo "$cleaned_config" | grep '^H3' | head -n1 | cut -d '=' -f2- | sed 's/^ *//;s/ *$//')
+h4=$(echo "$cleaned_config" | grep '^H4' | head -n1 | cut -d '=' -f2- | sed 's/^ *//;s/ *$//')
+address=$(echo "$cleaned_config" | grep '^Address' | head -n1 | cut -d '=' -f2- | sed 's/^ *//;s/ *$//')
+public_key=$(echo "$cleaned_config" | grep '^PublicKey' | head -n1 | cut -d '=' -f2- | sed 's/^ *//;s/ *$//')
+allowed_ips=$(echo "$cleaned_config" | grep '^AllowedIPs' | head -n1 | cut -d '=' -f2- | sed 's/^ *//;s/ *$//')
+endpoint=$(echo "$cleaned_config" | grep '^Endpoint' | head -n1 | cut -d '=' -f2- | sed 's/^ *//;s/ *$//')
+endpoint_host=$(echo "$endpoint" | cut -d':' -f1)
+endpoint_port=$(echo "$endpoint" | cut -d':' -f2)
+address_clean=$(echo "$address" | tr -d ' ')
+address_ip4=$(echo "$address_clean" | cut -d',' -f1)
+address_ip6=$(echo "$address_clean" | cut -d',' -f2)
+allowed_ips_clean=$(echo "$allowed_ips" | tr -d ' ')
+allowed_ips_ip4=$(echo "$allowed_ips" | cut -d',' -f1)
+allowed_ips_ip6=$(echo "$allowed_ips" | cut -d',' -f2)
+sleep 1
+
+echo ""
+echo "Конфигурация сгенерирована:"
+logger "Конфигурация сгенерирована:"
+echo ""
+#echo "$cleaned_config"
+logger "$cleaned_config"
+#echo ""
+#echo "PrivateKey = $private_key"
+#echo "S1 = $s1"
+#echo "S2 = $s2"
+#echo "Jc = $jc"
+#echo "Jmin = $jmin"
+#echo "Jmax = $jmax"
+#echo "H1 = $h1"
+#echo "H2 = $h2"
+#echo "H3 = $h3"
+#echo "H4 = $h4"
+#echo "Address = $address"
+#echo "address IPv4: $address_ip4"
+#echo "address IPv6: $address_ip6"
+#echo "PublicKey = $public_key"
+#echo "AllowedIPs = $allowed_ips"
+#echo "allowed_ips IPv4: $allowed_ips_ip4"
+#echo "allowed_ips IPv6: $allowed_ips_ip6"
+#echo "Endpoint = $endpoint"
+#echo "Endpoint Host = $endpoint_host"
+#echo "Endpoint Port = $endpoint_port"
+#echo ""
+
+
+
+configure_wireguard
