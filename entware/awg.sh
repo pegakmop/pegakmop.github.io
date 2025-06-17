@@ -1,7 +1,7 @@
 echo "Приветствую всех запустивших и просматривающих скрипт, @pegakmop снова с вами, по всем вопросам пишите мне в телеграмм"
 echo ""
-echo "Данный скрипт представляет собой генерацию WARP конфигурации Cloudflare  и установку её на роутеры фирмы Keenetic при активной поддержке сайта https://warp-gen.vercel.app если бы не они я бы и не стал заморачиваться с данным скриптом"
-logger "Данный скрипт представляет собой генерацию WARP конфигурации Cloudflare  и установку её на роутеры фирмы Keenetic при активной поддержке сайта https://warp-gen.vercel.app если бы не они я бы и не стал заморачиваться с данным скриптом"
+echo "Данный скрипт представляет собой генерацию WARP конфигурации Cloudflare  и установку её на роутеры фирмы Keenetic при активной поддержке двух сайтов, если бы не они я бы и не стал заморачиваться с данным скриптом"
+logger "Данный скрипт представляет собой генерацию WARP конфигурации Cloudflare  и установку её на роутеры фирмы Keenetic при активной поддержке двух сайтов, если бы не они я бы и не стал заморачиваться с данным скриптом"
 echo ""
 interfaces=$(ls /sys/class/net/ | grep '^nwg[0-9]\+$')
 if [ -z "$interfaces" ]; then
@@ -45,15 +45,53 @@ configure_wireguard() {
   logger "Установка конфигурации на роутер завершена."
 }
 
-response=$(curl -s https://warp-gen.vercel.app/generate-config)
-success=$(echo "$response" | jq -r '.success')
-if [ "$success" != "true" ]; then
-  echo "Ошибка генерации конфига, попробуйте еще раз, либо вернитесь позднее, заодно напиши @pegakmop пусть проверит всё ли нормально."
-  logger "Ошибка генерации конфига, попробуйте еще раз, либо вернитесь позднее, заодно напиши @pegakmop пусть проверит всё ли нормально."
-  exit 1
-fi
-config=$(echo "$response" | jq -r '.config')
-cleaned_config=$(echo "$config" | grep -v -e '^\[Interface\]$' -e '^\[Peer\]$' -e '^$')
+
+while true; do
+  echo "Выберите источник генерации конфига:"
+  echo "1 - warp-gen.vercel.app"
+  echo "2 - config-generator-warp.vercel.app"
+  read -r -p "Ваш выбор ответ цифрой (1 или 2): " choice
+
+  case "$choice" in
+    1)
+      echo "Вы выбрали источник: warp-gen.vercel.app"
+      response=$(curl -s https://warp-gen.vercel.app/generate-config)
+      success=$(echo "$response" | jq -r '.success')
+
+      if [ "$success" != "true" ]; then
+        echo "Ошибка генерации конфига, попробуйте еще раз, либо вернитесь позднее, заодно напиши @pegakmop пусть проверит всё ли нормально."
+        logger "Ошибка генерации конфига, попробуйте еще раз, либо вернитесь позднее, заодно напиши @pegakmop пусть проверит всё ли нормально."
+        exit 1
+      fi
+
+      config=$(echo "$response" | jq -r '.config')
+      cleaned_config=$(echo "$config" | grep -v -e '^\[Interface\]$' -e '^\[Peer\]$' -e '^$')
+      break
+      ;;
+    2)
+      echo "Вы выбрали источник: config-generator-warp.vercel.app"
+      response=$(curl -s https://config-generator-warp.vercel.app/warp)
+      success=$(echo "$response" | jq -r '.success')
+
+      if [ "$success" != "true" ]; then
+        echo "Ошибка генерации конфига, попробуйте еще раз, либо вернитесь позднее, заодно напиши @pegakmop пусть проверит всё ли нормально."
+        logger "Ошибка генерации конфига, попробуйте еще раз, либо вернитесь позднее, заодно напиши @pegakmop пусть проверит всё ли нормально."
+        exit 1
+      fi
+
+      config_b64=$(echo "$response" | jq -r '.content')
+      config=$(echo "$config_b64" | base64 -d)
+      cleaned_config=$(echo "$config" | grep -v -e '^\[Interface\]$' \
+                                               -e '^\[Peer\]$' \
+                                               -e '^$' \
+                                               -e '^#https://config-generator-warp.vercel.app')
+      break
+      ;;
+    *)
+      echo "Неверный выбор. Пожалуйста, введите 1 или 2."
+      ;;
+  esac
+done
 echo "Генерирую конфигурацию..."
 logger "Генерирую конфигурацию..."
 sleep 1
@@ -77,10 +115,9 @@ address_clean=$(echo "$address" | tr -d ' ')
 address_ip4=$(echo "$address_clean" | cut -d',' -f1)
 address_ip6=$(echo "$address_clean" | cut -d',' -f2)
 allowed_ips_clean=$(echo "$allowed_ips" | tr -d ' ')
-allowed_ips_ip4=$(echo "$allowed_ips" | cut -d',' -f1)
-allowed_ips_ip6=$(echo "$allowed_ips" | cut -d',' -f2)
+allowed_ips_ip4=$(echo "$allowed_ips_clean" | cut -d',' -f1)
+allowed_ips_ip6=$(echo "$allowed_ips_clean" | cut -d',' -f2)
 sleep 1
-
 echo ""
 echo "Конфигурация сгенерирована:"
 logger "Конфигурация сгенерирована:"
@@ -109,7 +146,4 @@ logger "$cleaned_config"
 #echo "Endpoint Host = $endpoint_host"
 #echo "Endpoint Port = $endpoint_port"
 #echo ""
-
-
-
 configure_wireguard
