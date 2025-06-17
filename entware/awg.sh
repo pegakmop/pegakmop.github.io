@@ -92,6 +92,7 @@ while true; do
       ;;
   esac
 done
+echo ""
 echo "Генерирую конфигурацию..."
 logger "Генерирую конфигурацию..."
 sleep 1
