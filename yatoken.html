@@ -165,6 +165,42 @@
     </div>
   </div>
 
+      <!-- Desktop Instructions -->
+    <div id="instructions-android" class="hidden">
+      <h1>🖥 Получение токена (android)</h1>
+      <ol>
+        <li>Откройте сайт в браузере с установленным расширением <a href="https://www.tampermonkey.net/">Tampermonkey</a> (Chrome, Firefox, Safari)</li>
+        <li>
+          Установите и активируйте скрипт:<br />
+          <a href="https://github.com/pegakmop/pegakmop.github.io/raw/main/yatoken.user.js" target="_blank">
+            📜 Установить скрипт
+          </a>
+        </li>
+        <li>
+          Перейдите по ссылке авторизации:<br />
+          <a href="https://oauth.yandex.ru/authorize?response_type=token&client_id=23cabbbdc6cd418abb4b39c32c41195d">
+            🔑 Авторизация в Яндекс
+          </a>
+        </li>
+      </ol>
+      <p>После входа токен скопируется автоматически или отобразится для ручного копирования.</p>
+    </div>
+
+    <!-- Token Display -->
+    <div id="done" class="hidden">
+      <h2>Скопировать токен можно, тапнув по скрытому тексту!</h2>
+      <div id="token-container">
+        <div style="position: relative;">
+          <div id="copy-hint">Скопировано!</div>
+          <div id="token-display" class="hidden-text copiable">••••••••••••••••••••••••••••••••</div>
+        </div>
+        <button id="reveal-button">👁 Показать токен</button>
+      </div>
+      <a class="button" href="/yatoken">🔙 Вернуться на главную</a>
+      <a class="button" href="https://yoomoney.ru/to/410012481566554" target="_blank">💸 Поддержать</a>
+    </div>
+  </div>
+
   <!-- JS Logic -->
   <script>
   (function () {
