@@ -2,13 +2,11 @@
 
 # === Installer by @pegakmop ===
 
-PEGAKMOP="pegakmop"
-PORT="88"
-HRNEO_DIR="/opt/share/www/$PEGAKMOP"
+HRNEO_DIR="/opt/share/www/pegakmop"
 INDEX_FILE="$HRNEO_DIR/index.php"
 MANIFEST_FILE="$HRNEO_DIR/manifest.json"
 LIGHTTPD_CONF_DIR="/opt/etc/lighttpd/conf.d"
-LIGHTTPD_CONF_FILE="$LIGHTTPD_CONF_DIR/80-hrneo.conf"
+LIGHTTPD_CONF_FILE="$LIGHTTPD_CONF_DIR/80-pegakmop.conf"
 
 echo "[*] Проверка Entware..."
 if ! command -v opkg >/dev/null 2>&1; then
@@ -41,8 +39,8 @@ fi
 echo "[*] Создание нового manifest.json..."
 cat > "$MANIFEST_FILE" << 'EOF'
 {
-  "name": "$PEGAKMOP",
-  "short_name": "$PEGAKMOP",
+  "name": "pegakmop",
+  "short_name": "pegakmop",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1b2434",
@@ -61,14 +59,13 @@ EOF
 
 if [ -f "$INDEX_FILE" ]; then
     echo "[*] Удаление старого index.php..."
-    //rm "$INDEX_FILE"
+    #rm "$INDEX_FILE"
 fi
 
 echo "[*] Создание нового index.php..."
-cat > "$INDEX_FILE" << 'EOF'
+cat > "$INDEX_FILE" << EOF
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+phpinfo();
 ?>
 EOF
 
@@ -79,22 +76,22 @@ fi
 
 echo "[*] Создание конфигурации Lighttpd..."
 cat > "$LIGHTTPD_CONF_FILE" << 'EOF'
-server.port := 80"$PORT"
+server.port := 8088
 server.username := ""
 server.groupname := ""
 
-$HTTP["host"] =~ "^(.+):80"$PORT"$" {
-    url.redirect = ( "^/"$PEGAKMOP"/" => "http://%1:"$PORT"" )
+$HTTP["host"] =~ "^(.+):8088$" {
+    url.redirect = ( "^/pegakmop/" => "http://%1:88" )
     url.redirect-code = 301
 }
 
-$SERVER["socket"] == ":"$PORT"" {
+$SERVER["socket"] == ":88" {
     server.document-root = "/opt/share/www/"
     server.modules += ( "mod_cgi" )
     cgi.assign = ( ".php" => "/opt/bin/php8-cgi" )
     setenv.set-environment = ( "PATH" => "/opt/bin:/usr/bin:/bin" )
     index-file.names = ( "index.php" )
-    url.rewrite-once = ( "^/(.*)" => "/"$PEGAKMOP"/$1" )
+    url.rewrite-once = ( "^/(.*)" => "/pegakmop/$1" )
 }
 EOF
 
@@ -108,7 +105,7 @@ echo "[*] Установка завершена."
 echo "[*] Установщик веб панели удален."
 rm "$0"
 echo ""
-echo "create @pegakmop installed router"
+echo "create @pegakmop installed"
 echo ""
-echo "Перейдите на http://<IP-роутера>:"$PORT""
+echo "Перейдите на http://<IP-роутера>:88"
 echo ""
