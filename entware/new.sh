@@ -57,6 +57,10 @@ cat > "$MANIFEST_FILE" << 'EOF'
 }
 EOF
 
+echo "[*] Скачивание иконок для pwa"
+curl -sL https://raw.githubusercontent.com/pegakmop/hrneo/refs/heads/main/opt/share/www/hrneo/180x180.png -o /opt/share/www/hrneo/180x180.png
+curl -sL https://raw.githubusercontent.com/pegakmop/hrneo/refs/heads/main/opt/share/www/hrneo/apple-touch-icon.png -o /opt/share/www/hrneo/apple-touch-icon.png
+
 if [ -f "$INDEX_FILE" ]; then
     echo "[*] Удаление старого index.php..."
     #rm "$INDEX_FILE"
