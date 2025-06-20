@@ -67,7 +67,7 @@ if [ -f "$INDEX_FILE" ]; then
 fi
 
 echo "[*] Создание нового index.php..."
-cat > "$INDEX_FILE" << EOF
+cat > "$INDEX_FILE" << 'EOF'
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = file_get_contents('php://input');
