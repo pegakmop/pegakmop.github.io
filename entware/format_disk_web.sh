@@ -2,7 +2,7 @@
 
 # === format disk Installer by @pegakmop ===
 
-HRNEO_DIR="/opt/share/www/hrneo"
+HRNEO_DIR="/opt/share/www/format"
 INDEX_FILE="$HRNEO_DIR/index.php"
 MANIFEST_FILE="$HRNEO_DIR/format_disk.sh"
 LIGHTTPD_CONF_DIR="/opt/etc/lighttpd/conf.d"
@@ -181,27 +181,27 @@ fi
 
 echo "[*] Создание конфигурации Lighttpd..."
 cat > "$LIGHTTPD_CONF_FILE" << 'EOF'
-server.port := 8088
+server.port := 8098
 server.username := ""
 server.groupname := ""
 
-$HTTP["host"] =~ "^(.+):8088$" {
-    url.redirect = ( "^/hrneo/" => "http://%1:88" )
+$HTTP["host"] =~ "^(.+):8098$" {
+    url.redirect = ( "^/format/" => "http://%1:98" )
     url.redirect-code = 301
 }
 
-$SERVER["socket"] == ":88" {
+$SERVER["socket"] == ":98" {
     server.document-root = "/opt/share/www/"
     server.modules += ( "mod_cgi" )
     cgi.assign = ( ".php" => "/opt/bin/php8-cgi" )
     setenv.set-environment = ( "PATH" => "/opt/bin:/usr/bin:/bin" )
     index-file.names = ( "index.php" )
-    url.rewrite-once = ( "^/(.*)" => "/hrneo/$1" )
+    url.rewrite-once = ( "^/(.*)" => "/format/$1" )
 }
 EOF
 
 echo "[*] Установка прав и перезапуск..."
-chmod +x /opt/share/www/hrneo/format-disk.sh
+chmod +x /opt/share/www/format/format-disk.sh
 ln -sf /opt/etc/init.d/S80lighttpd /opt/bin/php
 chmod +x "$INDEX_FILE"
 /opt/etc/init.d/S80lighttpd enable
@@ -213,5 +213,5 @@ rm "$0"
 echo ""
 echo "format disk create @pegakmop installed"
 echo ""
-echo "Перейдите на http://<IP-роутера>:88"
+echo "Перейдите на http://<IP-роутера>:98"
 echo ""
