@@ -71,13 +71,12 @@ cat > "$INDEX_FILE" << 'EOF'
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = file_get_contents('php://input');
-    //$path = '/opt/share/www/hrneo/config.json';
     $path = '/opt/etc/sing-box/config.json';
 
     if (!is_dir(dirname($path))) mkdir(dirname($path), 0755, true);
 
     if (file_put_contents($path, $data)) {
-        shell_exec('/opt/etc/init.d/S99singbox restart');
+        shell_exec('/opt/etc/init.d/S99sing-box restart');
         echo "✅ Конфигурация установлена и Singbox перезапущен";
     } else {
         echo "❌ Не удалось записать конфигурацию";
@@ -311,7 +310,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   const configText = document.getElementById('output').textContent;
 
   try {
-    const response = await fetch('http://192.168.1.1:88/hrneo/index.php', {
+    const response = await fetch('index.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: configText
