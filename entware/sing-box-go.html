@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Установка веб sing-box-go generator для Entware</title>
+  <style>
+    :root {
+      --bg-light: #f4f4f4;
+      --bg-dark: #121212;
+      --text-light: #333;
+      --text-dark: #eee;
+      --btn-bg-light: #007bff;
+      --btn-bg-dark: #3399ff;
+      --btn-hover-light: #0056b3;
+      --btn-hover-dark: #2277dd;
+      --code-bg-light: #eee;
+      --code-bg-dark: #222;
+      --shadow-light: rgba(0, 0, 0, 0.1);
+      --shadow-dark: rgba(0, 0, 0, 0.7);
+    }
+
+    /* Общие стили */
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-light);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    body.dark {
+      background-color: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    .container {
+      background-color: white;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px var(--shadow-light);
+      max-width: 720px;
+      width: 100%;
+      text-align: center;
+      transition: background-color 0.3s, box-shadow 0.3s;
+      position: relative;
+    }
+
+    body.dark .container {
+      background-color: #1e1e1e;
+      box-shadow: 0 6px 15px var(--shadow-dark);
+    }
+
+    h1 {
+      margin-bottom: 24px;
+      font-weight: 700;
+      font-size: 2rem;
+      line-height: 1.2;
+    }
+
+    code {
+      display: block;
+      background-color: var(--code-bg-light);
+      color: #111;
+      padding: 18px 20px;
+      border-radius: 8px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 1rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin-bottom: 20px;
+      user-select: all;
+      transition: background-color 0.3s, color 0.3s;
+      box-sizing: border-box;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    body.dark code {
+      background-color: var(--code-bg-dark);
+      color: #eee;
+    }
+
+    button {
+      background-color: var(--btn-bg-light);
+      border: none;
+      color: white;
+      font-size: 1.1rem;
+      padding: 12px 28px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      user-select: none;
+      box-shadow: 0 4px 8px rgba(0, 123, 255, 0.4);
+      min-width: 180px;
+      font-weight: 600;
+    }
+
+    button:hover {
+      background-color: var(--btn-hover-light);
+      box-shadow: 0 6px 12px rgba(0, 86, 179, 0.6);
+    }
+
+    body.dark button {
+      background-color: var(--btn-bg-dark);
+      box-shadow: 0 4px 8px rgba(51, 153, 255, 0.6);
+    }
+
+    body.dark button:hover {
+      background-color: var(--btn-hover-dark);
+      box-shadow: 0 6px 12px rgba(34, 119, 221, 0.8);
+    }
+
+    .copied {
+      margin-top: 15px;
+      color: #4caf50;
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity 0.4s ease-in-out;
+      user-select: none;
+      height: 1.2em;
+      font-size: 1rem;
+    }
+
+    .copied.visible {
+      opacity: 1;
+    }
+
+    /* Тумблер темы */
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      cursor: pointer;
+      background: none;
+      border: 2px solid currentColor;
+      border-radius: 24px;
+      width: 50px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 8px;
+      font-size: 18px;
+      user-select: none;
+      transition: border-color 0.3s, color 0.3s;
+      z-index: 1000;
+    }
+
+    .theme-toggle:hover {
+      border-color: #007bff;
+      color: #007bff;
+    }
+
+    .theme-toggle span {
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Адаптив */
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px 25px;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+      code {
+        font-size: 0.9rem;
+        max-height: 140px;
+      }
+      button {
+        font-size: 1rem;
+        padding: 10px 20px;
+        min-width: 150px;
+      }
+      .theme-toggle {
+        width: 44px;
+        height: 24px;
+        font-size: 16px;
+        top: 15px;
+        right: 15px;
+      }
+    }
+
+    /* Плавная анимация появления */
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" aria-label="Переключить тему" onclick="toggleTheme()">
+    <span>🌞</span>
+    <span>🌙</span>
+  </button>
+  
+
+  <div class="container" role="main">
+    <p><button style="font-size:12px;" onclick="history.back();return false;"> 🔙 Назад на главную </button></p>
+    <h1>Установка web sing-box-go generator для Entware</h1>
+    <p>vless, ss и другие ключи</p>
+    <p>⚠️установленный клиент прокси компонент</p>
+    <p>доступно ключи: vless://, ss:// и т.д</p>
+    <code id="command" tabindex="0" aria-label="Команда для установки sing-box">
+curl -o /opt/tmp/sing-box-go.sh https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/main/entware/sing-box-go.sh && chmod +x /opt/tmp/sing-box-go.sh && /opt/tmp/sing-box-go.sh
+    </code>
+    <button onclick="copyCommand()" aria-live="polite" aria-describedby="copiedText">Скопировать команду</button>
+    <div class="copied" id="copiedText" role="status" aria-live="polite" aria-atomic="true">Скопировано!</div>
+  </div>
+<script>
+   let tg = window.Telegram.WebApp;
+   tg.expand();
+</script>
+  <script>
+    function copyCommand() {
+      const command = document.getElementById('command').innerText.trim();
+      navigator.clipboard.writeText(command).then(() => {
+        const copiedText = document.getElementById('copiedText');
+        copiedText.classList.add('visible');
+        setTimeout(() => copiedText.classList.remove('visible'), 2000);
+      }).catch(() => {
+        alert('Не удалось скопировать команду. Попробуйте вручную.');
+      });
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('dark');
+      if (document.body.classList.contains('dark')) {
+        localStorage.setItem('theme', 'dark');
+      } else {
+        localStorage.setItem('theme', 'light');
+      }
+    }
+
+    window.onload = () => {
+      if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark');
+      }
+    }
+  </script>
+</body>
+</html>
