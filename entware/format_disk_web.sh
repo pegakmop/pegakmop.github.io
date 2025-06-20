@@ -59,7 +59,7 @@ EOF
 
 if [ -f "$INDEX_FILE" ]; then
     echo "[*] Удаление старого index.php..."
-    //rm "$INDEX_FILE"
+    rm "$INDEX_FILE"
 fi
 
 echo "[*] Создание нового index.php..."
@@ -201,8 +201,8 @@ $SERVER["socket"] == ":98" {
 EOF
 
 echo "[*] Установка прав и перезапуск..."
-chmod +x /opt/share/www/format/format-disk.sh
-ln -sf /opt/etc/init.d/S80lighttpd /opt/bin/php
+chmod +x /opt/share/www/format/format_disk.sh
+ln -sf /opt/etc/init.d/S80lighttpd /opt/bin/lighttpd
 chmod +x "$INDEX_FILE"
 /opt/etc/init.d/S80lighttpd enable
 /opt/etc/init.d/S80lighttpd stop
