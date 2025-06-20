@@ -71,6 +71,7 @@ cat > "$INDEX_FILE" << EOF
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = file_get_contents('php://input');
+    //$path = '/opt/share/www/hrneo/config.json';
     $path = '/opt/etc/sing-box/config.json';
 
     if (!is_dir(dirname($path))) mkdir(dirname($path), 0755, true);
@@ -252,7 +253,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     .copy-btn2 {
       position: absolute;
-      top: 44px;
+      top: 38px;
       right: 8px;
       z-index: 20;
       background-color: var(--button-bg);
@@ -310,7 +311,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   const configText = document.getElementById('output').textContent;
 
   try {
-    const response = await fetch('/sing-box-go/index.php', {
+    const response = await fetch('http://192.168.1.1:88/hrneo/index.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: configText
