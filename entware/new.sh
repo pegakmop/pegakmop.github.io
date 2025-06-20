@@ -22,7 +22,7 @@ if ! opkg update >/dev/null 2>&1; then
 fi
 
 echo "[*] Установка Lighttpd и PHP8..."
-if ! opkg install lighttpd lighttpd-mod-cgi lighttpd-mod-setenv lighttpd-mod-redirect lighttpd-mod-rewrite php8 php8-cgi php8-cli php8-mod-curl php8-mod-openssl php8-mod-session jq >/dev/null 2>&1; then
+if ! opkg install lighttpd lighttpd-mod-cgi lighttpd-mod-setenv lighttpd-mod-redirect lighttpd-mod-rewrite php8 php8-cgi php8-cli php8-mod-curl php8-mod-openssl php8-mod-session php8-mod-filter jq >/dev/null 2>&1; then
     echo "❌ Ошибка при установке пакетов."
     exit 1
 fi
