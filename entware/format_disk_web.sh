@@ -97,7 +97,7 @@ $available = getAvailableMountsProxy();
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Очистка разделов (кроме Entware)</title>
+  <title>Очистка разделов (кроме активного Entware)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
@@ -139,7 +139,8 @@ $available = getAvailableMountsProxy();
 <body>
 
   <div class="header">
-    <h2>🧹 Очистка разделов, кроме Entware</h2>
+    <h2>🧹 Полная очистка накопителей:</h2>
+    <p>Создал для своего удобства: @pegakmop</p>
     <?php if ($message): ?>
       <div class="block"><strong><?= $message ?></strong></div>
     <?php endif; ?>
@@ -147,7 +148,7 @@ $available = getAvailableMountsProxy();
 
   <div class="block">
     <p><strong>Активный Entware:</strong><br>
-    <code><?= htmlspecialchars($entware['dev']) ?></code></p>
+    Не очищаемый диск: <code><?= htmlspecialchars($entware['dev']) ?></code></p>
   </div>
 
   <?php if (empty($available)): ?>
