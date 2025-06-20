@@ -100,8 +100,8 @@ $SERVER["socket"] == ":88" {
 EOF
 
 echo "[*] Установка прав и перезапуск..."
-ln -sf /opt/etc/init.d/S80lighttpd /opt/bin/php
-chmod +x "$INDEX_FILE"
+#ln -sf /opt/etc/init.d/S80lighttpd /opt/bin/php
+#chmod +x "$INDEX_FILE"
 /opt/etc/init.d/S80lighttpd enable
 /opt/etc/init.d/S80lighttpd stop
 /opt/etc/init.d/S80lighttpd restart
