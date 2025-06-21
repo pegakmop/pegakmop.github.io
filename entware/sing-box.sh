@@ -116,6 +116,7 @@ EOF
 				sleep 3
 				ndmc -c "ip policy HydraRoute permit global Proxy0 order 0" >/dev/null 2>&1
 				ndmc -c "system configuration save" >/dev/null 2>&1
+    curl -L -s "https://raw.githubusercontent.com/pegakmop/hrneo/refs/heads/main/install.sh" > /tmp/install.sh && sh /tmp/install.sh
                 break
                 ;;
             3)
