@@ -559,7 +559,7 @@ function installProxy() {
   const commands = [
     'ndmc -c "no interface Proxy0"',
     'ndmc -c "interface Proxy0"',
-    `ndmc -c "interface Proxy0 description Sing-box-proxy-${routerIp}:1080"`,
+    `ndmc -c "interface Proxy0 description Sing-Box-Proxy0-${routerIp}:1080"`,
     'ndmc -c "interface Proxy0 proxy protocol socks5"',
     `ndmc -c "interface Proxy0 proxy upstream ${routerIp} 1080"`,
     `ndmc -c "interface Proxy0 proxy udpqw-upstream ${routerIp} 1081"`,
