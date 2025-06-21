@@ -136,12 +136,7 @@ if (isset($input['run_update'])) {
         <div class="mb-3 form-check">
           <input type="checkbox" id="includeClashApi" class="form-check-input" checked>
           <label for="includeClashApi" class="form-check-label">Включить clash_api(веб-интерфейс)</label>
-          <div class="d-flex gap-2 mb-4">
-              <button class="btn btn-outline-primary" onclick="checkUpdate()">🔍 Проверить на обновление...</button>
-          </div>
         </div>
-
-
 <script>
 window.addEventListener("DOMContentLoaded", () => {
   const routerField = document.getElementById("router");
@@ -163,6 +158,11 @@ window.addEventListener("DOMContentLoaded", () => {
   <button class="btn btn-primary" onclick="generateConfig()">Сгенерировать config.json</button>
   <button id="pasteBtn" class="btn btn-outline-secondary btn-sm" onclick="pasteClipboard()">📋 Вставить</button>
 </div>
+        <div class="d-flex gap-2 mb-4">
+              <div class="d-flex gap-2 mb-4">
+                      <button class="btn btn-outline-danger d-none" id="updateBtn" onclick="runUpdate()">⬇️ Обновить интерфейс</button>
+               </div>
+          </div>
 <div class="d-flex gap-2 mb-4">
    <button id="proxyBtn" class="btn btn-info d-none" onclick="installProxy()">🧩 Установить proxy0-интерфейс</button>
    <button id="installBtn" class="btn btn-warning d-none" onclick="installConfig()">📦 Установить конфиг на роутер</button>
@@ -673,61 +673,9 @@ generateConfig = function () {
 };
 </script>
 <script>
-window.addEventListener("DOMContentLoaded", () => {
-  const routerIpField = document.getElementById("router");
-
-  // Заполняем IP по умолчанию
-  if (!routerIpField.value) {
-    routerIpField.value = "192.168.1.1";
-  }
-
-  // Скрытие кнопки "Вставить", если не HTTPS
-  const pasteBtn = document.getElementById("pasteBtn");
-  if (location.protocol !== "https:") {
-    pasteBtn?.classList.add("d-none");
-  }
-
-  // 🔄 Автоматическая проверка обновлений интерфейса
-  setTimeout(() => {
-    const routerIp = routerIpField.value.trim();
-    fetch(getPostUrl(routerIp), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ check_update: true })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.update_available) {
-        if (confirm(`⚠️ Доступна новая версия интерфейса: ${data.latest}\n\n${data.show}\n\nОбновить сейчас?`)) {
-          runUpdate();
-        }
-      }
-    })
-    .catch(err => {
-      console.warn("Проверка обновления не удалась:", err);
-    });
-  }, 500); // немного подождём, чтобы не мешать основной инициализации
-});
-</script>
-<script>
-function checkUpdate() {
-  const routerIp = document.getElementById("router").value.trim();
-  fetch(getPostUrl(routerIp), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ check_update: true })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.update_available) {
-      if (confirm(`💡 Доступна новая версия: ${data.latest}\n\n${data.show}\n\nОбновить интерфейс сейчас?`)) {
-        runUpdate(); // запускаем обновление
-      }
-    } else {
-      alert("✅ Установлена последняя версия интерфейса.");
-    }
-  })
-  .catch(err => alert("❌ Ошибка при проверке обновления: " + err));
+function getPostUrl(routerIp) {
+  const isIp = /^\d{1,3}(\.\d{1,3}){3}$/.test(location.hostname);
+  return isIp ? `http://${routerIp}:94/index.php` : `index.php`;
 }
 
 function runUpdate() {
@@ -744,6 +692,52 @@ function runUpdate() {
   })
   .catch(err => alert("❌ Ошибка при обновлении: " + err));
 }
+
+function checkUpdate(manual = true) {
+  const routerIp = document.getElementById("router").value.trim();
+  const updateBtn = document.getElementById("updateBtn");
+
+  fetch(getPostUrl(routerIp), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ check_update: true })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.update_available) {
+      updateBtn.classList.remove("d-none");
+      updateBtn.textContent = `⬇️ Обновить до v${data.latest}`;
+      updateBtn.title = data.show || "Доступна новая версия";
+
+      if (manual && confirm(`💡 Доступна новая версия: ${data.latest}\n\n${data.show}\n\nОбновить сейчас?`)) {
+        runUpdate();
+      }
+    } else {
+      updateBtn.classList.add("d-none");
+      if (manual) alert("✅ Установлена последняя версия интерфейса.");
+    }
+  })
+  .catch(err => {
+    if (manual) alert("❌ Ошибка при проверке обновления: " + err);
+    else console.warn("Проверка обновления не удалась:", err);
+  });
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  const routerField = document.getElementById("router");
+  const pasteBtn = document.getElementById("pasteBtn");
+
+  if (!routerField.value) {
+    routerField.value = "192.168.1.1";
+  }
+
+  if (location.protocol !== "https:") {
+    pasteBtn?.classList.add("d-none");
+  }
+
+  // Автопроверка обновления без confirm/alert
+  setTimeout(() => checkUpdate(false), 1);
+});
 </script> 
 </body>
 </html>
