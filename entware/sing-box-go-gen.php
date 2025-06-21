@@ -562,7 +562,7 @@ function installProxy() {
     `ndmc -c "interface Proxy0 description Sing-box-proxy-${routerIp}:1080"`,
     'ndmc -c "interface Proxy0 proxy protocol socks5"',
     `ndmc -c "interface Proxy0 proxy upstream ${routerIp} 1080"`,
-    `ndmc -c "interface ${proxyName} proxy udpqw-upstream ${routerIp} 1081"`,
+    `ndmc -c "interface Proxy0 proxy udpqw-upstream ${routerIp} 1081"`,
     'ndmc -c "interface Proxy0 up"',
     'ndmc -c "interface Proxy0 ip global 1"',
     `ndmc -c "system configuration save"`,
