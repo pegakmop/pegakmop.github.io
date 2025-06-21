@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Генератор конфига для sing-box</title>
+  <title>Генератор конфига для sing-box-go</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="container mt-5">
     <div class="card shadow">
       <div class="card-body">
-        <h3 class="card-title mb-4">Генератор конфига для sing-box</h3>
+        <h3 class="card-title mb-4">generate url config sing-box</h3>
 
         <div class="mb-3">
           <label for="router" class="form-label">Адрес роутера:</label>
@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="mb-3 form-check">
           <input type="checkbox" id="includeClashApi" class="form-check-input" checked>
-          <label for="includeClashApi" class="form-check-label">Включить clash_api (для веб-интерфейса)</label>
+          <label for="includeClashApi" class="form-check-label">Включить clash_api(веб-интерфейс)</label>
         </div>
 
 
@@ -111,7 +111,7 @@ window.addEventListener("DOMContentLoaded", () => {
   <button id="pasteBtn" class="btn btn-outline-secondary btn-sm" onclick="pasteClipboard()">📋 Вставить</button>
 </div>
 <div class="d-flex gap-2 mb-4">
-   <button id="proxyBtn" class="btn btn-info d-none" onclick="installProxy()">🧩 Установить прокси-интерфейс</button>
+   <button id="proxyBtn" class="btn btn-info d-none" onclick="installProxy()">🧩 Установить proxy0-интерфейс</button>
    <button id="installBtn" class="btn btn-warning d-none" onclick="installConfig()">📦 Установить конфиг на роутер</button>
 </div>
 <div class="d-flex gap-2 mb-4">
