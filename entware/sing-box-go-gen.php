@@ -2,6 +2,55 @@
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
 
+// 📦 Проверка и установка обновления интерфейса
+$currentVersion = "0.0.0.1";
+$remoteVersionUrl = "https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/entware/sing-box-go-version.txt";
+$context = stream_context_create(["http" => ["timeout" => 3]]);
+$remoteContent = @file_get_contents($remoteVersionUrl, false, $context);
+
+// Проверка наличия обновления
+if (isset($input['check_update'])) {
+    $response = ['current' => $currentVersion, 'update_available' => false];
+
+    if ($remoteContent !== false) {
+        $lines = explode("\n", $remoteContent);
+        $versionInfo = [];
+        foreach ($lines as $line) {
+            $parts = explode("=", trim($line), 2);
+            if (count($parts) == 2) {
+                $versionInfo[trim($parts[0])] = trim($parts[1]);
+            }
+        }
+
+        if (!empty($versionInfo["Version"])) {
+            $response['latest'] = $versionInfo["Version"];
+            $response['show'] = $versionInfo["Show"] ?? '';
+            $response['update_available'] = version_compare($versionInfo["Version"], $currentVersion, ">");
+        } else {
+            http_response_code(500);
+            echo json_encode(['error' => 'Неверный формат файла обновления.']);
+            exit;
+        }
+    } else {
+        http_response_code(500);
+        echo json_encode(['error' => 'Не удалось получить информацию об обновлении.']);
+        exit;
+    }
+
+    echo json_encode($response);
+    exit;
+}
+
+// Обновление index.php напрямую
+if (isset($input['run_update'])) {
+    $out = shell_exec('curl -sL "https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/entware/sing-box-go-gen.php" -o /opt/share/www/sing-box-go/index.php 2>&1');
+    echo json_encode([
+        'message' => '✔ Интерфейс обновлён. Перезагрузите страницу.',
+        'log' => $out
+    ]);
+    exit;
+}
+
     // 🔁 Повторная проверка IP
     if (isset($input['check_only'])) {
         $externalIp = trim(shell_exec('curl -s myip.wtf'));
@@ -87,6 +136,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="mb-3 form-check">
           <input type="checkbox" id="includeClashApi" class="form-check-input" checked>
           <label for="includeClashApi" class="form-check-label">Включить clash_api(веб-интерфейс)</label>
+          <div class="d-flex gap-2 mb-4">
+              <button class="btn btn-outline-primary" onclick="checkUpdate()">🔍 Проверить на обновление...</button>
+          </div>
         </div>
 
 
@@ -620,5 +672,78 @@ generateConfig = function () {
   document.getElementById("proxyBtn").classList.remove("d-none");
 };
 </script>
+<script>
+window.addEventListener("DOMContentLoaded", () => {
+  const routerIpField = document.getElementById("router");
+
+  // Заполняем IP по умолчанию
+  if (!routerIpField.value) {
+    routerIpField.value = "192.168.1.1";
+  }
+
+  // Скрытие кнопки "Вставить", если не HTTPS
+  const pasteBtn = document.getElementById("pasteBtn");
+  if (location.protocol !== "https:") {
+    pasteBtn?.classList.add("d-none");
+  }
+
+  // 🔄 Автоматическая проверка обновлений интерфейса
+  setTimeout(() => {
+    const routerIp = routerIpField.value.trim();
+    fetch(getPostUrl(routerIp), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ check_update: true })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.update_available) {
+        if (confirm(`⚠️ Доступна новая версия интерфейса: ${data.latest}\n\n${data.show}\n\nОбновить сейчас?`)) {
+          runUpdate();
+        }
+      }
+    })
+    .catch(err => {
+      console.warn("Проверка обновления не удалась:", err);
+    });
+  }, 500); // немного подождём, чтобы не мешать основной инициализации
+});
+</script>
+<script>
+function checkUpdate() {
+  const routerIp = document.getElementById("router").value.trim();
+  fetch(getPostUrl(routerIp), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ check_update: true })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.update_available) {
+      if (confirm(`💡 Доступна новая версия: ${data.latest}\n\n${data.show}\n\nОбновить интерфейс сейчас?`)) {
+        runUpdate(); // запускаем обновление
+      }
+    } else {
+      alert("✅ Установлена последняя версия интерфейса.");
+    }
+  })
+  .catch(err => alert("❌ Ошибка при проверке обновления: " + err));
+}
+
+function runUpdate() {
+  const routerIp = document.getElementById("router").value.trim();
+  fetch(getPostUrl(routerIp), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ run_update: true })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.message);
+    location.reload();
+  })
+  .catch(err => alert("❌ Ошибка при обновлении: " + err));
+}
+</script> 
 </body>
 </html>
