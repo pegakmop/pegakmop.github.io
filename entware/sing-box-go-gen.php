@@ -628,7 +628,7 @@ window.addEventListener("DOMContentLoaded", () => {
         `ndmc -c "interface Proxy0 description Sing-Box-Proxy0-${routerIp}:1080"`,
         'ndmc -c "interface Proxy0 proxy protocol socks5"',
         `ndmc -c "interface Proxy0 proxy upstream ${routerIp} 1080"`,
-        `ndmc -c "interface Proxy0 proxy udpqw-upstream ${routerIp} 1081"`,
+        `ndmc -c "interface Proxy0 proxy udpgw-upstream ${routerIp} 1081"`,
         'ndmc -c "interface Proxy0 up"',
         'ndmc -c "interface Proxy0 ip global 1"',
         'ndmc -c "system configuration save"',
