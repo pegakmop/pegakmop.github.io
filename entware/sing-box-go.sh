@@ -108,7 +108,7 @@ ln -sf /opt/etc/init.d/S80lighttpd /opt/bin/sbp
 /opt/etc/init.d/S80lighttpd restart
 echo "[*] Установка завершена."
 echo "[*] Установщик веб панели удален."
-#rm "$0"
+rm "$0"
 echo ""
 echo "sing-box-go create @pegakmop installed"
 echo ""
