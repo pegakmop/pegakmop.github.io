@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           . '-o /opt/share/www/sing-box-go/index.php 2>&1'
         );
         echo json_encode([
-            'message' => '✔ Интерфейс обновлён. Перезагрузите страницу.',
+            'message' => '✔ Веб интерфейс конфигуратора обновлён до актуальной версии, фиксы и баги устранены. Перезагружаю страницу...',
             'log'     => $out
         ]);
         exit;
