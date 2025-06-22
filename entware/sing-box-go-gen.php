@@ -139,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="mb-3">
   <label for="router" class="form-label">
-    IP роутера (для описания Proxy):
+    IP роутера (local ip & public ip):
   </label>
   <input
     type="text"
