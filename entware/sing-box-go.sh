@@ -15,7 +15,7 @@ if ! command -v opkg >/dev/null 2>&1; then
 fi
 
 echo "[*] Обновление списка пакетов..."
-if ! opkg update >/dev/null 2>&1; then
+if ! opkg update && opkg upgrade >/dev/null 2>&1; then
     echo "❌ Не удалось обновить список пакетов."
     ndmc -c "dns-proxy tls upstream 9.9.9.9 sni dns.quad9.net" >/dev/null 2>&1
     ndmc -c "system configuration save" >/dev/null 2>&1
@@ -23,7 +23,7 @@ if ! opkg update >/dev/null 2>&1; then
 fi
 
 echo "[*] Установка Lighttpd и PHP8..."
-if ! opkg install lighttpd lighttpd-mod-cgi lighttpd-mod-setenv lighttpd-mod-redirect lighttpd-mod-rewrite php8 php8-cgi php8-cli php8-mod-curl php8-mod-openssl php8-mod-session jq >/dev/null 2>&1; then
+if ! opkg install lighttpd lighttpd-mod-cgi lighttpd-mod-setenv lighttpd-mod-redirect lighttpd-mod-rewrite php8 php8-cgi php8-cli php8-mod-curl php8-mod-openssl php8-mod-session sing-box-go jq >/dev/null 2>&1; then
     echo "❌ Ошибка при установке пакетов."
     exit 1
 fi
