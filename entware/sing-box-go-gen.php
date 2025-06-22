@@ -2,107 +2,119 @@
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
 
-// 📦 Проверка и установка обновления интерфейса
-$currentVersion = "0.0.0.1";
-$remoteVersionUrl = "https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/entware/sing-box-go-version.txt";
-$context = stream_context_create(["http" => ["timeout" => 3]]);
-$remoteContent = @file_get_contents($remoteVersionUrl, false, $context);
+    // 📦 Проверка и установка обновления интерфейса
+    $currentVersion    = "0.0.0.2";
+    $remoteVersionUrl  = "https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/entware/sing-box-go-version.txt";
+    $context           = stream_context_create(["http" => ["timeout" => 3]]);
+    $remoteContent     = @file_get_contents($remoteVersionUrl, false, $context);
 
-// Проверка наличия обновления
-if (isset($input['check_update'])) {
-    $response = ['current' => $currentVersion, 'update_available' => false];
+    // Проверка обновления
+    if (isset($input['check_update'])) {
+        $response = ['current' => $currentVersion, 'update_available' => false];
 
-    if ($remoteContent !== false) {
-        $lines = explode("\n", $remoteContent);
-        $versionInfo = [];
-        foreach ($lines as $line) {
-            $parts = explode("=", trim($line), 2);
-            if (count($parts) == 2) {
-                $versionInfo[trim($parts[0])] = trim($parts[1]);
+        if ($remoteContent !== false) {
+            $lines = explode("\n", $remoteContent);
+            $versionInfo = [];
+            foreach ($lines as $line) {
+                $parts = explode("=", trim($line), 2);
+                if (count($parts) === 2) {
+                    $versionInfo[trim($parts[0])] = trim($parts[1]);
+                }
             }
-        }
-
-        if (!empty($versionInfo["Version"])) {
-            $response['latest'] = $versionInfo["Version"];
-            $response['show'] = $versionInfo["Show"] ?? '';
-            $response['update_available'] = version_compare($versionInfo["Version"], $currentVersion, ">");
+            if (!empty($versionInfo["Version"])) {
+                $response['latest']           = $versionInfo["Version"];
+                $response['show']             = $versionInfo["Show"] ?? '';
+                $response['update_available'] = version_compare($versionInfo["Version"], $currentVersion, ">");
+            } else {
+                http_response_code(500);
+                echo json_encode(['error' => 'Неверный формат файла обновления.']);
+                exit;
+            }
         } else {
             http_response_code(500);
-            echo json_encode(['error' => 'Неверный формат файла обновления.']);
+            echo json_encode(['error' => 'Не удалось получить информацию об обновлении.']);
             exit;
         }
-    } else {
-        http_response_code(500);
-        echo json_encode(['error' => 'Не удалось получить информацию об обновлении.']);
+
+        echo json_encode($response);
         exit;
     }
 
-    echo json_encode($response);
-    exit;
-}
-
-// Обновление index.php напрямую
-if (isset($input['run_update'])) {
-    $out = shell_exec('curl -sL "https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/entware/sing-box-go-gen.php" -o /opt/share/www/sing-box-go/index.php 2>&1');
-    echo json_encode([
-        'message' => '✔ Интерфейс обновлён. Перезагрузите страницу.',
-        'log' => $out
-    ]);
-    exit;
-}
-
-    // 🔁 Повторная проверка IP
-    if (isset($input['check_only'])) {
-        $externalIp = trim(shell_exec('curl -s myip.wtf'));
-        sleep(1);
-        $proxyIp = trim(shell_exec('curl -s --interface t2s0 myip.wtf'));
+    // Запуск обновления интерфейса
+    if (isset($input['run_update'])) {
+        $out = shell_exec(
+            'curl -sL "https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/entware/sing-box-go-gen.php" '
+          . '-o /opt/share/www/sing-box-go/index.php 2>&1'
+        );
         echo json_encode([
-            'external_ip' => $externalIp,
-            'proxy_ip' => $proxyIp
+            'message' => '✔ Интерфейс обновлён. Перезагрузите страницу.',
+            'log'     => $out
         ]);
         exit;
     }
 
-    // 📦 Установка конфига Sing-box
+    // Повторная проверка IP (proxy)
+    if (isset($input['check_only'])) {
+        $externalIp = trim(shell_exec('curl -s myip.wtf'));
+        sleep(1);
+        $proxyIp    = trim(shell_exec('curl -s --interface t2s0 myip.wtf'));
+        echo json_encode([
+            'external_ip' => $externalIp,
+            'proxy_ip'    => $proxyIp
+        ]);
+        exit;
+    }
+
+    // Установка конфига sing-box
     if (isset($input['config'])) {
         $configPath = '/opt/etc/sing-box/config.json';
-        $success = file_put_contents($configPath, $input['config']);
+            $configDir  = dirname($configPath);
 
+    
+    if (!is_dir($configDir)) {
+        if (!mkdir($configDir, 0755, true)) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Не удалось создать каталог для конфига.']);
+            exit;
+        }
+    }
+
+        $success    = file_put_contents($configPath, $input['config']);
         if ($success === false) {
             http_response_code(500);
             echo json_encode(['error' => 'Ошибка при сохранении файла.']);
             exit;
         }
-
-        $restart = shell_exec('/opt/etc/init.d/S99sing-box restart 2>&1');
+        $restart    = shell_exec('/opt/etc/init.d/S99sing-box restart 2>&1');
         sleep(1);
-        $status = shell_exec('/opt/etc/init.d/S99sing-box status 2>&1');
+        $status     = shell_exec('/opt/etc/init.d/S99sing-box status 2>&1');
         sleep(1);
         $externalIp = trim(shell_exec('curl -s myip.wtf'));
         sleep(1);
-        $proxyIp = trim(shell_exec('curl -s --interface t2s0 myip.wtf'));
+        $proxyIp    = trim(shell_exec('curl -s --interface t2s0 myip.wtf'));
 
         echo json_encode([
-            'restart' => $restart,
-            'status' => $status,
+            'restart'     => $restart,
+            'status'      => $status,
             'external_ip' => $externalIp,
-            'proxy_ip' => $proxyIp,
-            'message' => 'Конфиг успешно сохранён: /opt/etc/sing-box/config.json.'
+            'proxy_ip'    => $proxyIp,
+            'message'     => 'Конфиг успешно сохранён: /opt/etc/sing-box/config.json.'
         ]);
         exit;
     }
 
-    // 🧩 Установка интерфейса Proxy0
+    // Установка интерфейса Proxy0
     if (isset($input['proxy_commands']) && is_array($input['proxy_commands'])) {
         $log = [];
         foreach ($input['proxy_commands'] as $cmd) {
-            $out = shell_exec($cmd . ' 2>&1');
-            $log[] = "» $cmd\n$out";
+            $out     = shell_exec($cmd . ' 2>&1');
+            $log[]   = "» $cmd\n$out";
         }
         echo implode("\n", $log);
         exit;
     }
 
+    // Неизвестный запрос
     http_response_code(400);
     echo "Ошибка: неизвестный формат запроса.";
     exit;
@@ -112,105 +124,176 @@ if (isset($input['run_update'])) {
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Генератор конфига для sing-box-go</title>
+  <title>Sing-box WebUI</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="manifest" href="manifest.json">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
 </head>
 <body class="bg-light">
   <div class="container mt-5">
     <div class="card shadow">
       <div class="card-body">
-        <h3 class="card-title mb-4">generate url config sing-box</h3>
+        <h3 class="card-title mb-4">Конфигуратор Sing-box</h3>
 
-        <div class="mb-3">
-          <label for="router" class="form-label">Адрес роутера:</label>
-          <input type="text" id="router" class="form-control" placeholder="например: 192.168.1.1">
-        </div>
+<div class="mb-3">
+  <label for="router" class="form-label">
+    IP роутера (для описания Proxy):
+  </label>
+  <input
+    type="text"
+    id="router"
+    class="form-control"
+    value=""
+  >
+</div>
 
-        <div class="mb-3">
-          <label for="links" class="form-label">Вставьте ссылки:</label>
-          <textarea id="links" class="form-control" rows="8" placeholder="ss://, vless://, vmess:// и др. ссылки, одна на строку"></textarea>
-        </div>
-
-        <div class="mb-3 form-check">
-          <input type="checkbox" id="includeClashApi" class="form-check-input" checked>
-          <label for="includeClashApi" class="form-check-label">Включить clash_api(веб-интерфейс)</label>
-        </div>
 <script>
 window.addEventListener("DOMContentLoaded", () => {
-  const routerField = document.getElementById("router");
-  const pasteBtn = document.getElementById("pasteBtn");
+  const routerInput = document.getElementById("router");
 
-  // Установка значения по умолчанию
-  if (!routerField.value) {
-    routerField.value = "192.168.1.1";
-  }
-
-  // Скрытие кнопки "Вставить", если страница не по HTTPS
-  if (location.protocol !== "https:") {
-    pasteBtn?.classList.add("d-none");
+  if (routerInput && location.hostname.match(/^(\d{1,3}\.){3}\d{1,3}$/)) {
+    // Только IP, без порта
+    routerInput.value = location.hostname;
+  } else {
+    // Полный host с портом, если есть
+    routerInput.value = "192.168.1.1";
   }
 });
 </script>
 
-<div class="d-flex gap-2 mb-4">
-  <button class="btn btn-primary" onclick="generateConfig()">Сгенерировать config.json</button>
-  <button id="pasteBtn" class="btn btn-outline-secondary btn-sm" onclick="pasteClipboard()">📋 Вставить</button>
-</div>
-        <div class="d-flex gap-2 mb-4">
-              <div class="d-flex gap-2 mb-4">
-                      <button class="btn btn-outline-danger d-none" id="updateBtn" onclick="runUpdate()">⬇️ Обновить интерфейс</button>
-               </div>
-          </div>
-<div class="d-flex gap-2 mb-4">
-   <button id="proxyBtn" class="btn btn-info d-none" onclick="installProxy()">🧩 Установить proxy0-интерфейс</button>
-   <button id="installBtn" class="btn btn-warning d-none" onclick="installConfig()">📦 Установить конфиг на роутер</button>
-</div>
-<div class="d-flex gap-2 mb-4">
-  <a id="downloadBtn" class="btn btn-success d-none" download="config.json">⬇ Скачать config.json</a>
-  <button id="copyBtn" class="btn btn-secondary d-none" onclick="copyConfig()">Скопировать содержимое</button>
-</div>
+        <div class="mb-3">
+          <label for="links" class="form-label">
+            Прокси ссылки:
+          </label>
+          <textarea
+            id="links"
+            class="form-control"
+            rows="8"
+            placeholder="ss://, vless://, vmess://, trojan://, tuic:// и т.д."
+          ></textarea>
+        </div>
+
+        <div class="form-check mb-3">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="includeClashApi"
+            checked
+          >
+          <label class="form-check-label" for="includeClashApi">
+            Включить Clash API (веб-интерфейс)
+          </label>
+        </div>
+
+        <div class="d-flex gap-2 mb-3">
+          <button
+            class="btn btn-primary"
+            onclick="generateConfig()"
+          >Сгенерировать config.json</button>
+          <button
+            id="pasteBtn"
+            class="btn btn-outline-secondary btn-sm"
+            onclick="pasteClipboard()"
+          >📋 Вставить</button>
+          <button
+            id="updateBtn"
+            class="btn btn-outline-danger d-none"
+            onclick="runUpdate()"
+          >⬇️ Обновить интерфейс</button>
+        </div>
+
+        <div class="d-flex gap-2 mb-3">
+          <button
+            id="proxyBtn"
+            class="btn btn-info d-none"
+            onclick="installProxy()"
+          >🧩 Установить Proxy0</button>
+          <button
+            id="installBtn"
+            class="btn btn-warning d-none"
+            onclick="installConfig()"
+          >📦 Установить конфиг</button>
+        </div>
 
         <div id="warnings" class="text-danger mb-3"></div>
 
         <div id="resultWrapper" class="d-none">
           <h5>Результат:</h5>
-          <pre id="result" class="bg-dark text-white p-3 rounded" style="white-space: pre-wrap;"></pre>
+          <pre
+            id="result"
+            class="bg-dark text-white p-3 rounded"
+            style="white-space: pre-wrap;"
+          ></pre>
+          <div class="mt-2">
+            <a
+              id="downloadBtn"
+              class="btn btn-success d-none"
+              download="config.json"
+            >⬇ Скачать config.json</a>
+            <button
+              id="copyBtn"
+              class="btn btn-secondary d-none"
+              onclick="copyConfig()"
+            >Скопировать</button>
+          </div>
         </div>
       </div>
     </div>
   </div>
-<div class="modal fade" id="installModal" tabindex="-1" aria-labelledby="installModalLabel" aria-hidden="true">
+
+  <!-- Модальное окно для установки -->
+<div
+  class="modal fade"
+  id="installModal"
+  tabindex="-1"
+  aria-hidden="true"
+>
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="installModalLabel">Установка на роутер</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        <h5 class="modal-title">Установка на роутер</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-<div class="modal-body">
-  <pre id="installOutput" class="bg-light p-2 border rounded" style="white-space: pre-wrap;">Отправка конфига...</pre>
-  <div class="text-end mt-3">
-    <button id="recheckBtn" class="btn btn-outline-primary d-none" onclick="recheckProxy()">🔄 Проверить состояние подключения прокси повторно</button>
-  </div>
-</div>
+      <div class="modal-body">
+        <pre
+          id="installOutput"
+          class="bg-light p-2 border rounded"
+          style="white-space: pre-wrap;"
+        >Ожидание...</pre>
+        <div class="text-end mt-3">
+          <button
+            id="recheckBtn"
+            class="btn btn-outline-primary d-none"
+            onclick="recheckProxy()"
+          >🔄 Повторная проверка IP</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
-<script>
-  function pasteClipboard() {
-    navigator.clipboard.readText()
-      .then(text => {
-        const textarea = document.getElementById("links");
-        textarea.value = text;
-        textarea.focus();
-      })
-      .catch(err => {
-        alert("Не удалось получить текст из буфера обмена: " + err);
-      });
-  }
-</script>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+  ></script>
   <script>
+    function getPostUrl() {
+      return `${location.origin}/index.php`;
+      alert(getPostUrl());
+    }
+
+    function pasteClipboard() {
+      navigator.clipboard.readText()
+        .then(text => {
+          document.getElementById("links").value = text;
+          document.getElementById("links").focus();
+        })
+        .catch(err => {
+          alert("Не удалось получить текст из буфера обмена: " + err);
+        });
+    }
+
     function parseSS(line) {
       try {
         const url = new URL(line);
@@ -224,7 +307,7 @@ window.addEventListener("DOMContentLoaded", () => {
         const [method, password] = decoded.split(':');
         const [server, port = "8388"] = serverPart.split(':');
 
-        const tag = decodeURIComponent(url.hash.slice(1)) || 
+        const tag = decodeURIComponent(url.hash.slice(1)) ||
                    (url.search.includes("outline=1") ? "Outline" : "ShadowSocks");
 
         return {
@@ -235,8 +318,8 @@ window.addEventListener("DOMContentLoaded", () => {
           method,
           password
         };
-      } catch (error) {
-        console.log(`Ошибка парсинга SS: ${error.message}`);
+      } catch (e) {
+        console.log("Ошибка парсинга SS:", e);
         return null;
       }
     }
@@ -247,12 +330,11 @@ window.addEventListener("DOMContentLoaded", () => {
         const [uuid, serverPort] = url.href.replace("vless://", "").split('@');
         const [server, port] = serverPort.split(':');
         const params = new URLSearchParams(url.search);
-
         const tag = decodeURIComponent(url.hash.slice(1)) || "VLESS";
         const security = params.get("security") || "none";
-        const flow = params.get("flow") || params.get("mode");
-        const sni = params.get("sni");
-        const host = params.get("host");
+        const flow     = params.get("flow") || params.get("mode");
+        const sni      = params.get("sni");
+        const host     = params.get("host");
         const transportType = params.get("type") || "ws";
 
         const config = {
@@ -274,7 +356,6 @@ window.addEventListener("DOMContentLoaded", () => {
               fingerprint: params.get("fp") || "chrome"
             }
           };
-
           if (security === "reality") {
             config.tls.reality = {
               enabled: true,
@@ -285,15 +366,10 @@ window.addEventListener("DOMContentLoaded", () => {
         }
 
         if (security !== "reality") {
-          config.transport = {
-            type: transportType
-          };
-
+          config.transport = { type: transportType };
           if (transportType === "ws") {
             config.transport.path = params.get("path") || "/";
-            if (host) {
-              config.transport.headers = { Host: host };
-            }
+            if (host) config.transport.headers = { Host: host };
           } else if (transportType === "grpc" && params.get("path")) {
             config.transport.serviceName = params.get("path");
           }
@@ -304,8 +380,8 @@ window.addEventListener("DOMContentLoaded", () => {
         }
 
         return config;
-      } catch (error) {
-        console.log(`Ошибка парсинга VLESS: ${error.message}`);
+      } catch (e) {
+        console.log("Ошибка парсинга VLESS:", e);
         return null;
       }
     }
@@ -313,23 +389,22 @@ window.addEventListener("DOMContentLoaded", () => {
     function parseVMess(line) {
       try {
         const raw = line.replace("vmess://", "");
-        const json = JSON.parse(atob(raw));
-        
+        const obj = JSON.parse(atob(raw));
         return {
           type: "vmess",
-          tag: json.ps || "VMess",
-          server: json.add,
-          server_port: parseInt(json.port),
-          uuid: json.id,
-          security: json.security || "auto",
-          tls: json.tls === "tls",
+          tag: obj.ps || "VMess",
+          server: obj.add,
+          server_port: parseInt(obj.port),
+          uuid: obj.id,
+          security: obj.security || "auto",
+          tls: obj.tls === "tls",
           transport: {
-            type: json.net || "tcp",
-            path: json.path || "/"
+            type: obj.net || "tcp",
+            path: obj.path || "/"
           }
         };
-      } catch (error) {
-        console.log(`Ошибка парсинга VMess: ${error.message}`);
+      } catch (e) {
+        console.log("Ошибка парсинга VMess:", e);
         return null;
       }
     }
@@ -339,7 +414,6 @@ window.addEventListener("DOMContentLoaded", () => {
         const url = new URL(line);
         const [password, hostPort] = url.href.replace("trojan://", "").split('@');
         const [server, port] = hostPort.split(':');
-        
         return {
           type: "trojan",
           tag: decodeURIComponent(url.hash.slice(1)) || "Trojan",
@@ -352,8 +426,8 @@ window.addEventListener("DOMContentLoaded", () => {
             insecure: false
           }
         };
-      } catch (error) {
-        console.log(`Ошибка парсинга Trojan: ${error.message}`);
+      } catch (e) {
+        console.log("Ошибка парсинга Trojan:", e);
         return null;
       }
     }
@@ -362,9 +436,9 @@ window.addEventListener("DOMContentLoaded", () => {
       try {
         const url = new URL(line);
         const tag = decodeURIComponent(url.hash.slice(1)) || "TUIC";
-        const [uuid, password] = url.username.includes(':') ? 
-          url.username.split(':') : [url.username, url.password];
-        
+        const [uuid, password] = url.username.includes(':')
+          ? url.username.split(':')
+          : [url.username, url.password];
         return {
           type: "tuic",
           tag,
@@ -379,76 +453,59 @@ window.addEventListener("DOMContentLoaded", () => {
             insecure: false
           }
         };
-      } catch (error) {
-        console.log(`Ошибка парсинга TUIC: ${error.message}`);
+      } catch (e) {
+        console.log("Ошибка парсинга TUIC:", e);
         return null;
       }
     }
 
     function generateConfig() {
-      const routerIp = document.getElementById("router").value.trim();
-      const proxyLinks = document.getElementById("links").value.trim().split('\n').filter(line => line.trim());
-      const includeClashApi = document.getElementById("includeClashApi").checked;
-      const resultDiv = document.getElementById("result");
-      const warningsDiv = document.getElementById("warnings");
-      const downloadLink = document.getElementById("downloadBtn");
-      const copyBtn = document.getElementById("copyBtn");
-      const resultWrapper = document.getElementById("resultWrapper");
+      const routerIp       = document.getElementById("router").value.trim();
+      const proxyLinks     = document.getElementById("links").value.trim().split('\n').filter(l => l.trim());
+      const includeClash   = document.getElementById("includeClashApi").checked;
+      const resultDiv      = document.getElementById("result");
+      const warningsDiv    = document.getElementById("warnings");
+      const downloadLink   = document.getElementById("downloadBtn");
+      const copyBtn        = document.getElementById("copyBtn");
+      const resultWrapper  = document.getElementById("resultWrapper");
+
+      warningsDiv.innerHTML = '';
+      resultWrapper.classList.add("d-none");
+      downloadLink.classList.add("d-none");
+      copyBtn.classList.add("d-none");
 
       if (!routerIp) {
-        warningsDiv.innerHTML = "Ошибка: Параметр routerIp обязателен";
-        resultWrapper.classList.add("d-none");
-        downloadLink.classList.add("d-none");
-        copyBtn.classList.add("d-none");
+        warningsDiv.innerHTML = "Ошибка: IP роутера обязателен";
         return;
       }
-
       if (proxyLinks.length === 0) {
-        warningsDiv.innerHTML = "Ошибка: Необходимо указать хотя бы одну прокси ссылку";
-        resultWrapper.classList.add("d-none");
-        downloadLink.classList.add("d-none");
-        copyBtn.classList.add("d-none");
+        warningsDiv.innerHTML = "Ошибка: нужно хотя бы одну ссылку";
         return;
       }
 
       const outbounds = [];
-      const tags = [];
-      const warnings = [];
+      const tags      = [];
+      const warns     = [];
 
-      for (const line of proxyLinks) {
-        const cleanLine = line.trim();
-        if (!cleanLine) continue;
+      proxyLinks.forEach(line => {
+        let cfg = null;
+        if (line.startsWith("ss://"))      cfg = parseSS(line);
+        else if (line.startsWith("vless://")) cfg = parseVLESS(line);
+        else if (line.startsWith("vmess://")) cfg = parseVMess(line);
+        else if (line.startsWith("trojan://")) cfg = parseTrojan(line);
+        else if (line.startsWith("tuic://"))   cfg = parseTUIC(line);
 
-        let outbound = null;
-
-        if (cleanLine.startsWith("ssconf://")) {
-          warnings.push(`${cleanLine} (Outline 2.0 — не поддерживается)`);
-          continue;
-        }
-
-        if (cleanLine.startsWith("ss://")) {
-          outbound = parseSS(cleanLine);
-        } else if (cleanLine.startsWith("vless://")) {
-          outbound = parseVLESS(cleanLine);
-        } else if (cleanLine.startsWith("vmess://")) {
-          outbound = parseVMess(cleanLine);
-        } else if (cleanLine.startsWith("trojan://")) {
-          outbound = parseTrojan(cleanLine);
-        } else if (cleanLine.startsWith("tuic://")) {
-          outbound = parseTUIC(cleanLine);
-        }
-
-        if (outbound) {
-          outbounds.push(outbound);
-          if (["vless", "vmess", "trojan", "tuic"].includes(outbound.type)) {
-            tags.push(outbound.tag);
+        if (cfg) {
+          outbounds.push(cfg);
+          if (["vless","vmess","trojan","tuic"].includes(cfg.type)) {
+            tags.push(cfg.tag);
           }
         } else {
-          warnings.push(`Не удалось распарсить: ${cleanLine}`);
+          warns.push(`Не удалось распарсить: ${line}`);
         }
-      }
+      });
 
-      if (tags.length > 0) {
+      if (tags.length) {
         outbounds.unshift({
           type: "selector",
           tag: "select",
@@ -457,26 +514,14 @@ window.addEventListener("DOMContentLoaded", () => {
           interrupt_exist_connections: false
         });
       }
-
       outbounds.push(
-        {
-          type: "direct",
-          tag: "direct"
-        },
-        {
-          type: "block",
-          tag: "block"
-        }
+        { type: "direct", tag: "direct" },
+        { type: "block",  tag: "block"  }
       );
 
       const config = {
-        experimental: {
-          cache_file: { enabled: true }
-        },
-        log: { 
-          level: "debug",
-          timestamp: true
-        },
+        experimental: { cache_file: { enabled: true } },
+        log: { level: "debug", timestamp: true },
         inbounds: [
           {
             type: "tun",
@@ -498,24 +543,17 @@ window.addEventListener("DOMContentLoaded", () => {
           }
         ],
         outbounds,
-        route: { 
+        route: {
           auto_detect_interface: false,
-          final: tags.length > 0 ? "select" : "direct",
+          final: tags.length ? "select" : "direct",
           rules: [
-            {
-              protocol: "dns",
-              outbound: "dns-out"
-            },
-            {
-              network: "udp",
-              port: 443,
-              outbound: "block"
-            }
+            { protocol: "dns", outbound: "dns-out" },
+            { network: "udp", port: 443, outbound: "block" }
           ]
         }
       };
 
-      if (includeClashApi) {
+      if (includeClash) {
         config.experimental.clash_api = {
           external_controller: `${routerIp}:9090`,
           external_ui: "ui",
@@ -532,212 +570,153 @@ window.addEventListener("DOMContentLoaded", () => {
       downloadLink.classList.remove("d-none");
       copyBtn.classList.remove("d-none");
 
-      warningsDiv.innerHTML = warnings.length > 0 
-        ? "Некорректные или неподдерживаемые ссылки:<br>" + warnings.map(x => `– ${x}`).join("<br>")
-        : "";
+      if (warns.length) {
+        warningsDiv.innerHTML = warns.map(w => `– ${w}`).join("<br>");
+      }
     }
 
     function copyConfig() {
+      const text = document.getElementById("result").textContent;
+      navigator.clipboard.writeText(text)
+        .then(() => alert("Конфиг скопирован в буфер!"))
+        .catch(e => alert("Ошибка копирования: " + e));
+    }
+
+    function installConfig() {
       const resultDiv = document.getElementById("result");
-      const text = resultDiv.textContent;
-      navigator.clipboard.writeText(text).then(() => {
-        alert("Конфигурация скопирована в буфер обмена!");
-      }).catch(err => {
-        console.error("Ошибка копирования:", err);
-        alert("Не удалось скопировать конфигурацию");
+      const cfg       = resultDiv.textContent;
+      const modal     = new bootstrap.Modal(document.getElementById('installModal'));
+      const out       = document.getElementById("installOutput");
+      out.textContent = "📦 Отправка конфига на роутер...";
+      modal.show();
+
+      fetch(getPostUrl(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ config: cfg })
+      })
+      .then(async res => {
+        if (!res.ok) {
+          const err = await res.text();
+          out.textContent += `\n❌ Ошибка:\n${err}`;
+          return;
+        }
+        const data = await res.json();
+        out.textContent += "\n✅ Ответ роутера:\n" + data.message +
+                           "\n🚀 Перезапускаем sing-box:\n" + data.restart +
+                           "\n📟 Статус:\n" + data.status +
+                           "\n🌐 Внешний IP: " + data.external_ip +
+                           "\n🛡️ Proxy IP: " + data.proxy_ip +
+                           ((data.proxy_ip && data.proxy_ip !== data.external_ip)
+                             ? "\n🎯 Прокси работает!"
+                             : "\n❌ Прокси не работает") +
+                           "\n🎉 Установка завершена!";
+        document.getElementById("recheckBtn").classList.remove("d-none");
+      })
+      .catch(e => out.textContent += "\n❌ Ошибка запроса:\n" + e);
+    }
+
+    function installProxy() {
+      const routerIp = document.getElementById("router").value.trim();
+      const modal    = new bootstrap.Modal(document.getElementById('installModal'));
+      const out      = document.getElementById("installOutput");
+      out.textContent = "🧩 Установка Proxy0...";
+      modal.show();
+      const cmds = [
+        'ndmc -c "no interface Proxy0"',
+        'ndmc -c "interface Proxy0"',
+        `ndmc -c "interface Proxy0 description Sing-Box-Proxy0-${routerIp}:1080"`,
+        'ndmc -c "interface Proxy0 proxy protocol socks5"',
+        `ndmc -c "interface Proxy0 proxy upstream ${routerIp} 1080"`,
+        `ndmc -c "interface Proxy0 proxy udpqw-upstream ${routerIp} 1081"`,
+        'ndmc -c "interface Proxy0 up"',
+        'ndmc -c "interface Proxy0 ip global 1"',
+        'ndmc -c "system configuration save"',
+        'sleep 2',
+        'ndmc -c "show interface Proxy0"'
+      ];
+      fetch(getPostUrl(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ proxy_commands: cmds })
+      })
+      .then(res => res.text())
+      .then(txt => out.textContent += "\n✅ Ответ:\n" + txt)
+      .catch(e => out.textContent += "\n❌ Ошибка:\n" + e);
+    }
+
+    function recheckProxy() {
+      const out = document.getElementById("installOutput");
+      out.textContent += "\n🔄 Повторная проверка IP…";
+      fetch(getPostUrl(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ check_only: true })
+      })
+      .then(res => res.json())
+      .then(d => {
+        out.textContent += `\n🌐 Внешний IP: ${d.external_ip}` +
+                           `\n🛡️ Proxy IP: ${d.proxy_ip}` +
+                           ((d.proxy_ip && d.proxy_ip !== d.external_ip)
+                             ? "\n🎯 Прокси работает!"
+                             : "\n❌ Прокси не работает");
+      })
+      .catch(e => out.textContent += "\n❌ Ошибка проверки:\n" + e);
+    }
+
+    function runUpdate() {
+      fetch(getPostUrl(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ run_update: true })
+      })
+      .then(res => res.json())
+      .then(d => { alert(d.message); location.reload(); })
+      .catch(e => alert("❌ Ошибка обновления: " + e));
+    }
+
+    function checkUpdate(manual = true) {
+      const btn = document.getElementById("updateBtn");
+      fetch(getPostUrl(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ check_update: true })
+      })
+      .then(res => res.json())
+      .then(d => {
+        if (d.update_available) {
+          btn.classList.remove("d-none");
+          btn.textContent = `⬇️ Обновить до v${d.latest}`;
+          btn.title = d.show || "";
+          if (manual && confirm(`Доступна новая версия ${d.latest}\n${d.show}\nОбновить?`)) {
+            runUpdate();
+          }
+        } else {
+          btn.classList.add("d-none");
+          if (manual) alert("✅ Вы уже на последней версии.");
+        }
+      })
+      .catch(e => {
+        if (manual) alert("❌ Ошибка проверки: " + e);
+        else console.warn("Ошибка авто-проверки:", e);
       });
     }
+
+    // Чтобы после генерации сразу появились кнопки установки
+    const origGen = generateConfig;
+    generateConfig = function() {
+      origGen();
+      document.getElementById("installBtn").classList.remove("d-none");
+      document.getElementById("proxyBtn").classList.remove("d-none");
+    };
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const routerField = document.getElementById("router");
+      const pasteBtn    = document.getElementById("pasteBtn");
+      if (location.protocol !== "https:") pasteBtn?.classList.add("d-none");
+      // Авто-проверка обновлений без модалов
+      setTimeout(() => checkUpdate(false), 1000);
+    });
   </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-// 👇 Добавляем функцию для определения URL
-function getPostUrl(routerIp) {
-  const isIp = /^\d{1,3}(\.\d{1,3}){3}$/.test(location.hostname);
-  return isIp ? `http://${routerIp}:94/index.php` : `index.php`;
-}
-
-function installConfig() {
-  const resultDiv = document.getElementById("result");
-  const configJson = resultDiv.textContent;
-  const routerIp = document.getElementById("router").value.trim();
-  const modal = new bootstrap.Modal(document.getElementById('installModal'));
-  const output = document.getElementById("installOutput");
-
-  output.textContent = "📦 Отправка конфига на роутер...";
-  modal.show();
-
-  fetch(getPostUrl(routerIp), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ config: configJson })
-  })
-  .then(async response => {
-    if (!response.ok) {
-      const error = await response.text();
-      output.textContent += `\n❌ Ошибка:\n${error}`;
-      return;
-    }
-
-    const data = await response.json();
-
-    output.textContent += "\n✅ Ответ роутера:\n";
-    output.textContent += `\n${data.message}\n`;
-    output.textContent += `\n🚀 Перезапускаем sing-box:\n${data.restart}`;
-    output.textContent += `\n📟 Статус запуска sing-box:\n${data.status}`;
-    output.textContent += `\n🌐 Внешний IP: ${data.external_ip}`;
-    output.textContent += `\n🛡️  IP через прокси: ${data.proxy_ip}`;
-
-    if (data.proxy_ip && data.proxy_ip !== data.external_ip) {
-      output.textContent += "\n🎯 Прокси работает (IP адреса отличаются)";
-    } else {
-      output.textContent += "\n❌ Прокси не работает (IP адреса совпадают либо нет ответа от сервера) \n🔄 Нажмите кнопку проверить состояние прокси повторно.";
-    }
-
-    output.textContent += "\n🎉 Установка завершена!\n";
-    document.getElementById("recheckBtn").classList.remove("d-none");
-  })
-  .catch(err => {
-    output.textContent += `\n❌ Ошибка запроса:\n${err}`;
-  });
-}
-
-function installProxy() {
-  const routerIp = document.getElementById("router").value.trim();
-  const modal = new bootstrap.Modal(document.getElementById('installModal'));
-  const output = document.getElementById("installOutput");
-
-  output.textContent = "🧩 Отправка команды на установку Proxy0...";
-  modal.show();
-
-  const commands = [
-    'ndmc -c "no interface Proxy0"',
-    'ndmc -c "interface Proxy0"',
-    `ndmc -c "interface Proxy0 description Sing-Box-Proxy0-${routerIp}:1080"`,
-    'ndmc -c "interface Proxy0 proxy protocol socks5"',
-    `ndmc -c "interface Proxy0 proxy upstream ${routerIp} 1080"`,
-    `ndmc -c "interface Proxy0 proxy udpqw-upstream ${routerIp} 1081"`,
-    'ndmc -c "interface Proxy0 up"',
-    'ndmc -c "interface Proxy0 ip global 1"',
-    `ndmc -c "system configuration save"`,
-    'sleep 2',
-    'ndmc -c "show interface Proxy0"'
-  ];
-
-  fetch(getPostUrl(routerIp), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ proxy_commands: commands })
-  })
-  .then(res => res.text())
-  .then(text => {
-    output.textContent += `\n✅ Ответ от роутера:\n${text}`;
-  })
-  .catch(err => {
-    output.textContent += `\n❌ Ошибка отправки:\n${err}`;
-  });
-}
-
-function recheckProxy() {
-  const routerIp = document.getElementById("router").value.trim();
-  const output = document.getElementById("installOutput");
-
-  output.textContent += "\n\n🔄 Повторная проверка IP...";
-
-  fetch(getPostUrl(routerIp), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ check_only: true })
-  })
-  .then(res => res.json())
-  .then(data => {
-    output.textContent += `\n🌐 Внешний IP: ${data.external_ip}`;
-    output.textContent += `\n🛡️  Прокси IP: ${data.proxy_ip}`;
-
-    if (data.proxy_ip && data.proxy_ip !== data.external_ip) {
-      output.textContent += "\n🎯 Прокси работает (IP адреса отличаются)";
-    } else {
-      output.textContent += "\n❌ Прокси не работает (IP адреса совпадают либо нет ответа от сервера)";
-    }
-  })
-  .catch(err => {
-    output.textContent += `\n❌ Ошибка повторной проверки:\n${err}`;
-  });
-}
-
-// 👇 Обновляем generateConfig
-const originalGenerateConfig = generateConfig;
-generateConfig = function () {
-  originalGenerateConfig();
-  document.getElementById("installBtn").classList.remove("d-none");
-  document.getElementById("proxyBtn").classList.remove("d-none");
-};
-</script>
-<script>
-function getPostUrl(routerIp) {
-  const isIp = /^\d{1,3}(\.\d{1,3}){3}$/.test(location.hostname);
-  return isIp ? `http://${routerIp}:94/index.php` : `index.php`;
-}
-
-function runUpdate() {
-  const routerIp = document.getElementById("router").value.trim();
-  fetch(getPostUrl(routerIp), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ run_update: true })
-  })
-  .then(res => res.json())
-  .then(data => {
-    alert(data.message);
-    location.reload();
-  })
-  .catch(err => alert("❌ Ошибка при обновлении: " + err));
-}
-
-function checkUpdate(manual = true) {
-  const routerIp = document.getElementById("router").value.trim();
-  const updateBtn = document.getElementById("updateBtn");
-
-  fetch(getPostUrl(routerIp), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ check_update: true })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.update_available) {
-      updateBtn.classList.remove("d-none");
-      updateBtn.textContent = `⬇️ Обновить до v${data.latest}`;
-      updateBtn.title = data.show || "Доступна новая версия";
-
-      if (manual && confirm(`💡 Доступна новая версия: ${data.latest}\n\n${data.show}\n\nОбновить сейчас?`)) {
-        runUpdate();
-      }
-    } else {
-      updateBtn.classList.add("d-none");
-      if (manual) alert("✅ Установлена последняя версия интерфейса.");
-    }
-  })
-  .catch(err => {
-    if (manual) alert("❌ Ошибка при проверке обновления: " + err);
-    else console.warn("Проверка обновления не удалась:", err);
-  });
-}
-
-window.addEventListener("DOMContentLoaded", () => {
-  const routerField = document.getElementById("router");
-  const pasteBtn = document.getElementById("pasteBtn");
-
-  if (!routerField.value) {
-    routerField.value = "192.168.1.1";
-  }
-
-  if (location.protocol !== "https:") {
-    pasteBtn?.classList.add("d-none");
-  }
-
-  // Автопроверка обновления без confirm/alert
-  setTimeout(() => checkUpdate(false), 1);
-});
-</script> 
 </body>
 </html>
