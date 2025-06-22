@@ -1,5 +1,4 @@
 #!/bin/sh
-
 # === Installer by @pegakmop ===
 
 HRNEO_DIR="/opt/share/www/sing-box-go"
@@ -7,8 +6,9 @@ INDEX_FILE="$HRNEO_DIR/index.php"
 MANIFEST_FILE="$HRNEO_DIR/manifest.json"
 LIGHTTPD_CONF_DIR="/opt/etc/lighttpd/conf.d"
 LIGHTTPD_CONF_FILE="$LIGHTTPD_CONF_DIR/80-sing-box-go.conf"
+ip_addres=$(ip addr show br0 | grep 'inet ' | awk '{print $2}' | cut -d/ -f1)
 
-echo "[*] Проверка Entware..."
+echo "[*] Проверка наличия Entware..."
 if ! command -v opkg >/dev/null 2>&1; then
     echo "❌ Entware не найден. Убедитесь, что он установлен и /opt примонтирован."
     exit 1
@@ -17,7 +17,8 @@ fi
 echo "[*] Обновление списка пакетов..."
 if ! opkg update >/dev/null 2>&1; then
     echo "❌ Не удалось обновить список пакетов."
-    echo "Возможно у вас не установлены DoT и DoH DNS"
+    ndmc -c "dns-proxy tls upstream 9.9.9.9 sni dns.quad9.net" >/dev/null 2>&1
+    ndmc -c "system configuration save" >/dev/null 2>&1
     exit 1
 fi
 
@@ -98,8 +99,6 @@ EOF
 echo "[*] Установка прав и перезапуск..."
 ln -sf /opt/etc/init.d/S80lighttpd /opt/bin/sbp
 chmod +x "$INDEX_FILE"
-/opt/etc/init.d/S80lighttpd enable
-/opt/etc/init.d/S80lighttpd stop
 /opt/etc/init.d/S80lighttpd restart
 echo "[*] Установка завершена."
 echo "[*] Установщик веб панели удален."
@@ -107,5 +106,5 @@ rm "$0"
 echo ""
 echo "sing-box-go create @pegakmop installed"
 echo ""
-echo "Перейдите на http://<IP-роутера>:94"
+echo "Перейдите на http://$ip_addres:94"
 echo ""
