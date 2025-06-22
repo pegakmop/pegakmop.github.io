@@ -104,7 +104,7 @@ $SERVER["socket"] == ":94" {
 EOF
 
 echo "[*] Установка прав и перезапуск..."
-ln -sf /opt/etc/init.d/S80lighttpd /opt/bin/sbp
+ln -sf /opt/etc/init.d/S80lighttpd /opt/bin/sbg
 /opt/etc/init.d/S80lighttpd restart
 echo "[*] Установка завершена."
 echo "[*] Установщик веб панели удален."
