@@ -15,18 +15,25 @@ if ! command -v opkg >/dev/null 2>&1; then
 fi
 
 echo "[*] Обновление списка пакетов..."
-if ! opkg update && opkg upgrade >/dev/null 2>&1
+if ! opkg update >/dev/null 2>&1; then
     echo "❌ Не удалось обновить список пакетов."
+    echo "[*] Пробуем задать DNS и сохранить конфигурацию..."
     ndmc -c "dns-proxy tls upstream 9.9.9.9 sni dns.quad9.net" >/dev/null 2>&1
     ndmc -c "system configuration save" >/dev/null 2>&1
     exit 1
 fi
 
-echo "[*] Установка Lighttpd и PHP8..."
-if ! opkg install lighttpd lighttpd-mod-cgi lighttpd-mod-setenv lighttpd-mod-redirect lighttpd-mod-rewrite php8 php8-cgi php8-cli php8-mod-curl php8-mod-openssl php8-mod-session sing-box-go jq >/dev/null 2>&1
-    echo "❌ Ошибка при установке пакетов."
-    exit 1
-fi
+echo "[*] Установка необходимых пакетов..."
+REQUIRED_PACKAGES="lighttpd lighttpd-mod-cgi lighttpd-mod-setenv lighttpd-mod-redirect lighttpd-mod-rewrite php8 php8-cgi php8-cli php8-mod-curl php8-mod-openssl php8-mod-session sing-box-go jq"
+for pkg in $REQUIRED_PACKAGES; do
+    if ! opkg list-installed | grep -q "^$pkg "; then
+        echo "➕ Установка $pkg..."
+        if ! opkg install "$pkg" >/dev/null 2>&1; then
+            echo "❌ Ошибка при установке пакета: $pkg"
+            exit 1
+        fi
+    fi
+done
 
 echo "[*] Создание директорий..."
 mkdir -p "$HRNEO_DIR"
@@ -98,11 +105,10 @@ EOF
 
 echo "[*] Установка прав и перезапуск..."
 ln -sf /opt/etc/init.d/S80lighttpd /opt/bin/sbp
-chmod +x "$INDEX_FILE"
 /opt/etc/init.d/S80lighttpd restart
 echo "[*] Установка завершена."
 echo "[*] Установщик веб панели удален."
-rm "$0"
+#rm "$0"
 echo ""
 echo "sing-box-go create @pegakmop installed"
 echo ""
