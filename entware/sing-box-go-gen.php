@@ -3,7 +3,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
 
     // 📦 Проверка и установка обновления интерфейса
-    $currentVersion    = "0.0.0.3";
+    $currentVersion    = "0.0.0.4";
     $remoteVersionUrl  = "https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/entware/sing-box-go-version.txt";
     $context           = stream_context_create(["http" => ["timeout" => 3]]);
     $remoteContent     = @file_get_contents($remoteVersionUrl, false, $context);
@@ -113,6 +113,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo implode("\n", $log);
         exit;
     }
+        // Отключение IPv6
+    if (isset($input['disable_ipv6'])) {
+        $script = <<<SH
+#!/bin/sh
+curl -kfsS http://localhost:79/rci/show/interface/ | jq -r '
+  to_entries[] |
+  select(.value.defaultgw == true or .value.via != null) |
+  if .value.via then "\\(.value.id) \\(.value.via)" else "\\(.value.id)" end
+' | while read -r iface via; do
+  echo "⛔️ Отключаем IPv6 на \$iface..."
+  ndmc -c "no interface \$iface ipv6 address"
+  if [ -n "\$via" ]; then
+    echo "⛔️ Отключаем IPv6 на \$via..."
+    ndmc -c "no interface \$via ipv6 address"
+  fi
+done
+echo "💾 Сохраняем конфигурацию..."
+ndmc -c "system configuration save"
+echo "✅ Готово. IPv6 отключён на нужных интерфейсах."
+SH;
+
+        $tmp = '/tmp/disable_ipv6.sh';
+        file_put_contents($tmp, $script);
+        chmod($tmp, 0755);
+        $out = shell_exec("$tmp 2>&1");
+
+        echo json_encode([
+            'message' => '🛠 IPv6 отключён',
+            'log'     => $out
+        ]);
+        exit;
+    }
 
     // Неизвестный запрос
     http_response_code(400);
@@ -130,6 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     rel="stylesheet"
   >
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body class="bg-light">
   <div class="container mt-5">
@@ -216,7 +249,10 @@ window.addEventListener("DOMContentLoaded", () => {
             onclick="installConfig()"
           >📦 Установить config.json</button>
         </div>
-
+        <button
+  id="ipv6Btn"
+  class="btn btn-danger d-none"
+  onclick="disableIPv6()">🛠 Отключить IPv6 оставив only IPv4</button>
         <div id="warnings" class="text-danger mb-3"></div>
 
         <div id="resultWrapper" class="d-none">
@@ -254,7 +290,7 @@ window.addEventListener("DOMContentLoaded", () => {
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Установка на роутер</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">×</button>
       </div>
       <div class="modal-body">
         <pre
@@ -672,6 +708,26 @@ window.addEventListener("DOMContentLoaded", () => {
       })
       .catch(e => out.textContent += "\n❌ Ошибка проверки:\n" + e);
     }
+    
+    function disableIPv6() {
+  const modal = new bootstrap.Modal(document.getElementById('installModal'));
+  const out   = document.getElementById("installOutput");
+  out.textContent = "⏳ Отключение IPv6...";
+  modal.show();
+
+  fetch(getPostUrl(), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ disable_ipv6: true })
+  })
+  .then(res => res.json())
+  .then(d => {
+    out.textContent += "\n" + d.message + "\n\n" + d.log;
+  })
+  .catch(e => {
+    out.textContent += "\n❌ Ошибка: " + e;
+  });
+}
 
     function runUpdate() {
       fetch(getPostUrl(), {
@@ -717,6 +773,7 @@ window.addEventListener("DOMContentLoaded", () => {
       origGen();
       document.getElementById("installBtn").classList.remove("d-none");
       document.getElementById("proxyBtn").classList.remove("d-none");
+        document.getElementById("ipv6Btn").classList.remove("d-none");
     };
 
     window.addEventListener("DOMContentLoaded", () => {
