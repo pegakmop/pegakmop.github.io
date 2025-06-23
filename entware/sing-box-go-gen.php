@@ -3,7 +3,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
 
     // 📦 Проверка и установка обновления интерфейса
-    $currentVersion    = "0.0.0.2";
+    $currentVersion    = "0.0.0.3";
     $remoteVersionUrl  = "https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/entware/sing-box-go-version.txt";
     $context           = stream_context_create(["http" => ["timeout" => 3]]);
     $remoteContent     = @file_get_contents($remoteVersionUrl, false, $context);
@@ -201,7 +201,7 @@ window.addEventListener("DOMContentLoaded", () => {
             id="updateBtn"
             class="btn btn-outline-danger d-none"
             onclick="runUpdate()"
-          >⬇️ Обновить интерфейс</button>
+          >⬇️ Обновить веб интерфейс</button>
         </div>
 
         <div class="d-flex gap-2 mb-3">
@@ -214,7 +214,7 @@ window.addEventListener("DOMContentLoaded", () => {
             id="installBtn"
             class="btn btn-warning d-none"
             onclick="installConfig()"
-          >📦 Установить конфиг</button>
+          >📦 Установить config.json</button>
         </div>
 
         <div id="warnings" class="text-danger mb-3"></div>
@@ -585,6 +585,11 @@ window.addEventListener("DOMContentLoaded", () => {
     function installConfig() {
       const resultDiv = document.getElementById("result");
       const cfg       = resultDiv.textContent;
+        if (!cfg) {
+          alert("❗️Ошибка установки config.json на роутер, нужно заполнить хотя бы одну прокси ссылку и нажать снова сгенерировать config.json и после уже нажать установить config.json");
+          return;
+        }
+
       const modal     = new bootstrap.Modal(document.getElementById('installModal'));
       const out       = document.getElementById("installOutput");
       out.textContent = "📦 Отправка конфига на роутер...";
@@ -620,20 +625,22 @@ window.addEventListener("DOMContentLoaded", () => {
       const routerIp = document.getElementById("router").value.trim();
       const modal    = new bootstrap.Modal(document.getElementById('installModal'));
       const out      = document.getElementById("installOutput");
-      out.textContent = "🧩 Установка Proxy0...";
+      out.textContent = "⏳Установка Proxy0...";
       modal.show();
       const cmds = [
-        'ndmc -c "no interface Proxy0"',
-        'ndmc -c "interface Proxy0"',
-        `ndmc -c "interface Proxy0 description Sing-Box-Proxy0-${routerIp}:1080"`,
-        'ndmc -c "interface Proxy0 proxy protocol socks5"',
-        `ndmc -c "interface Proxy0 proxy upstream ${routerIp} 1080"`,
-        `ndmc -c "interface Proxy0 proxy udpgw-upstream ${routerIp} 1081"`,
-        'ndmc -c "interface Proxy0 up"',
-        'ndmc -c "interface Proxy0 ip global 1"',
-        'ndmc -c "system configuration save"',
+        'ndmc -c "no interface Proxy0" >/dev/null 2>&1',
+        'ndmc -c "system configuration save" >/dev/null 2>&1',
+        'ndmc -c "interface Proxy0" >/dev/null 2>&1',
+        `ndmc -c "interface Proxy0 description Sing-Box-Proxy0-${routerIp}:1080" >/dev/null 2>&1`,
+        'ndmc -c "interface Proxy0 proxy protocol socks5" >/dev/null 2>&1',
+        `ndmc -c "interface Proxy0 proxy upstream ${routerIp} 1080" >/dev/null 2>&1`,
+        'ndmc -c "interface Proxy0 up" >/dev/null 2>&1',
+        'ndmc -c "interface Proxy0 ip global 1" >/dev/null 2>&1',
+        'ndmc -c "system configuration save" >/dev/null 2>&1',
         'sleep 2',
-        'ndmc -c "show interface Proxy0"'
+        'ndmc -c "show interface Proxy0"',
+        'curl -s --interface t2s0 myip.wtf',
+        'Установка прокси завершена, установите конфиг >/dev/null 2>&1'
       ];
       fetch(getPostUrl(), {
         method: "POST",
@@ -641,7 +648,9 @@ window.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ proxy_commands: cmds })
       })
       .then(res => res.text())
-      .then(txt => out.textContent += "\n✅ Ответ:\n" + txt)
+      .then(txt => out.textContent += "\n⌛️ Состояние установки прокси:\n" + "✅  Proxy0 установка завершена.")
+      // либо выше закомментировать, а ниже рас комментировать строку: .then(txt => out.textContent +=  для видимости полных логов, либо наоборот чтобы не было логов.
+     // .then(txt => out.textContent += "\n⌛️Состояние установки прокси:\n" + txt)
       .catch(e => out.textContent += "\n❌ Ошибка:\n" + e);
     }
 
