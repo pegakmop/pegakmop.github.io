@@ -8,6 +8,10 @@ LIGHTTPD_CONF_DIR="/opt/etc/lighttpd/conf.d"
 LIGHTTPD_CONF_FILE="$LIGHTTPD_CONF_DIR/80-sing-box-go.conf"
 ip_addres=$(ip addr show br0 | grep 'inet ' | awk '{print $2}' | cut -d/ -f1)
 
+echo "[*] Добавление DoT DNS 9.9.9.9 dns.quad9.net"
+    ndmc -c "dns-proxy tls upstream 9.9.9.9 sni dns.quad9.net" >/dev/null 2>&1
+    ndmc -c "system configuration save" >/dev/null 2>&1
+
 echo "[*] Проверка наличия Entware..."
 if ! command -v opkg >/dev/null 2>&1; then
     echo "[X] Entware не найден. Убедитесь, что он установлен и /opt примонтирован."
