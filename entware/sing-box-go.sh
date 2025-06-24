@@ -10,7 +10,7 @@ ip_addres=$(ip addr show br0 | grep 'inet ' | awk '{print $2}' | cut -d/ -f1)
 
 echo "[*] Добавление DNS 9.9.9.9 и 8.8.4.4"
     ndmc -c "dns-proxy tls upstream 9.9.9.9 sni dns.quad9.net" >/dev/null 2>&1
-    ndmc -c "dns-proxy tls upstream 8.8.4.4 sni dns.google" >/dev/null 2>
+    ndmc -c "dns-proxy tls upstream 8.8.4.4 sni dns.google" >/dev/null 2>&1
     ndmc -c "system configuration save" >/dev/null 2>&1
 
 echo "[*] Проверка наличия Entware..."
