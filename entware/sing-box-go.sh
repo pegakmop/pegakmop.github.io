@@ -8,7 +8,7 @@ LIGHTTPD_CONF_DIR="/opt/etc/lighttpd/conf.d"
 LIGHTTPD_CONF_FILE="$LIGHTTPD_CONF_DIR/80-sing-box-go.conf"
 ip_addres=$(ip addr show br0 | grep 'inet ' | awk '{print $2}' | cut -d/ -f1)
 
-echo "[*] Добавление DoT DNS 9.9.9.9 dns.quad9.net"
+echo "[*] Добавление DNS 9.9.9.9 dns.quad9.net"
     ndmc -c "dns-proxy tls upstream 9.9.9.9 sni dns.quad9.net" >/dev/null 2>&1
     ndmc -c "system configuration save" >/dev/null 2>&1
 
@@ -21,9 +21,10 @@ fi
 echo "[*] Обновление списка пакетов..."
 if ! opkg update >/dev/null 2>&1; then
     echo "[X] Не удалось обновить список пакетов."
-    echo "[*] Пробуем задать DNS и сохранить конфигурацию..."
+    echo "[*] Пробуем задать DNS и запустить скрипт заново..."
     ndmc -c "dns-proxy tls upstream 9.9.9.9 sni dns.quad9.net" >/dev/null 2>&1
     ndmc -c "system configuration save" >/dev/null 2>&1
+    curl -o /opt/root/sing-box-go.sh https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/main/entware/sing-box-go.sh && chmod +x /opt/root/sing-box-go.sh && /opt/root/sing-box-go.sh
     exit 1
 fi
 
