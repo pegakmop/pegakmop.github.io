@@ -1,5 +1,5 @@
 #!/bin/sh
-# === Installer by @pegakmop ===
+# === Installer NeoFit create by @pegakmop ===
 
 HRNEO_DIR="/opt/share/www/sing-box-go"
 INDEX_FILE="$HRNEO_DIR/index.php"
