@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Основные иконки для платформ -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+    <link rel="manifest" href="/entware.json">
+    
+    <!-- Цвет для Android и Windows -->
+    <meta name="theme-color" content="#000000">
+    <meta name="msapplication-TileColor" content="#000000">
+    <meta name="msapplication-TileImage" content="/icons/ms-icon-144x144.png">
+  <title>Установка Entware Скриптов</title>
+  <style>
+    :root {
+      --bg-light: #f4f4f4;
+      --bg-dark: #121212;
+      --text-light: #333;
+      --text-dark: #eee;
+      --btn-bg-light: #007bff;
+      --btn-bg-dark: #3399ff;
+      --btn-hover-light: #0056b3;
+      --btn-hover-dark: #2277dd;
+      --shadow-light: rgba(0, 0, 0, 0.1);
+      --shadow-dark: rgba(0, 0, 0, 0.7);
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-light);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 30px 20px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    body.dark {
+      background-color: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    header {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: 2rem;
+      margin: 0;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      justify-content: center;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    button.menu-btn {
+      background-color: var(--btn-bg-light);
+      border: none;
+      color: white;
+      font-size: 1.1rem;
+      padding: 14px 28px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      box-shadow: 0 6px 14px rgba(0, 123, 255, 0.5);
+      min-width: 160px;
+      font-weight: 600;
+      user-select: none;
+      flex: 1 1 160px;
+      max-width: 250px;
+      text-align: center;
+    }
+
+    button.menu-btn:hover {
+      background-color: var(--btn-hover-light);
+      box-shadow: 0 8px 18px rgba(0, 86, 179, 0.7);
+    }
+
+    body.dark button.menu-btn {
+      background-color: var(--btn-bg-dark);
+      box-shadow: 0 6px 14px rgba(51, 153, 255, 0.7);
+    }
+
+    body.dark button.menu-btn:hover {
+      background-color: var(--btn-hover-dark);
+      box-shadow: 0 8px 18px rgba(34, 119, 221, 0.9);
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      cursor: pointer;
+      background: none;
+      border: 2px solid currentColor;
+      border-radius: 24px;
+      width: 50px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 8px;
+      font-size: 18px;
+      user-select: none;
+      transition: border-color 0.3s, color 0.3s;
+      z-index: 1000;
+    }
+
+    .theme-toggle:hover {
+      border-color: #007bff;
+      color: #007bff;
+    }
+
+    .theme-toggle span {
+      pointer-events: none;
+      user-select: none;
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 20px 10px;
+      font-size: 0.9rem;
+      color: #888;
+      user-select: none;
+    }
+
+    body.dark footer {
+      color: #666;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.6rem;
+      }
+
+      button.menu-btn {
+        font-size: 1rem;
+        padding: 12px 20px;
+        min-width: 140px;
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" aria-label="Переключить тему" onclick="toggleTheme()">
+    <span>🌞</span><span>🌙</span>
+  </button>
+
+  <header>
+    <h1>Установка Entware Скриптов</h1>
+    <p>Выберите нужный вам скрипт для установки в терминале</p>
+    <p>Замотивировать на новые свершения:</p>
+    <button><a href="https://yoomoney.ru/to/410012481566554"><b><u>Юмани по ссылке</u></b></a></button>
+    <button><a href="https://www.tinkoff.ru/rm/seroshtanov.aleksey9/HgzXr74936"><b><u>Тинькоф по ссылке</u></b></a></button>
+  </header>
+
+  <nav aria-label="Меню установки скриптов">
+    
+    <button class="menu-btn" onclick="openScript('hydraroute')">HydraRoute Classic & Neo</button>
+    <button class="menu-btn" onclick="openScript('hrneo')">🖥️HydraRoute Neo web</button>
+    <button hidden class="menu-btn" onclick="openScript('sing-box-go')">🆕Sing-box web generator</button>
+    <button class="menu-btn" onclick="openScript('format_disk_web')">🖥️web USB formating ext4</button>
+    <button class="menu-btn" onclick="openScript('format')">terminal USB formating ext4</button>
+    <button class="menu-btn" onclick="openScript('domain')">📝Domain HydraRoute</button>
+    <button class="menu-btn" onclick="openScript('awg')">✅AmneziaWG WARP(awg)</button>
+    <button class="menu-btn" onclick="openScript('custom')">📊info banner entware</button>
+    <button class="menu-btn" onclick="openScript('dns-dot-chatgpt')">DoT DNS ChatGPT</button>
+    <button class="menu-btn" onclick="openScript('xray-vless')">AmneziaVPN Xray > vless</button>
+    <button class="menu-btn" onclick="openScript('sing-box')">Sing-box 📲 hr & mt</button>
+    <button class="menu-btn" onclick="openScript('w4s')">🖥️web4static</button>
+    <button hidden class="menu-btn" onclick="openScript('voice')">ds voice fix</button>
+    <button hidden class="menu-btn" onclick="openScript('wg')">⚠️WireGuard (wg)</button>
+    <button class="menu-btn" onclick="openScript('mtskin')">MagiTrickle skin</button>
+    <button class="menu-btn" onclick="openScript('mt')">MagiTrickle install</button>
+    <button class="menu-btn" onclick="openScript('ipresolver')">DNS ip Resolver Pro</button>
+    <!-- Тут можно добавлять новые кнопки -->
+  </nav>
+
+  <footer>
+    &copy; 2024 <a href='https://t.me/pegakmop'>@pegakmop</a>
+  </footer>
+<script>
+   let tg = window.Telegram.WebApp;
+   tg.expand();
+</script>
+  <script>
+    function openScript(script) {
+      // Сопоставляем имя скрипта с URL файла страницы
+      const pages = {
+        'sing-box': '/entware/sing-box.html',
+        'sing-box-go': '/entware/sing-box-go.html',
+        'voice': '/entware/voice.html',
+        'wg': '/entware/wg.html',
+        'awg': '/entware/awg.html',
+        'mtskin': '/entware/mtskin.html',
+        'mt': '/entware/mt.html',
+        'domain': '/entware/domain.html',
+        'hydraroute': '/entware/hydraroute.html',
+        'hrneo': '/entware/hrneo.html',
+        'w4s': '/entware/w4s.html',
+        'custom': '/entware/custom_banner.html',
+        'format_disk_web': '/entware/format_disk_web.html',
+        'format': '/entware/format.html',
+        'dns-dot-chatgpt': '/entware/dns-dot-chatgpt.html',
+        'xray': '/entware/xray.html',
+        'xray-vless': '/entware/xray-vless.html',
+        'ipresolver': '/entware/ipresolver.html'
+      };
+
+      if (pages[script]) {
+        // Открываем соответствующую страницу
+        window.location.href = pages[script];
+      } else {
+        alert('Страница пока недоступна');
+      }
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('dark');
+      if (document.body.classList.contains('dark')) {
+        localStorage.setItem('theme', 'dark');
+      } else {
+        localStorage.setItem('theme', 'light');
+      }
+    }
+
+    window.onload = () => {
+      if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark');
+      }
+    }
+  </script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const hash = window.location.hash;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
+    // Условие: если есть hash — ничего не делать
+        if (hash) {
+        if (window.Telegram && Telegram.WebApp) {
+            let tg = window.Telegram.WebApp;
+            tg.expand();
+            console.log('Telegram WebApp expanded из-за наличия hash:', hash);
+        }
+        return; // не выполнять остальной код (баннеры и т.д.)
+    }
+
+    // Если st
+    //if (hash) return;
+
+    // Условие: если standalone (например, PWA) — тоже ничего не делать
+    if (isStandalone) return;
+
+    // Далее только если нет hash и не standalone
+
+    const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) && !navigator.standalone;
+    const isAndroid = /Android/.test(navigator.userAgent);
+
+    if (isIOS) {
+        const banner = `<div style="position:fixed;bottom:0;width:100%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;z-index:1000;">
+            <span>Установи приложение на iPhone/iPad: нажми <img src="/ios-share.svg" style="height:20px;vertical-align:middle;">, затем <img src="/ios-add.svg" style="height:20px;vertical-align:middle;"> «На экран Домой»</span>
+            <button onclick="this.parentElement.style.display='none'">Закрыть</button>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', banner);
+    }
+
+    if (isAndroid) {
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const banner = `<div style="position:fixed;bottom:0;width:100%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;z-index:1000;">
+                <span>Добавить приложение на главный экран Android</span>
+                <button onclick="deferredPrompt.prompt(); deferredPrompt.userChoice.then(choice => { if (choice.outcome === 'accepted') console.log('Установлено'); deferredPrompt = null; });">Установить</button>
+                <button onclick="this.parentElement.style.display='none'">Закрыть</button>
+            </div>`;
+            document.body.insertAdjacentHTML('beforeend', banner);
+        });
+    }
+
+    if (!isIOS && !isAndroid) {
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const banner = `<div style="position:fixed;bottom:0;width:100%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;z-index:1000;">
+                <span>Добавить приложение на домашний экран ПК</span>
+                <button onclick="deferredPrompt.prompt(); deferredPrompt.userChoice.then(choice => { if (choice.outcome === 'accepted') console.log('Установлено'); deferredPrompt = null; });">Установить</button>
+                <button onclick="this.parentElement.style.display='none'">Закрыть</button>
+            </div>`;
+            document.body.insertAdjacentHTML('beforeend', banner);
+        });
+    }
+});
+
+// Регистрация service worker
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/index.js')
+            .then(reg => console.log('ServiceWorker registered:', reg.scope))
+            .catch(err => console.log('ServiceWorker registration failed:', err));
+    });
+}
+</script>
+</body>
+</html>
