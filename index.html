@@ -153,6 +153,35 @@
         max-width: 100%;
       }
     }
+    .pwa-banner {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: var(--banner-bg);
+      border-top: 1px solid var(--banner-border);
+      padding: 10px;
+      text-align: center;
+      z-index: 1000;
+      color: var(--text-light);
+    }
+    body.dark .pwa-banner {
+      background-color: #1e1e1e;
+      border-top-color: #444;
+      color: var(--text-dark);
+    }
+    
+    .pwa-banner button {
+      margin-left: 10px;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      background: var(--btn-bg-light);
+      color: #fff;
+      cursor: pointer;
+    }
+    body.dark .pwa-banner button {
+      background: var(--btn-bg-dark);
+    }
   </style>
 </head>
 <body>
@@ -242,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const isAndroid = /Android/.test(navigator.userAgent);
 
     if (isIOS) {
-        const banner = `<div style="position:fixed;bottom:0;width:100%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;z-index:1000;">
+        const banner = `<div class="pwa-banner">
             <span>Установи приложение на iPhone/iPad: нажми <img src="/ios-share.svg" style="height:20px;vertical-align:middle;">, затем <img src="/ios-add.svg" style="height:20px;vertical-align:middle;"> «На экран Домой»</span>
             <button onclick="this.parentElement.style.display='none'">Закрыть</button>
         </div>`;
@@ -254,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            const banner = `<div style="position:fixed;bottom:0;width:100%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;z-index:1000;">
+            const banner = `<div class="pwa-banner">
                 <span>Добавить приложение на главный экран Android</span>
                 <button onclick="deferredPrompt.prompt(); deferredPrompt.userChoice.then(choice => { if (choice.outcome === 'accepted') console.log('Установлено'); deferredPrompt = null; });">Установить</button>
                 <button onclick="this.parentElement.style.display='none'">Закрыть</button>
@@ -268,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            const banner = `<div style="position:fixed;bottom:0;width:100%;background-color:#f8f8f8;border-top:1px solid #ddd;padding:10px;text-align:center;z-index:1000;">
+            const banner = `<div class="pwa-banner">
                 <span>Добавить приложение на домашний экран ПК</span>
                 <button onclick="deferredPrompt.prompt(); deferredPrompt.userChoice.then(choice => { if (choice.outcome === 'accepted') console.log('Установлено'); deferredPrompt = null; });">Установить</button>
                 <button onclick="this.parentElement.style.display='none'">Закрыть</button>
