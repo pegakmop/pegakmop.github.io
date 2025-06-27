@@ -219,9 +219,10 @@ window.addEventListener("DOMContentLoaded", () => {
             Включить Clash API (веб-интерфейс)
           </label>
         </div>
+          <p>вы используете устаревшую версию приложения, установите обновление</p>
 
         <div class="d-flex gap-2 mb-3">
-          <button
+          <button hidden
             class="btn btn-primary"
             onclick="generateConfig()"
           >Сгенерировать config.json</button>
