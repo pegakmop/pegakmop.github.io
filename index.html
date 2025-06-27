@@ -3,16 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Основные иконки для платформ -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="/icons/android-icon-192x192.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
-    <link rel="manifest" href="/manifest.json">
-    
-    <!-- Цвет для Android и Windows -->
-    <meta name="theme-color" content="#000000">
-    <meta name="msapplication-TileColor" content="#000000">
-    <meta name="msapplication-TileImage" content="/icons/ms-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#000000">
+  <meta name="msapplication-TileColor" content="#000000">
+  <meta name="msapplication-TileImage" content="/icons/ms-icon-144x144.png">
   <title>Установка Entware Скриптов</title>
   <style>
     :root {
@@ -26,6 +23,8 @@
       --btn-hover-dark: #2277dd;
       --shadow-light: rgba(0, 0, 0, 0.1);
       --shadow-dark: rgba(0, 0, 0, 0.7);
+      --banner-bg: #f8f8f8;
+      --banner-border: #ddd;
     }
 
     body {
@@ -66,7 +65,7 @@
       width: 100%;
     }
 
-    button.menu-btn {
+    .menu-btn {
       background-color: var(--btn-bg-light);
       border: none;
       color: white;
@@ -82,19 +81,21 @@
       flex: 1 1 160px;
       max-width: 250px;
       text-align: center;
+      text-decoration: none;
+      display: inline-block;
     }
 
-    button.menu-btn:hover {
+    .menu-btn:hover {
       background-color: var(--btn-hover-light);
       box-shadow: 0 8px 18px rgba(0, 86, 179, 0.7);
     }
 
-    body.dark button.menu-btn {
+    body.dark .menu-btn {
       background-color: var(--btn-bg-dark);
       box-shadow: 0 6px 14px rgba(51, 153, 255, 0.7);
     }
 
-    body.dark button.menu-btn:hover {
+    body.dark .menu-btn:hover {
       background-color: var(--btn-hover-dark);
       box-shadow: 0 8px 18px rgba(34, 119, 221, 0.9);
     }
@@ -141,18 +142,6 @@
       color: #666;
     }
 
-    @media (max-width: 480px) {
-      h1 {
-        font-size: 1.6rem;
-      }
-
-      button.menu-btn {
-        font-size: 1rem;
-        padding: 12px 20px;
-        min-width: 140px;
-        max-width: 100%;
-      }
-    }
     .pwa-banner {
       position: fixed;
       bottom: 0;
@@ -164,12 +153,13 @@
       z-index: 1000;
       color: var(--text-light);
     }
+
     body.dark .pwa-banner {
       background-color: #1e1e1e;
       border-top-color: #444;
       color: var(--text-dark);
     }
-    
+
     .pwa-banner button {
       margin-left: 10px;
       padding: 6px 12px;
@@ -179,8 +169,22 @@
       color: #fff;
       cursor: pointer;
     }
+
     body.dark .pwa-banner button {
       background: var(--btn-bg-dark);
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.6rem;
+      }
+
+      .menu-btn {
+        font-size: 1rem;
+        padding: 12px 20px;
+        min-width: 140px;
+        max-width: 100%;
+      }
     }
   </style>
 </head>
@@ -192,37 +196,32 @@
   <header>
     <h1>Разное от @pegakmop</h1>
     <p>Выберите нужный вам скрипт для установки в терминале</p>
-    <p>Выберите фильмы и сериалы, в будущем и торренты </p>
+    <p>Выберите фильмы и сериалы, в будущем и торренты</p>
     <p>Контакт для связи внизу страницы</p>
     <p>Замотивировать на новые свершения:</p>
-    <button><a href="https://yoomoney.ru/to/410012481566554"><b><u>Юмани по ссылке</u></b></a></button>
-    <button><a href="https://www.tinkoff.ru/rm/seroshtanov.aleksey9/HgzXr74936"><b><u>Тинькоф по ссылке</u></b></a></button>
+    <a href="https://yoomoney.ru/to/410012481566554" class="menu-btn" target="_blank">Юмани</a>
+    <a href="https://www.tinkoff.ru/rm/seroshtanov.aleksey9/HgzXr74936" class="menu-btn" target="_blank">Тинькоф</a>
   </header>
 
   <nav aria-label="Меню установки скриптов">
-    
     <button class="menu-btn" onclick="openScript('entware')">💻 Keenetic Entware Scripts</button>
     <button class="menu-btn" onclick="openScript('q900950b')">🖥️ Фильмы и сериалы</button>
-    <!-- Тут можно добавлять новые кнопки -->
   </nav>
 
   <footer>
     &copy; 2024 <a href='https://t.me/pegakmop'>@pegakmop</a>
   </footer>
-<script>
-   let tg = window.Telegram.WebApp;
-   tg.expand();
-</script>
+
   <script>
+    let tg = window.Telegram.WebApp;
+    tg.expand();
+
     function openScript(script) {
-      // Сопоставляем имя скрипта с URL файла страницы
       const pages = {
         'entware': '/entware/index.html',
         'q900950b': 'q900950b.htm'
       };
-
       if (pages[script]) {
-        // Открываем соответствующую страницу
         window.location.href = pages[script];
       } else {
         alert('Страница пока недоступна');
@@ -231,11 +230,7 @@
 
     function toggleTheme() {
       document.body.classList.toggle('dark');
-      if (document.body.classList.contains('dark')) {
-        localStorage.setItem('theme', 'dark');
-      } else {
-        localStorage.setItem('theme', 'light');
-      }
+      localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
     }
 
     window.onload = () => {
@@ -243,78 +238,58 @@
         document.body.classList.add('dark');
       }
     }
-  </script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const hash = window.location.hash;
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 
-    // Условие: если есть hash — ничего не делать
-        if (hash) {
-        if (window.Telegram && Telegram.WebApp) {
-            let tg = window.Telegram.WebApp;
-            tg.expand();
-            console.log('Telegram WebApp expanded из-за наличия hash:', hash);
-        }
-        return; // не выполнять остальной код (баннеры и т.д.)
-    }
+    let deferredPrompt = null;
 
-    // Если st
-    //if (hash) return;
+    document.addEventListener('DOMContentLoaded', () => {
+      const hash = window.location.hash;
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 
-    // Условие: если standalone (например, PWA) — тоже ничего не делать
-    if (isStandalone) return;
+      if (hash || isStandalone) return;
 
-    // Далее только если нет hash и не standalone
+      const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) && !navigator.standalone;
+      const isAndroid = /Android/.test(navigator.userAgent);
 
-    const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) && !navigator.standalone;
-    const isAndroid = /Android/.test(navigator.userAgent);
-
-    if (isIOS) {
+      if (isIOS) {
         const banner = `<div class="pwa-banner">
-            <span>Установи приложение на iPhone/iPad: нажми <img src="/ios-share.svg" style="height:20px;vertical-align:middle;">, затем <img src="/ios-add.svg" style="height:20px;vertical-align:middle;"> «На экран Домой»</span>
-            <button onclick="this.parentElement.style.display='none'">Закрыть</button>
+          <span>Установи приложение на iPhone/iPad: нажми <img src="/ios-share.svg" style="height:20px;vertical-align:middle;">, затем <img src="/ios-add.svg" style="height:20px;vertical-align:middle;"> «На экран Домой»</span>
+          <button onclick="this.parentElement.remove()">Закрыть</button>
         </div>`;
         document.body.insertAdjacentHTML('beforeend', banner);
-    }
+      }
 
-    if (isAndroid) {
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            const banner = `<div class="pwa-banner">
-                <span>Добавить приложение на главный экран Android</span>
-                <button onclick="deferredPrompt.prompt(); deferredPrompt.userChoice.then(choice => { if (choice.outcome === 'accepted') console.log('Установлено'); deferredPrompt = null; });">Установить</button>
-                <button onclick="this.parentElement.style.display='none'">Закрыть</button>
-            </div>`;
-            document.body.insertAdjacentHTML('beforeend', banner);
-        });
-    }
-
-    if (!isIOS && !isAndroid) {
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            const banner = `<div class="pwa-banner">
-                <span>Добавить приложение на домашний экран ПК</span>
-                <button onclick="deferredPrompt.prompt(); deferredPrompt.userChoice.then(choice => { if (choice.outcome === 'accepted') console.log('Установлено'); deferredPrompt = null; });">Установить</button>
-                <button onclick="this.parentElement.style.display='none'">Закрыть</button>
-            </div>`;
-            document.body.insertAdjacentHTML('beforeend', banner);
-        });
-    }
-});
-
-// Регистрация service worker
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/index.js')
-            .then(reg => console.log('ServiceWorker registered:', reg.scope))
-            .catch(err => console.log('ServiceWorker registration failed:', err));
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const banner = `<div class="pwa-banner">
+          <span>Добавить приложение на главный экран ${isAndroid ? 'Android' : 'ПК'}</span>
+          <button onclick="handleInstall()">Установить</button>
+          <button onclick="this.parentElement.remove()">Закрыть</button>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', banner);
+      });
     });
-}
-</script>
+
+    function handleInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('Установлено');
+          }
+          deferredPrompt = null;
+          document.querySelector('.pwa-banner')?.remove();
+        });
+      }
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/index.js')
+          .then(reg => console.log('ServiceWorker registered:', reg.scope))
+          .catch(err => console.log('ServiceWorker registration failed:', err));
+      });
+    }
+  </script>
 </body>
 </html>
