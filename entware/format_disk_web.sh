@@ -213,5 +213,6 @@ rm "$0"
 echo ""
 echo "format disk create @pegakmop installed"
 echo ""
-echo "Перейдите на http://<IP-роутера>:98"
+ip_address=$(ip addr show br0 2>/dev/null | awk '/inet / {print $2}' | cut -d/ -f1 | head -n1)
 echo ""
+echo "✅ web format disk установлен. Откройте в браузере: http://$ip_address:98"
