@@ -13,17 +13,17 @@ if [ "$check_proxy_component" = "1" ]; then
             success=1
             break
         fi
-        sleep 1  # подождать 1 сек. между проверками (меньше для слабого MIPS не стоит)
+        sleep 5 # подождать 1 сек. между проверками (меньше для слабого MIPS не стоит)
     done
 
     if [ $success -eq 1 ]; then
         echo "✅ Компонент proxy установлен."
         echo "⏳ Настраиваю Proxy0..."
 
-        # Удаляем старый Proxy0 (если был)
-        ndmc -c "no interface Proxy0"
+        echo "Удаляем старый Proxy0 (если был)"
+        ndmc -c "no interface Proxy0" >/dev/null 2>&1
 
-        # Создаём и настраиваем новый Proxy0
+        echo "Создаём и настраиваем новый Proxy0"
         ndmc -c "interface Proxy0"
         ndmc -c "interface Proxy0 description mihomo-Proxy0-192.168.1.1:7890"
         ndmc -c "interface Proxy0 proxy protocol socks5"
@@ -32,10 +32,10 @@ if [ "$check_proxy_component" = "1" ]; then
         ndmc -c "interface Proxy0 up"
         ndmc -c "interface Proxy0 ip global 1"
 
-        # Сохраняем конфигурацию
+        echo "Сохраняем конфигурацию"
         ndmc -c "system configuration save"
 
-        echo "✅ Proxy0 успешно создан и настроен!"
+        echo "✅ Proxy0 успешно создан и настроен, если не было ошибок!"
     else
         echo "❌ Компонент proxy не установлен."
         echo "⚠️ Установка Proxy0 невозможна."
