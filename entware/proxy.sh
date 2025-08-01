@@ -17,7 +17,7 @@ ndmc -c "components list" | awk '
   ndmc -c "no interface Proxy0"
   ndmc -c "interface Proxy0"
   
-  ndmc -c "interface Proxy0 description mihomo-Proxy0-$(ip -4 -o addr show br0 2>/dev/null | awk '{print $4}' | cut -d/ -f1 | head -n1):1080"
+  ndmc -c "interface Proxy0 description pegakmop-Proxy0-$(ip -4 -o addr show br0 2>/dev/null | awk '{print $4}' | cut -d/ -f1 | head -n1):1080"
   ndmc -c "interface Proxy0 proxy protocol socks5"
   ndmc -c "interface Proxy0 proxy socks5-udp"
   ndmc -c "interface Proxy0 proxy upstream $(ip -4 -o addr show br0 2>/dev/null | awk '{print $4}' | cut -d/ -f1 | head -n1) 1080"
