@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CLI Nexus</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     html, body {
       margin: 0;
@@ -18,6 +19,10 @@
   </style>
 </head>
 <body>
+  <script>
+   let tg = window.Telegram.WebApp;
+   tg.expand();
+  </script>
   <iframe src="https://cli.h2.nexus"></iframe>
 </body>
 </html>
