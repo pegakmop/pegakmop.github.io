@@ -205,6 +205,7 @@
 
   <nav aria-label="Меню установки скриптов">
     <button class="menu-btn" onclick="openScript('entware')">💻 Keenetic Entware Scripts</button>
+    <button class="menu-btn" onclick="openScript('fqdn')">🖥️ Object Group FQDN WEB</button>
     <button class="menu-btn" onclick="openScript('q900950b')">🖥️ Фильмы и сериалы</button>
   </nav>
 
@@ -219,6 +220,7 @@
     function openScript(script) {
       const pages = {
         'entware': '/entware/',
+        'fqdn': 'http://pegakmop.site',
         'q900950b': 'q900950b.htm'
       };
       if (pages[script]) {
