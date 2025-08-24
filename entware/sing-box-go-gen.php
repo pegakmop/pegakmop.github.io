@@ -750,11 +750,11 @@ window.addEventListener("DOMContentLoaded", () => {
       .then(d => {
         if (d.update_available) {
           btnStable.classList.remove("d-none");
-          btnStable.textContent = `⬇️ Установить stable v${d.latest}`;
+          btnStable.textContent = `✅ Установить stable v${d.latest}`;
           btnStable.title = d.show || "";
 
           btnBeta.classList.remove("d-none");
-          btnBeta.textContent = `⬇️ Установить beta v${d.latest}`;
+          btnBeta.textContent = `⚠️ Установить beta v${d.latest}`;
           btnBeta.title = d.show || "";
 
           if (manual && confirm(`Доступна новая версия ${d.latest}\n${d.show}\nУстановить стабильную?`)) {
