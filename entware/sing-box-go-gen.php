@@ -40,14 +40,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Запуск обновления интерфейса
+    // Запуск обновления интерфейса (stable/beta)
     if (isset($input['run_update'])) {
+        // 'stable' или 'beta' (по умолчанию stable)
+        $channelFile = ($input['run_update'] === 'beta') ? 'indexbeta.php' : 'index.php';
+
         $out = shell_exec(
-            'curl -sL "https://raw.githubusercontent.com/pegakmop/neofit/refs/heads/main/index.php" '
-          . '-o /opt/share/www/sing-box-go/index.php 2>&1'
+            'curl -sL "https://raw.githubusercontent.com/pegakmop/neofit/refs/heads/main/' . $channelFile . '" ' .
+            '-o /opt/share/www/sing-box-go/index.php 2>&1'
         );
         echo json_encode([
-            'message' => '✔ Обновление установлено. Перезагружаю страницу...',
+            'message' => '✔ Обновление установлено (' . $channelFile . '). Перезагружаю страницу...',
             'log'     => $out
         ]);
         exit;
@@ -68,16 +71,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Установка конфига sing-box
     if (isset($input['config'])) {
         $configPath = '/opt/etc/sing-box/config.json';
-            $configDir  = dirname($configPath);
+        $configDir  = dirname($configPath);
 
-    
-    if (!is_dir($configDir)) {
-        if (!mkdir($configDir, 0755, true)) {
-            http_response_code(500);
-            echo json_encode(['error' => 'Не удалось создать каталог для конфига.']);
-            exit;
+        if (!is_dir($configDir)) {
+            if (!mkdir($configDir, 0755, true)) {
+                http_response_code(500);
+                echo json_encode(['error' => 'Не удалось создать каталог для конфига.']);
+                exit;
+            }
         }
-    }
 
         $success    = file_put_contents($configPath, $input['config']);
         if ($success === false) {
@@ -113,7 +115,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo implode("\n", $log);
         exit;
     }
-        // Отключение IPv6
+
+    // Отключение IPv6
     if (isset($input['disable_ipv6'])) {
         $script = <<<SH
 #!/bin/sh
@@ -226,19 +229,26 @@ window.addEventListener("DOMContentLoaded", () => {
             class="btn btn-primary"
             onclick="generateConfig()"
           >Сгенерировать config.json</button>
+
           <button
             id="pasteBtn"
             class="btn btn-outline-secondary btn-sm"
             onclick="pasteClipboard()"
           >📋 Вставить</button>
+
+          <!-- Новые кнопки обновления: Стабильная и Бета -->
           <button
-            id="updateBtn"
+            id="updateStableBtn"
             class="btn btn-outline-danger d-none"
-            onclick="runUpdate()"
-          >⬇️ Обновить веб интерфейс</button><button>
-              <a href="https://yoomoney.ru/to/410012481566554">на ☕️ Юмани</a></button>
-        <button>
-            <a href="https://www.tinkoff.ru/rm/seroshtanov.aleksey9/HgzXr74936">на ☕️Тинькофф</a></button> </br></br>
+            onclick="runUpdate('stable')"
+          >⬇️ update stable version: </button>
+
+          <button
+            id="updateBetaBtn"
+            class="btn btn-outline-warning d-none"
+            onclick="runUpdate('beta')"
+          >⬇️ update beta version: </button>
+
         </div>
 
         <div class="d-flex gap-2 mb-3">
@@ -253,10 +263,12 @@ window.addEventListener("DOMContentLoaded", () => {
             onclick="installConfig()"
           >📦 Установить config.json</button>
         </div>
+
         <button
-  id="ipv6Btn"
-  class="btn btn-danger d-none"
-  onclick="disableIPv6()">🛠 Отключить IPv6 оставив only IPv4</button>
+          id="ipv6Btn"
+          class="btn btn-danger d-none"
+          onclick="disableIPv6()">🛠 Отключить IPv6 оставив only IPv4</button>
+
         <div id="warnings" class="text-danger mb-3"></div>
 
         <div id="resultWrapper" class="d-none">
@@ -320,7 +332,7 @@ window.addEventListener("DOMContentLoaded", () => {
   <script>
     function getPostUrl() {
       return `${location.origin}/index.php`;
-      alert(getPostUrl());
+      alert(getPostUrl()); // (не сработает после return, оставлено как было)
     }
 
     function pasteClipboard() {
@@ -529,7 +541,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
       proxyLinks.forEach(line => {
         let cfg = null;
-        if (line.startsWith("ss://"))      cfg = parseSS(line);
+        if (line.startsWith("ss://"))         cfg = parseSS(line);
         else if (line.startsWith("vless://")) cfg = parseVLESS(line);
         else if (line.startsWith("vmess://")) cfg = parseVMess(line);
         else if (line.startsWith("trojan://")) cfg = parseTrojan(line);
@@ -625,10 +637,10 @@ window.addEventListener("DOMContentLoaded", () => {
     function installConfig() {
       const resultDiv = document.getElementById("result");
       const cfg       = resultDiv.textContent;
-        if (!cfg) {
-          alert("❗️Ошибка установки config.json на роутер, нужно заполнить хотя бы одну прокси ссылку и нажать снова сгенерировать config.json и после уже нажать установить config.json");
-          return;
-        }
+      if (!cfg) {
+        alert("❗️Ошибка установки config.json на роутер, нужно заполнить хотя бы одну прокси ссылку и нажать снова сгенерировать config.json и после уже нажать установить config.json");
+        return;
+      }
 
       const modal     = new bootstrap.Modal(document.getElementById('installModal'));
       const out       = document.getElementById("installOutput");
@@ -689,8 +701,7 @@ window.addEventListener("DOMContentLoaded", () => {
       })
       .then(res => res.text())
       .then(txt => out.textContent += "\n⌛️ Состояние установки прокси:\n" + "✅  Proxy0 установка завершена.")
-      // либо выше закомментировать, а ниже рас комментировать строку: .then(txt => out.textContent +=  для видимости полных логов, либо наоборот чтобы не было логов.
-     // .then(txt => out.textContent += "\n⌛️Состояние установки прокси:\n" + txt)
+      // .then(txt => out.textContent += "\n⌛️Состояние установки прокси:\n" + txt) // для детальных логов
       .catch(e => out.textContent += "\n❌ Ошибка:\n" + e);
     }
 
@@ -712,40 +723,24 @@ window.addEventListener("DOMContentLoaded", () => {
       })
       .catch(e => out.textContent += "\n❌ Ошибка проверки:\n" + e);
     }
-    
-    function disableIPv6() {
-  const modal = new bootstrap.Modal(document.getElementById('installModal'));
-  const out   = document.getElementById("installOutput");
-  out.textContent = "⏳ Отключение IPv6...";
-  modal.show();
 
-  fetch(getPostUrl(), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ disable_ipv6: true })
-  })
-  .then(res => res.json())
-  .then(d => {
-    out.textContent += "\n" + d.message + "\n\n" + d.log;
-  })
-  .catch(e => {
-    out.textContent += "\n❌ Ошибка: " + e;
-  });
-}
-
-    function runUpdate() {
+    // Новый: запуск обновления с выбором канала
+    function runUpdate(channel = 'stable') {
       fetch(getPostUrl(), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ run_update: true })
+        body: JSON.stringify({ run_update: channel })
       })
       .then(res => res.json())
       .then(d => { alert(d.message); location.reload(); })
       .catch(e => alert("❌ Ошибка обновления: " + e));
     }
 
+    // Обновлено: показ обеих кнопок при наличии обновления
     function checkUpdate(manual = true) {
-      const btn = document.getElementById("updateBtn");
+      const btnStable = document.getElementById("updateStableBtn");
+      const btnBeta   = document.getElementById("updateBetaBtn");
+
       fetch(getPostUrl(), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -754,14 +749,20 @@ window.addEventListener("DOMContentLoaded", () => {
       .then(res => res.json())
       .then(d => {
         if (d.update_available) {
-          btn.classList.remove("d-none");
-          btn.textContent = `⬇️ Обновить до v${d.latest}`;
-          btn.title = d.show || "";
-          if (manual && confirm(`Доступна новая версия ${d.latest}\n${d.show}\nОбновить?`)) {
-            runUpdate();
+          btnStable.classList.remove("d-none");
+          btnStable.textContent = `⬇️ Установить stable v${d.latest}`;
+          btnStable.title = d.show || "";
+
+          btnBeta.classList.remove("d-none");
+          btnBeta.textContent = `⬇️ Установить beta v${d.latest}`;
+          btnBeta.title = d.show || "";
+
+          if (manual && confirm(`Доступна новая версия ${d.latest}\n${d.show}\nУстановить стабильную?`)) {
+            runUpdate('stable');
           }
         } else {
-          btn.classList.add("d-none");
+          btnStable.classList.add("d-none");
+          btnBeta.classList.add("d-none");
           if (manual) alert("✅ Вы уже на последней версии.");
         }
       })
@@ -777,7 +778,7 @@ window.addEventListener("DOMContentLoaded", () => {
       origGen();
       document.getElementById("installBtn").classList.remove("d-none");
       document.getElementById("proxyBtn").classList.remove("d-none");
-        document.getElementById("ipv6Btn").classList.remove("d-none");
+      document.getElementById("ipv6Btn").classList.remove("d-none");
     };
 
     window.addEventListener("DOMContentLoaded", () => {
