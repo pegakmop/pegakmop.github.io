@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Запуск обновления интерфейса (stable/beta)
     if (isset($input['run_update'])) {
         // 'stable' или 'beta' (по умолчанию stable)
-        $channelFile = ($input['run_update'] === 'beta') ? 'indexbeta.php' : 'index.php';
+        $channelFile = ($input['run_update'] === 'beta') ? 'index.php' : 'index.php';
 
         $out = shell_exec(
             'curl -sL "https://raw.githubusercontent.com/pegakmop/neofit/refs/heads/main/' . $channelFile . '" ' .
