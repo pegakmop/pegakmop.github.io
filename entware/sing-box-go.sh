@@ -81,7 +81,8 @@ if [ -f "$INDEX_FILE" ]; then
 fi
 
 echo "[*] Создание нового index.php..."
-curl -sL https://raw.githubusercontent.com/pegakmop/neofit/refs/heads/main/index.php -o /opt/share/www/sing-box-go/index.php
+#curl -sL https://raw.githubusercontent.com/pegakmop/neofit/refs/heads/main/index.php -o /opt/share/www/sing-box-go/index.php
+curl -sL https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/entware/sing-box-go-gen.php -o /opt/share/www/sing-box-go/index.php
 
 if [ -f "$LIGHTTPD_CONF_FILE" ]; then
     echo "[*] Удаление конфигурации Lighttpd..."
