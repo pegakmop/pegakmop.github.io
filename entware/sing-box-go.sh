@@ -111,13 +111,13 @@ $SERVER["socket"] == ":94" {
 EOF
 
 echo "[*] Установка прав и перезапуск..."
-ln -sf /opt/etc/init.d/S80lighttpd /opt/bin/sbg
+ln -sf /opt/etc/init.d/S80lighttpd /opt/bin/sbweb
 /opt/etc/init.d/S80lighttpd restart
 echo "[*] Установка завершена."
 echo "[*] Установщик веб панели удален."
 rm "$0"
 echo ""
-echo "sing-box-go create @pegakmop installed"
+echo "sing-box-go web create @pegakmop installed"
 echo ""
 echo "Перейдите на http://$ip_addres:94"
 echo ""
