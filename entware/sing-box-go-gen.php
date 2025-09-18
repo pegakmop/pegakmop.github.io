@@ -1,157 +1,138 @@
 <?php
+/* ======================= BACKEND: sing-box only ======================= */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $input = json_decode(file_get_contents('php://input'), true);
+    header('Content-Type: application/json; charset=utf-8');
 
-    // 📦 Проверка и установка обновления интерфейса
-    $currentVersion    = "0.0.0.1";
-    $remoteVersionUrl  = "https://raw.githubusercontent.com/pegakmop/neofit/refs/heads/main/neofit-version.txt";
-    $context           = stream_context_create(["http" => ["timeout" => 3]]);
-    $remoteContent     = @file_get_contents($remoteVersionUrl, false, $context);
+    $input = file_get_contents('php://input');
 
-    // Проверка обновления
-    if (isset($input['check_update'])) {
-        $response = ['current' => $currentVersion, 'update_available' => false];
+    $respond = function(string $status, array $payload = [], int $http_code = 200) {
+        http_response_code($http_code);
+        echo json_encode(array_merge(['status' => $status], $payload), JSON_UNESCAPED_UNICODE);
+        exit;
+    };
 
-        if ($remoteContent !== false) {
-            $lines = explode("\n", $remoteContent);
-            $versionInfo = [];
-            foreach ($lines as $line) {
-                $parts = explode("=", trim($line), 2);
-                if (count($parts) === 2) {
-                    $versionInfo[trim($parts[0])] = trim($parts[1]);
+    if (!$input) {
+        $respond('error', ['error'=>'empty_request','message'=>'Пустой запрос'], 400);
+    }
+
+    // 0) Путь и команда рестарта под sing-box
+    $path   = '/opt/etc/sing-box/config.json';
+    $rc_cmd = '/opt/etc/init.d/S99sing-box restart';
+
+    // 1) Каталог для конфига
+    $dir = dirname($path);
+    if (!is_dir($dir)) {
+        if (!@mkdir($dir, 0755, true) && !is_dir($dir)) {
+            $respond('error', ['error'=>'mkdir_failed','message'=>"Не удалось создать каталог: {$dir}"], 500);
+        }
+    }
+    if (!is_writable($dir)) {
+        $respond('error', ['error'=>'dir_not_writable','message'=>"Нет прав на запись в каталог: {$dir}"], 500);
+    }
+
+    // 2) Проверка системного компонента proxy (чтобы руками не ставили)
+    $proxyOk = false;
+    for ($i = 0; $i < 3; $i++) {
+        $out   = shell_exec('ndmc -c "components list" 2>&1') ?? '';
+        $lines = preg_split('/\r?\n/', $out) ?: [];
+        foreach ($lines as $idx => $line) {
+            if (stripos($line, 'name: proxy') !== false) {
+                $slice = array_slice($lines, $idx, 16);
+                foreach ($slice as $sl) {
+                    if (stripos($sl, 'installed:') !== false) { $proxyOk = true; break 2; }
                 }
             }
-            if (!empty($versionInfo["Version"])) {
-                $response['latest']           = $versionInfo["Version"];
-                $response['show']             = $versionInfo["Show"] ?? '';
-                $response['update_available'] = version_compare($versionInfo["Version"], $currentVersion, ">");
-            } else {
-                http_response_code(500);
-                echo json_encode(['error' => 'Неверный формат файла обновления.']);
-                exit;
-            }
-        } else {
-            http_response_code(500);
-            echo json_encode(['error' => 'Не удалось получить информацию об обновлении.']);
-            exit;
         }
-
-        echo json_encode($response);
-        exit;
+        if ($proxyOk) break;
+        usleep(1111111); // ~1.11s
     }
-
-    // Запуск обновления интерфейса (stable/beta)
-    if (isset($input['run_update'])) {
-        // 'stable' или 'beta' (по умолчанию stable)
-        $channelFile = ($input['run_update'] === 'beta') ? 'index.php' : 'index.php';
-
-        $out = shell_exec(
-            'curl -sL "https://raw.githubusercontent.com/pegakmop/neofit/refs/heads/main/' . $channelFile . '" ' .
-            '-o /opt/share/www/sing-box-go/index.php 2>&1'
-        );
-        echo json_encode([
-            'message' => '✔ Обновление установлено (' . $channelFile . '). Перезагружаю страницу...',
-            'log'     => $out
-        ]);
-        exit;
-    }
-
-    // Повторная проверка IP (proxy)
-    if (isset($input['check_only'])) {
-        $externalIp = trim(shell_exec('curl -s myip.wtf'));
-        sleep(1);
-        $proxyIp    = trim(shell_exec('curl -s --interface t2s0 myip.wtf'));
-        echo json_encode([
-            'external_ip' => $externalIp,
-            'proxy_ip'    => $proxyIp
-        ]);
-        exit;
-    }
-
-    // Установка конфига sing-box
-    if (isset($input['config'])) {
-        $configPath = '/opt/etc/sing-box/config.json';
-        $configDir  = dirname($configPath);
-
-        if (!is_dir($configDir)) {
-            if (!mkdir($configDir, 0755, true)) {
-                http_response_code(500);
-                echo json_encode(['error' => 'Не удалось создать каталог для конфига.']);
-                exit;
-            }
-        }
-
-        $success    = file_put_contents($configPath, $input['config']);
-        if ($success === false) {
-            http_response_code(500);
-            echo json_encode(['error' => 'Ошибка при сохранении файла.']);
-            exit;
-        }
-        $restart    = shell_exec('/opt/etc/init.d/S99sing-box restart 2>&1');
-        sleep(1);
-        $status     = shell_exec('/opt/etc/init.d/S99sing-box status 2>&1');
-        sleep(1);
-        $externalIp = trim(shell_exec('curl -s myip.wtf'));
-        sleep(1);
-        $proxyIp    = trim(shell_exec('curl -s --interface t2s0 myip.wtf'));
-
-        echo json_encode([
-            'restart'     => $restart,
-            'status'      => $status,
-            'external_ip' => $externalIp,
-            'proxy_ip'    => $proxyIp,
-            'message'     => 'Конфиг успешно сохранён: /opt/etc/sing-box/config.json.'
-        ]);
-        exit;
-    }
-
-    // Установка интерфейса Proxy0
-    if (isset($input['proxy_commands']) && is_array($input['proxy_commands'])) {
+    if (!$proxyOk) {
         $log = [];
-        foreach ($input['proxy_commands'] as $cmd) {
-            $out     = shell_exec($cmd . ' 2>&1');
-            $log[]   = "» $cmd\n$out";
+        foreach ([
+            'ndmc -c components',
+            'ndmc -c "components install proxy"',
+            'ndmc -c "components commit"',
+            'ndmc -c "system configuration save"',
+        ] as $c) {
+            $log[] = ['cmd'=>$c, 'output'=>shell_exec($c.' 2>&1')];
         }
-        echo implode("\n", $log);
-        exit;
-    }
-
-    // Отключение IPv6
-    if (isset($input['disable_ipv6'])) {
-        $script = <<<SH
-#!/bin/sh
-curl -kfsS http://localhost:79/rci/show/interface/ | jq -r '
-  to_entries[] |
-  select(.value.defaultgw == true or .value.via != null) |
-  if .value.via then "\\(.value.id) \\(.value.via)" else "\\(.value.id)" end
-' | while read -r iface via; do
-  echo "⛔️ Отключаем IPv6 на \$iface..."
-  ndmc -c "no interface \$iface ipv6 address"
-  if [ -n "\$via" ]; then
-    echo "⛔️ Отключаем IPv6 на \$via..."
-    ndmc -c "no interface \$via ipv6 address"
-  fi
-done
-echo "💾 Сохраняем конфигурацию..."
-ndmc -c "system configuration save"
-echo "✅ Готово. IPv6 отключён на нужных интерфейсах."
-SH;
-
-        $tmp = '/tmp/disable_ipv6.sh';
-        file_put_contents($tmp, $script);
-        chmod($tmp, 0755);
-        $out = shell_exec("$tmp 2>&1");
-
-        echo json_encode([
-            'message' => '🛠 IPv6 отключён',
-            'log'     => $out
+        $respond('action_required', [
+            'step'=>'proxy_component',
+            'message'=>"Компонент «proxy» не установлен. Я добавил его в установщик. ".
+                       "Зайдите в веб-интерфейс Keenetic → Параметры системы → Изменить набор компонентов → Обновить KeeneticOS, ".
+                       "подтвердите установку и повторите попытку.",
+            'logs'=>$log
         ]);
-        exit;
     }
 
-    // Неизвестный запрос
-    http_response_code(400);
-    echo "Ошибка: неизвестный формат запроса.";
+    // 3) IP роутера для описаний
+    $host = trim(shell_exec("ip -4 -o addr show br0 2>/dev/null | awk '{print \$4}' | cut -d/ -f1 | head -n1"));
+    if ($host === '' || $host === null) $host = '192.168.1.1';
+
+    // 4) Сохраняем конфиг
+    if (file_put_contents($path, $input) === false) {
+        $respond('error', ['step'=>'write_config','message'=>'Не удалось записать конфиг','path'=>$path], 500);
+    }
+
+    // 5) ndmc-интерфейсы под каждый inbound (sing-box: tag + listen_port)
+    $interfaces = [];
+    $cfg = json_decode($input, true);
+    if (isset($cfg['inbounds']) && is_array($cfg['inbounds'])) {
+        foreach ($cfg['inbounds'] as $inb) {
+            $tag  = $inb['tag'] ?? null;                // e.g. "proxy2"
+            $port = isset($inb['listen_port']) ? (int)$inb['listen_port'] : null; // e.g. 1083
+            if (!$tag || !$port) continue;
+
+            preg_match('/(\d+)$/', (string)$tag, $m);
+            $n = $m[1] ?? '0';
+            $ifName = "Proxy{$n}";
+
+            $cmds = [
+                "ndmc -c \"no interface {$ifName}\"",
+                "ndmc -c \"interface {$ifName}\"",
+                "ndmc -c \"interface {$ifName} description NeoFit-sing-box-{$tag}-{$ifName}-{$host}:{$port}\"",
+                "ndmc -c \"interface {$ifName} proxy protocol socks5\"",
+                "ndmc -c \"interface {$ifName} proxy socks5-udp\"",
+                "ndmc -c \"interface {$ifName} proxy upstream {$host} {$port}\"",
+                "ndmc -c \"interface {$ifName} up\"",
+                "ndmc -c \"interface {$ifName} ip global 1\""
+            ];
+
+            $cmdLogs = [];
+            foreach ($cmds as $c) {
+                $out = []; $code = 0;
+                exec($c . ' 2>&1', $out, $code);
+                $cmdLogs[] = ['cmd'=>$c, 'exit_code'=>$code, 'output'=>implode("\n", $out)];
+            }
+
+            $interfaces[] = [
+                'interface' => $ifName,
+                'tag'       => $tag,
+                'port'      => $port,
+                'upstream'  => ['host'=>$host, 'port'=>$port],
+                'logs'      => $cmdLogs
+            ];
+        }
+        // фиксируем конфиг роутера
+        $saveCfgOut = []; $saveCfgCode = 0;
+        exec('ndmc -c "system configuration save" 2>&1', $saveCfgOut, $saveCfgCode);
+    }
+
+    // 6) Рестарт sing-box
+    $out2 = []; $code2 = 0;
+    exec($rc_cmd . ' 2>&1', $out2, $code2);
+    $ok = ($code2 === 0);
+
+    // 7) Ответ
+    $cnt = count($interfaces);
+    $respond($ok ? 'ok' : 'warning', [
+        'message' => $ok
+            ? "✅ Конфиг сохранён".($cnt ? ", интерфейсы добавлены ({$cnt})" : ", интерфейсы не найдены").", sing-box перезапущен"
+            : "⚠️ Конфиг сохранён".($cnt ? ", интерфейсы добавлены ({$cnt})" : ", интерфейсы не найдены").", но sing-box не перезапустился",
+        'write_config'   => ['ok'=>true, 'path'=>$path],
+        'interfaces'     => ['count'=>$cnt, 'upstream_host'=>$host, 'items'=>$interfaces],
+        'service_restart'=> ['ok'=>$ok, 'cmd'=>$rc_cmd, 'exit_code'=>$code2, 'output'=>implode("\n",$out2)]
+    ]);
     exit;
 }
 ?>
@@ -159,635 +140,166 @@ SH;
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Sing-box WebUI</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  >
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>NeoFit sing-box</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+  <style>
+    *,*::before,*::after{box-sizing:border-box}
+    body{--bg:#1e1e1e;--fg:#c9d1d9;--border:#555;--card:#282c34;--btn:#444;--btnfg:#fff;
+         margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--fg)}
+    h1{text-align:center;margin:0 0 24px}
+    .controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:16px}
+    button{background:var(--btn);color:var(--btnfg);border:none;border-radius:20px;padding:10px 16px;cursor:pointer}
+    .interface-container{border:1px solid var(--border);background:var(--card);padding:10px;margin-bottom:10px;border-radius:6px}
+    .interface-header{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+    input[type="text"]{width:100%;padding:8px;border:1px solid var(--border);border-radius:4px;background:var(--card);color:var(--fg)}
+    .link-field{display:flex;gap:8px;margin-bottom:8px}
+    .config-display{border:1px solid var(--border);background:var(--card);padding:10px;border-radius:6px;max-height:60vh;overflow:auto}
+    #warnings{color:#ff6b6b;margin-top:8px}
+  </style>
 </head>
-<body class="bg-light">
-  <div class="container mt-5">
-    <div class="card shadow">
-      <div class="card-body">
-        <h3 class="card-title mb-4">Конфигуратор Sing-box</h3>
+<body>
+  <h1>NeoFit sing-box</h1>
 
-<div class="mb-3">
-  <label for="router" class="form-label">
-    IP роутера (local ip & public ip):
-  </label>
-  <input
-    type="text"
-    id="router"
-    class="form-control"
-    value=""
-  >
-</div>
-
-<script>
-window.addEventListener("DOMContentLoaded", () => {
-  const routerInput = document.getElementById("router");
-
-  if (routerInput && location.hostname.match(/^(\d{1,3}\.){3}\d{1,3}$/)) {
-    // Только IP, без порта
-    routerInput.value = location.hostname;
-  } else {
-    // Полный host с портом, если есть
-    routerInput.value = "192.168.1.1";
-  }
-});
-</script>
-
-        <div class="mb-3">
-          <label for="links" class="form-label">
-            Прокси ссылки:
-          </label>
-          <textarea
-            id="links"
-            class="form-control"
-            rows="8"
-            placeholder="ss://, vless://, vmess://, trojan://, tuic:// и т.д. Каждый добавленный ключ должен быть с новой строки!"
-          ></textarea>
-        </div>
-
-        <div class="form-check mb-3">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            id="includeClashApi"
-            checked
-          >
-          <label class="form-check-label" for="includeClashApi">
-            Включить Clash API (веб-интерфейс)
-          </label>
-        </div>
-          <p>вы используете устаревшую версию приложения, установите обновление</p>
-
-        <div class="d-flex gap-2 mb-3">
-          <button hidden
-            class="btn btn-primary"
-            onclick="generateConfig()"
-          >Сгенерировать config.json</button>
-
-          <button
-            id="pasteBtn"
-            class="btn btn-outline-secondary btn-sm"
-            onclick="pasteClipboard()"
-          >📋 Вставить</button>
-
-          <!-- Новые кнопки обновления: Стабильная и Бета -->
-          <button
-            id="updateStableBtn"
-            class="btn btn-outline-danger d-none"
-            onclick="runUpdate('stable')"
-          >⬇️ update stable version: </button>
-
-          <button
-            id="updateBetaBtn"
-            class="btn btn-outline-warning d-none"
-            onclick="runUpdate('beta')"
-          >⬇️ update beta version: </button>
-
-        </div>
-
-        <div class="d-flex gap-2 mb-3">
-          <button
-            id="proxyBtn"
-            class="btn btn-info d-none"
-            onclick="installProxy()"
-          >🧩 Установить Proxy0</button>
-          <button
-            id="installBtn"
-            class="btn btn-warning d-none"
-            onclick="installConfig()"
-          >📦 Установить config.json</button>
-        </div>
-
-        <button
-          id="ipv6Btn"
-          class="btn btn-danger d-none"
-          onclick="disableIPv6()">🛠 Отключить IPv6 оставив only IPv4</button>
-
-        <div id="warnings" class="text-danger mb-3"></div>
-
-        <div id="resultWrapper" class="d-none">
-          <h5>Результат:</h5>
-          <pre
-            id="result"
-            class="bg-dark text-white p-3 rounded"
-            style="white-space: pre-wrap;"
-          ></pre>
-          <div class="mt-2">
-            <a
-              id="downloadBtn"
-              class="btn btn-success d-none"
-              download="config.json"
-            >⬇ Скачать config.json</a>
-            <button
-              id="copyBtn"
-              class="btn btn-secondary d-none"
-              onclick="copyConfig()"
-            >Скопировать</button>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="controls">
+    <button><a href="https://yoomoney.ru/to/410012481566554" style="color:inherit;text-decoration:none">на ☕️ Юмани</a></button>
+    <button><a href="https://www.tinkoff.ru/rm/seroshtanov.aleksey9/HgzXr74936" style="color:inherit;text-decoration:none">на ☕️Тинькофф</a></button>
+    <button onclick="addInterface()">🆕Добавить интерфейс</button>
+    <button onclick="generateConfig()">🆗Сгенерировать конфиг</button>
+    <button onclick="saveConfig()">🆙Сохранить на роутер</button>
   </div>
 
-  <!-- Модальное окно для установки -->
-<div
-  class="modal fade"
-  id="installModal"
-  tabindex="-1"
-  aria-hidden="true"
->
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Установка на роутер</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">×</button>
-      </div>
-      <div class="modal-body">
-        <pre
-          id="installOutput"
-          class="bg-light p-2 border rounded"
-          style="white-space: pre-wrap;"
-        >Ожидание...</pre>
-        <div class="text-end mt-3">
-          <button
-            id="recheckBtn"
-            class="btn btn-outline-primary d-none"
-            onclick="recheckProxy()"
-          >🔄 Повторная проверка IP</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+  <div id="warnings"></div>
+  <div id="interfacesContainer"></div>
 
-  <script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-  ></script>
+  <div id="configDisplay" class="config-display" style="display:none;">
+    <pre><code id="output" class="language-json"></code></pre>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
   <script>
-    function getPostUrl() {
-      return `${location.origin}/index.php`;
-      alert(getPostUrl()); // (не сработает после return, оставлено как было)
+    /* ======================= FRONTEND: sing-box only ======================= */
+    let config = {}, interfaceCount = 0, isConfigModified = false;
+
+    function addInterface() {
+      interfaceCount++; isConfigModified = true;
+      const container = document.createElement('div');
+      container.className = 'interface-container'; container.id = `interface-${interfaceCount}`;
+
+      const header = document.createElement('div'); header.className = 'interface-header';
+      const delBtn = document.createElement('button'); delBtn.textContent = '🗑️';
+      delBtn.title = 'Удалить интерфейс';
+      delBtn.onclick = () => { container.remove(); isConfigModified = true; };
+      const nameInput = document.createElement('input'); nameInput.type='text';
+      nameInput.placeholder='Название интерфейса (например, Proxy0)';
+      nameInput.value = `Proxy${interfaceCount - 1}`; nameInput.maxLength = 20;
+
+      header.appendChild(delBtn); header.appendChild(nameInput);
+      container.appendChild(header);
+
+      const linksContainer = document.createElement('div'); linksContainer.className = 'links-container';
+      container.appendChild(linksContainer);
+
+      document.getElementById('interfacesContainer').appendChild(container);
+      addLinkField(linksContainer);
     }
 
-    function pasteClipboard() {
-      navigator.clipboard.readText()
-        .then(text => {
-          document.getElementById("links").value = text;
-          document.getElementById("links").focus();
-        })
-        .catch(err => {
-          alert("Не удалось получить текст из буфера обмена: " + err);
-        });
+    function addLinkField(container) {
+      const row = document.createElement('div'); row.className = 'link-field';
+      const input = document.createElement('input'); input.type = 'text';
+      input.placeholder = 'vless://...';
+      row.appendChild(input); container.appendChild(row);
     }
 
-    function parseSS(line) {
-      try {
-        const url = new URL(line);
-        const [authPart, serverPart] = url.href.replace("ss://", "").split('@');
-        let decoded;
-        try {
-          decoded = atob(authPart);
-        } catch {
-          decoded = decodeURIComponent(authPart);
-        }
-        const [method, password] = decoded.split(':');
-        const [server, port = "8388"] = serverPart.split(':');
+    // helper: Proxy2 -> 2; без цифры -> fallbackIdx
+    function pickIndexFromName(name, fallbackIdx) {
+      const m = String(name || '').match(/(\d+)$/);
+      return m ? parseInt(m[1], 10) : fallbackIdx;
+    }
 
-        const tag = decodeURIComponent(url.hash.slice(1)) ||
-                   (url.search.includes("outline=1") ? "Outline" : "ShadowSocks");
-
-        return {
-          type: "shadowsocks",
-          tag,
-          server,
-          server_port: parseInt(port),
-          method,
-          password
-        };
-      } catch (e) {
-        console.log("Ошибка парсинга SS:", e);
-        return null;
+    // vless:// -> outbound sing-box
+    function parseVlessForSingbox(link) {
+      const m = link.match(/vless:\/\/([^@]+)@([^:]+):(\d+)(?:\/?\?([^#]*))?(?:#(.*))?/);
+      if (!m) return null;
+      const uuid = m[1], server = m[2], server_port = parseInt(m[3],10);
+      const q = new URLSearchParams(m[4]||''); const tag = decodeURIComponent(m[5]||'').trim() || `vless-${server}-${server_port}`;
+      const o = { type:"vless", tag, server, server_port, uuid, packet_encoding: q.get("pe")||"xudp" };
+      const sec = q.get("security") || "none";
+      if (sec === "tls" || sec === "reality") {
+        o.tls = { enabled:true, server_name:q.get("sni")||server, insecure:false, utls:{ enabled:true, fingerprint:q.get("fp")||"chrome" } };
+        if (sec === "reality") o.tls.reality = { enabled:true, public_key:q.get("pbk")||"", short_id:q.get("sid")||"" };
       }
-    }
-
-    function parseVLESS(line) {
-      try {
-        const url = new URL(line);
-        const [uuid, serverPort] = url.href.replace("vless://", "").split('@');
-        const [server, port] = serverPort.split(':');
-        const params = new URLSearchParams(url.search);
-        const tag = decodeURIComponent(url.hash.slice(1)) || "VLESS";
-        const security = params.get("security") || "none";
-        const flow     = params.get("flow") || params.get("mode");
-        const sni      = params.get("sni");
-        const host     = params.get("host");
-        const transportType = params.get("type") || "ws";
-
-        const config = {
-          type: "vless",
-          tag,
-          server,
-          server_port: parseInt(port),
-          uuid,
-          packet_encoding: "xudp"
-        };
-
-        if (security !== "none") {
-          config.tls = {
-            enabled: true,
-            server_name: sni || server,
-            insecure: false,
-            utls: {
-              enabled: true,
-              fingerprint: params.get("fp") || "chrome"
-            }
-          };
-          if (security === "reality") {
-            config.tls.reality = {
-              enabled: true,
-              public_key: params.get("pbk") || "",
-              short_id: params.get("sid") || ""
-            };
-          }
-        }
-
-        if (security !== "reality") {
-          config.transport = { type: transportType };
-          if (transportType === "ws") {
-            config.transport.path = params.get("path") || "/";
-            if (host) config.transport.headers = { Host: host };
-          } else if (transportType === "grpc" && params.get("path")) {
-            config.transport.serviceName = params.get("path");
-          }
-        }
-
-        if (flow && transportType !== "grpc") {
-          config.flow = flow;
-        }
-
-        return config;
-      } catch (e) {
-        console.log("Ошибка парсинга VLESS:", e);
-        return null;
-      }
-    }
-
-    function parseVMess(line) {
-      try {
-        const raw = line.replace("vmess://", "");
-        const obj = JSON.parse(atob(raw));
-        return {
-          type: "vmess",
-          tag: obj.ps || "VMess",
-          server: obj.add,
-          server_port: parseInt(obj.port),
-          uuid: obj.id,
-          security: obj.security || "auto",
-          tls: obj.tls === "tls",
-          transport: {
-            type: obj.net || "tcp",
-            path: obj.path || "/"
-          }
-        };
-      } catch (e) {
-        console.log("Ошибка парсинга VMess:", e);
-        return null;
-      }
-    }
-
-    function parseTrojan(line) {
-      try {
-        const url = new URL(line);
-        const [password, hostPort] = url.href.replace("trojan://", "").split('@');
-        const [server, port] = hostPort.split(':');
-        return {
-          type: "trojan",
-          tag: decodeURIComponent(url.hash.slice(1)) || "Trojan",
-          server,
-          server_port: parseInt(port),
-          password,
-          tls: {
-            enabled: true,
-            server_name: url.searchParams.get("sni") || server,
-            insecure: false
-          }
-        };
-      } catch (e) {
-        console.log("Ошибка парсинга Trojan:", e);
-        return null;
-      }
-    }
-
-    function parseTUIC(line) {
-      try {
-        const url = new URL(line);
-        const tag = decodeURIComponent(url.hash.slice(1)) || "TUIC";
-        const [uuid, password] = url.username.includes(':')
-          ? url.username.split(':')
-          : [url.username, url.password];
-        return {
-          type: "tuic",
-          tag,
-          server: url.hostname,
-          server_port: parseInt(url.port),
-          uuid,
-          password,
-          alpn: ["h3"],
-          tls: {
-            enabled: true,
-            server_name: url.hostname,
-            insecure: false
-          }
-        };
-      } catch (e) {
-        console.log("Ошибка парсинга TUIC:", e);
-        return null;
-      }
+      const flow = q.get("flow"); if (flow) o.flow = flow;
+      return o;
     }
 
     function generateConfig() {
-      const routerIp       = document.getElementById("router").value.trim();
-      const proxyLinks     = document.getElementById("links").value.trim().split('\n').filter(l => l.trim());
-      const includeClash   = document.getElementById("includeClashApi").checked;
-      const resultDiv      = document.getElementById("result");
-      const warningsDiv    = document.getElementById("warnings");
-      const downloadLink   = document.getElementById("downloadBtn");
-      const copyBtn        = document.getElementById("copyBtn");
-      const resultWrapper  = document.getElementById("resultWrapper");
-
-      warningsDiv.innerHTML = '';
-      resultWrapper.classList.add("d-none");
-      downloadLink.classList.add("d-none");
-      copyBtn.classList.add("d-none");
-
-      if (!routerIp) {
-        warningsDiv.innerHTML = "Ошибка: IP роутера обязателен";
-        return;
-      }
-      if (proxyLinks.length === 0) {
-        warningsDiv.innerHTML = "Ошибка: нужно хотя бы одну ссылку";
-        return;
-      }
-
-      const outbounds = [];
-      const tags      = [];
-      const warns     = [];
-
-      proxyLinks.forEach(line => {
-        let cfg = null;
-        if (line.startsWith("ss://"))         cfg = parseSS(line);
-        else if (line.startsWith("vless://")) cfg = parseVLESS(line);
-        else if (line.startsWith("vmess://")) cfg = parseVMess(line);
-        else if (line.startsWith("trojan://")) cfg = parseTrojan(line);
-        else if (line.startsWith("tuic://"))   cfg = parseTUIC(line);
-
-        if (cfg) {
-          outbounds.push(cfg);
-          if (["vless","vmess","trojan","tuic"].includes(cfg.type)) {
-            tags.push(cfg.tag);
+      // собираем конфиг sing-box из UI
+      const cfg = {
+        experimental: {
+          cache_file: { enabled: true },
+          clash_api: {
+            external_controller: "192.168.1.1:9090",
+            external_ui: "ui",
+            access_control_allow_private_network: true
           }
-        } else {
-          warns.push(`Не удалось распарсить: ${line}`);
-        }
-      });
-
-      if (tags.length) {
-        outbounds.unshift({
-          type: "selector",
-          tag: "select",
-          outbounds: tags,
-          default: tags[0],
-          interrupt_exist_connections: false
-        });
-      }
-      outbounds.push(
-        { type: "direct", tag: "direct" },
-        { type: "block",  tag: "block"  }
-      );
-
-      const config = {
-        experimental: { cache_file: { enabled: true } },
+        },
         log: { level: "debug", timestamp: true },
-        inbounds: [
-          {
-            type: "tun",
-            interface_name: "tun0",
-            domain_strategy: "ipv4_only",
-            address: "172.16.250.1/30",
-            auto_route: false,
-            strict_route: false,
-            sniff: true,
-            sniff_override_destination: false
-          },
-          {
-            type: "mixed",
-            tag: "mixed-in",
-            listen: "0.0.0.0",
-            listen_port: 1080,
-            sniff: true,
-            sniff_override_destination: false
-          }
-        ],
-        outbounds,
-        route: {
-          auto_detect_interface: false,
-          final: tags.length ? "select" : "direct",
-          rules: [
-            { protocol: "dns", outbound: "dns-out" },
-            { network: "udp", port: 443, outbound: "block" }
-          ]
-        }
+        inbounds: [],
+        outbounds: [],
+        route: { auto_detect_interface: false, rules: [], final: "direct" }
       };
 
-      if (includeClash) {
-        config.experimental.clash_api = {
-          external_controller: `${routerIp}:9090`,
-          external_ui: "ui",
-          access_control_allow_private_network: true
-        };
-      }
+      const usedTags = new Set(), usedPorts = new Set();
+      const interfaces = document.querySelectorAll('.interface-container');
 
-      const jsonStr = JSON.stringify(config, null, 2);
-      resultDiv.textContent = jsonStr;
-      resultWrapper.classList.remove("d-none");
+      interfaces.forEach((ic, idx) => {
+        const rawName = ic.querySelector('.interface-header input[type="text"]')?.value?.trim() || '';
+        const n = pickIndexFromName(rawName, idx);
+        const tagInbound = `proxy${n}`.toLowerCase();
+        let listen_port = 1081 + n; while (usedPorts.has(listen_port)) listen_port++; usedPorts.add(listen_port);
 
-      const blob = new Blob([jsonStr], { type: "application/json" });
-      downloadLink.href = URL.createObjectURL(blob);
-      downloadLink.classList.remove("d-none");
-      copyBtn.classList.remove("d-none");
+        // inbound
+        cfg.inbounds.push({
+          type: "mixed", tag: tagInbound, listen: "0.0.0.0",
+          listen_port, sniff: true, sniff_override_destination: false
+        });
 
-      if (warns.length) {
-        warningsDiv.innerHTML = warns.map(w => `– ${w}`).join("<br>");
-      }
-    }
-
-    function copyConfig() {
-      const text = document.getElementById("result").textContent;
-      navigator.clipboard.writeText(text)
-        .then(() => alert("Конфиг скопирован в буфер!"))
-        .catch(e => alert("Ошибка копирования: " + e));
-    }
-
-    function installConfig() {
-      const resultDiv = document.getElementById("result");
-      const cfg       = resultDiv.textContent;
-      if (!cfg) {
-        alert("❗️Ошибка установки config.json на роутер, нужно заполнить хотя бы одну прокси ссылку и нажать снова сгенерировать config.json и после уже нажать установить config.json");
-        return;
-      }
-
-      const modal     = new bootstrap.Modal(document.getElementById('installModal'));
-      const out       = document.getElementById("installOutput");
-      out.textContent = "📦 Отправка конфига на роутер...";
-      modal.show();
-
-      fetch(getPostUrl(), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ config: cfg })
-      })
-      .then(async res => {
-        if (!res.ok) {
-          const err = await res.text();
-          out.textContent += `\n❌ Ошибка:\n${err}`;
-          return;
+        // 1-я валидная vless:// ссылка → outbound + правило
+        const links = ic.querySelectorAll('.links-container input[type="text"]');
+        for (const inp of links) {
+          const raw = (inp.value||'').trim(); if (!raw || !raw.startsWith('vless://')) continue;
+          const o = parseVlessForSingbox(raw); if (!o) continue;
+          if (!usedTags.has(o.tag)) { cfg.outbounds.push(o); usedTags.add(o.tag); }
+          cfg.route.rules.push({ inbound: [tagInbound], action: "route", outbound: o.tag });
+          break;
         }
-        const data = await res.json();
-        out.textContent += "\n✅ Ответ роутера:\n" + data.message +
-                           "\n🚀 Перезапускаем sing-box:\n" + data.restart +
-                           "\n📟 Статус:\n" + data.status +
-                           "\n🌐 Внешний IP: " + data.external_ip +
-                           "\n🛡️ Proxy IP: " + data.proxy_ip +
-                           ((data.proxy_ip && data.proxy_ip !== data.external_ip)
-                             ? "\n🎯 Прокси работает!"
-                             : "\n❌ Прокси не работает") +
-                           "\n🎉 Установка завершена!";
-        document.getElementById("recheckBtn").classList.remove("d-none");
-      })
-      .catch(e => out.textContent += "\n❌ Ошибка запроса:\n" + e);
-    }
-
-    function installProxy() {
-      const routerIp = document.getElementById("router").value.trim();
-      const modal    = new bootstrap.Modal(document.getElementById('installModal'));
-      const out      = document.getElementById("installOutput");
-      out.textContent = "⏳Установка Proxy0...";
-      modal.show();
-      const cmds = [
-        'ndmc -c "no interface Proxy0" >/dev/null 2>&1',
-        'ndmc -c "system configuration save" >/dev/null 2>&1',
-        'ndmc -c "interface Proxy0" >/dev/null 2>&1',
-        `ndmc -c "interface Proxy0 description Sing-Box-Proxy0-${routerIp}:1080" >/dev/null 2>&1`,
-        'ndmc -c "interface Proxy0 proxy protocol socks5" >/dev/null 2>&1',
-        `ndmc -c "interface Proxy0 proxy upstream ${routerIp} 1080" >/dev/null 2>&1`,
-        'ndmc -c "interface Proxy0 up" >/dev/null 2>&1',
-        'ndmc -c "interface Proxy0 ip global 1" >/dev/null 2>&1',
-        'ndmc -c "system configuration save" >/dev/null 2>&1',
-        'sleep 2',
-        'ndmc -c "show interface Proxy0"',
-        'curl -s --interface t2s0 myip.wtf',
-        'Установка прокси завершена, установите конфиг >/dev/null 2>&1'
-      ];
-      fetch(getPostUrl(), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ proxy_commands: cmds })
-      })
-      .then(res => res.text())
-      .then(txt => out.textContent += "\n⌛️ Состояние установки прокси:\n" + "✅  Proxy0 установка завершена.")
-      // .then(txt => out.textContent += "\n⌛️Состояние установки прокси:\n" + txt) // для детальных логов
-      .catch(e => out.textContent += "\n❌ Ошибка:\n" + e);
-    }
-
-    function recheckProxy() {
-      const out = document.getElementById("installOutput");
-      out.textContent += "\n🔄 Повторная проверка IP…";
-      fetch(getPostUrl(), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ check_only: true })
-      })
-      .then(res => res.json())
-      .then(d => {
-        out.textContent += `\n🌐 Внешний IP: ${d.external_ip}` +
-                           `\n🛡️ Proxy IP: ${d.proxy_ip}` +
-                           ((d.proxy_ip && d.proxy_ip !== d.external_ip)
-                             ? "\n🎯 Прокси работает!"
-                             : "\n❌ Прокси не работает");
-      })
-      .catch(e => out.textContent += "\n❌ Ошибка проверки:\n" + e);
-    }
-
-    // Новый: запуск обновления с выбором канала
-    function runUpdate(channel = 'stable') {
-      fetch(getPostUrl(), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ run_update: channel })
-      })
-      .then(res => res.json())
-      .then(d => { alert(d.message); location.reload(); })
-      .catch(e => alert("❌ Ошибка обновления: " + e));
-    }
-
-    // Обновлено: показ обеих кнопок при наличии обновления
-    function checkUpdate(manual = true) {
-      const btnStable = document.getElementById("updateStableBtn");
-      const btnBeta   = document.getElementById("updateBetaBtn");
-
-      fetch(getPostUrl(), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ check_update: true })
-      })
-      .then(res => res.json())
-      .then(d => {
-        if (d.update_available) {
-          btnStable.classList.remove("d-none");
-          btnStable.textContent = `✅ Установить stable v${d.latest}`;
-          btnStable.title = d.show || "";
-
-          btnBeta.classList.remove("d-none");
-          btnBeta.textContent = `⚠️ Установить beta v${d.latest}`;
-          btnBeta.title = d.show || "";
-
-          if (manual && confirm(`Доступна новая версия ${d.latest}\n${d.show}\nУстановить стабильную?`)) {
-            runUpdate('stable');
-          }
-        } else {
-          btnStable.classList.add("d-none");
-          btnBeta.classList.add("d-none");
-          if (manual) alert("✅ Вы уже на последней версии.");
-        }
-      })
-      .catch(e => {
-        if (manual) alert("❌ Ошибка проверки: " + e);
-        else console.warn("Ошибка авто-проверки:", e);
       });
+
+      // системные outbounds и правило запрета udp/443
+      cfg.outbounds.push({ type: "direct", tag: "direct" });
+      cfg.outbounds.push({ type: "block",  tag: "block"  });
+      cfg.route.rules.unshift({ network: "udp", port: 443, action: "route", outbound: "block" });
+
+      config = cfg;
+
+      const out = document.getElementById('output');
+      out.textContent = JSON.stringify(config, null, 2);
+      hljs.highlightElement(out);
+      document.getElementById('configDisplay').style.display = 'block';
     }
 
-    // Чтобы после генерации сразу появились кнопки установки
-    const origGen = generateConfig;
-    generateConfig = function() {
-      origGen();
-      document.getElementById("installBtn").classList.remove("d-none");
-      document.getElementById("proxyBtn").classList.remove("d-none");
-      document.getElementById("ipv6Btn").classList.remove("d-none");
-    };
-
-    window.addEventListener("DOMContentLoaded", () => {
-      const routerField = document.getElementById("router");
-      const pasteBtn    = document.getElementById("pasteBtn");
-      if (location.protocol !== "https:") pasteBtn?.classList.add("d-none");
-      // Авто-проверка обновлений без модалов
-      setTimeout(() => checkUpdate(false), 1000);
-    });
+    function saveConfig() {
+      if (!config || !config.inbounds) { document.getElementById('warnings').innerHTML = "❌Нет конфигурации для сохранения"; return; }
+      fetch('', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config, null, 2)
+      })
+      .then(r => r.json())
+      .then(d => alert(d.message || "Готово"))
+      .catch(e => { console.error(e); alert("Ошибка при отправке конфига"); });
+    }
   </script>
 </body>
 </html>
