@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proxy Config Generator</title>
+    <title>Config Generator</title>
     <style>
         * {
             margin: 0;
@@ -309,8 +309,8 @@
         </div>
 
         <div class="form-group">
-            <label>Interface(s) (для TUN, например: tun0 или tun0:select,tun1:auto):</label>
-            <input type="text" id="iface" placeholder="tun0:select,tun1:auto">
+            <label>Interface(s) (для TUN, например: opkgtun0 или opkgtun0:select,opkgtun1:auto):</label>
+            <input type="text" id="iface" placeholder="opkgtun0:select,opkgtun1:auto">
         </div>
 
         <button class="btn" id="generateBtn">Сгенерировать конфиг</button>
@@ -323,7 +323,7 @@
         <div class="result" id="result">
             <div class="result-header">
                 <h3>Результат:</h3>
-                <button class="btn-small" id="downloadBtn">💾 Скачать</button>
+                <button class="btn-small" id="downloadBtn">💾 Скачать конфиг</button>
             </div>
             <div class="result-content" id="resultContent"></div>
         </div>
