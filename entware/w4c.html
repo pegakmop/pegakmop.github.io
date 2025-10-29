@@ -46,6 +46,10 @@
             margin-bottom: 20px;
         }
 
+        .is-hidden {
+            display: none !important;
+        }
+
         label {
             display: block;
             margin-bottom: 8px;
@@ -269,15 +273,15 @@
 <body>
     <div class="container">
         <h1>🚀 Config Generator</h1>
-        <p class="subtitle"> генерация конфига</p>
+        <p class="subtitle">Генерация конфига</p>
 
         <div class="status" id="status"></div>
 
         <div class="form-group">
             <label>Выберите ядро:</label>
             <div class="core-selector">
-                <button class="core-btn active" data-core="singbox">sing-box</button>
-                <button class="core-btn" data-core="xray">Xray</button>
+                <button type="button" class="core-btn active" data-core="singbox">sing-box</button>
+                <button type="button" class="core-btn" data-core="xray">Xray</button>
             </div>
         </div>
 
@@ -286,9 +290,9 @@
             <textarea id="keys" placeholder="vless://...&#10;vmess://...&#10;trojan://...&#10;ss://...&#10;hy2://..."></textarea>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" id="singboxOptionsLabel">
             <label>Настройки (только для sing-box):</label>
-            <div class="options">
+            <div class="options" id="singboxOptions">
                 <div class="checkbox-group">
                     <input type="checkbox" id="tun" checked>
                     <label for="tun">TUN</label>
@@ -308,7 +312,7 @@
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" id="ifaceGroup">
             <label>Interface(s) (для TUN, например: opkgtun0 или opkgtun0:select,opkgtun1:auto):</label>
             <input type="text" id="iface" placeholder="opkgtun0:select,opkgtun1:auto">
         </div>
@@ -329,7 +333,7 @@
         </div>
     </div>
 
-    <iframe id="web4core" src="/web4core/src/"></iframe>
+    <iframe id="web4core" src="https://spatiumstas.github.io/web4core/"></iframe>
 
     <script>
         let currentCore = 'singbox';
@@ -339,15 +343,35 @@
         // Ждём загрузки iframe
         iframe.onload = () => {
             iframeReady = true;
-            showStatus(' загружен и готов к работе', 'success');
+            showStatus('Готов к работе', 'success');
         };
+
+        // Функция для показа/скрытия элементов (как в оригинале)
+        const toggleHidden = (el, hidden) => {
+            if (el) {
+                el.classList.toggle('is-hidden', hidden);
+            }
+        };
+
+        // Функция установки ядра (как в оригинале)
+        function setCore(core) {
+            currentCore = core;
+            
+            // Обновляем активную кнопку
+            document.querySelectorAll('.core-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.core === core);
+            });
+
+            // Показываем/скрываем настройки sing-box
+            const hide = core !== 'singbox';
+            toggleHidden(document.getElementById('singboxOptionsLabel'), hide);
+            toggleHidden(document.getElementById('ifaceGroup'), hide);
+        }
 
         // Переключение ядра
         document.querySelectorAll('.core-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.core-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentCore = btn.dataset.core;
+                setCore(btn.dataset.core);
             });
         });
 
@@ -398,11 +422,19 @@
         async function generateConfig(keys) {
             return new Promise((resolve, reject) => {
                 const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                const iframeWindow = iframe.contentWindow;
                 
-                // Устанавливаем ядро
-                const coreToggle = iframeDoc.getElementById('coreToggle');
-                if (coreToggle) {
-                    coreToggle.setAttribute('data-core', currentCore);
+                // Устанавливаем ядро в iframe через его функцию setCore
+                if (iframeWindow && typeof iframeWindow.setCore === 'function') {
+                    iframeWindow.setCore(currentCore);
+                } else {
+                    // Fallback: кликаем по label
+                    const targetLabel = currentCore === 'singbox' ? 
+                        iframeDoc.getElementById('lblSing') : 
+                        iframeDoc.getElementById('lblXray');
+                    if (targetLabel) {
+                        targetLabel.click();
+                    }
                 }
 
                 // Заполняем поля только для sing-box
@@ -491,6 +523,9 @@
         function showLoader(show) {
             document.getElementById('loader').classList.toggle('show', show);
         }
+
+        // Инициализация
+        setCore('singbox');
     </script>
 </body>
 </html>
