@@ -313,7 +313,7 @@
         </div>
 
         <div class="form-group" id="ifaceGroup">
-            <label>Interface(s) (для OPKGTUN, например: opkgtun0 или opkgtun0:select,opkgtun1:auto):</label>
+            <label>Interface(s) (для TUN, например: opkgtun0 или opkgtun0:select,opkgtun1:auto):</label>
             <input type="text" id="iface" placeholder="opkgtun0:select,opkgtun1:auto">
         </div>
 
@@ -524,8 +524,29 @@
             document.getElementById('loader').classList.toggle('show', show);
         }
 
+        // Валидация чекбоксов TUN и SOCKS (как в оригинале)
+        function setupCheckboxValidation() {
+            const cbTun = document.getElementById('tun');
+            const cbSocks = document.getElementById('socks');
+            
+            if (!cbTun || !cbSocks) return;
+
+            cbTun.addEventListener('change', () => {
+                if (!cbTun.checked && !cbSocks.checked) {
+                    cbSocks.checked = true;
+                }
+            });
+
+            cbSocks.addEventListener('change', () => {
+                if (!cbTun.checked && !cbSocks.checked) {
+                    cbTun.checked = true;
+                }
+            });
+        }
+
         // Инициализация
         setCore('singbox');
+        setupCheckboxValidation();
     </script>
 </body>
 </html>
