@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proxy Config Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 13px;
+            resize: vertical;
+            min-height: 120px;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .options {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        .core-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .core-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .core-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .result-header h3 {
+            color: #333;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .btn-small:hover {
+            background: #45a049;
+        }
+
+        .result-content {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+
+        .status.info {
+            background: #e3f2fd;
+            color: #1565c0;
+            border-left: 4px solid #1565c0;
+        }
+
+        iframe {
+            display: none;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loader.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Config Generator</h1>
+        <p class="subtitle"> генерация конфига</p>
+
+        <div class="status" id="status"></div>
+
+        <div class="form-group">
+            <label>Выберите ядро:</label>
+            <div class="core-selector">
+                <button class="core-btn active" data-core="singbox">sing-box</button>
+                <button class="core-btn" data-core="xray">Xray</button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Прокси ключи (по одному на строку):</label>
+            <textarea id="keys" placeholder="vless://...&#10;vmess://...&#10;trojan://...&#10;ss://...&#10;hy2://..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Настройки (только для sing-box):</label>
+            <div class="options">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="tun" checked>
+                    <label for="tun">TUN</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="socks" checked>
+                    <label for="socks">SOCKS5</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="clash">
+                    <label for="clash">Clash Secret</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="extended">
+                    <label for="extended">Extended</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Interface(s) (для TUN, например: tun0 или tun0:select,tun1:auto):</label>
+            <input type="text" id="iface" placeholder="tun0:select,tun1:auto">
+        </div>
+
+        <button class="btn" id="generateBtn">Сгенерировать конфиг</button>
+
+        <div class="loader" id="loader">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: #666;">Генерация конфига...</p>
+        </div>
+
+        <div class="result" id="result">
+            <div class="result-header">
+                <h3>Результат:</h3>
+                <button class="btn-small" id="downloadBtn">💾 Скачать</button>
+            </div>
+            <div class="result-content" id="resultContent"></div>
+        </div>
+    </div>
+
+    <iframe id="web4core" src="https://spatiumstas.github.io/web4core/"></iframe>
+
+    <script>
+        let currentCore = 'singbox';
+        let iframeReady = false;
+        const iframe = document.getElementById('web4core');
+
+        // Ждём загрузки iframe
+        iframe.onload = () => {
+            iframeReady = true;
+            showStatus(' загружен и готов к работе', 'success');
+        };
+
+        // Переключение ядра
+        document.querySelectorAll('.core-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.core-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCore = btn.dataset.core;
+            });
+        });
+
+        // Генерация конфига
+        document.getElementById('generateBtn').addEventListener('click', async () => {
+            const keys = document.getElementById('keys').value.trim();
+            
+            if (!keys) {
+                showStatus('Пожалуйста, введите хотя бы один ключ', 'error');
+                return;
+            }
+
+            if (!iframeReady) {
+                showStatus('Подождите, ещё загружается...', 'info');
+                return;
+            }
+
+            try {
+                showLoader(true);
+                hideStatus();
+                hideResult();
+
+                const config = await generateConfig(keys);
+                
+                showResult(config);
+                showStatus('Конфиг успешно сгенерирован!', 'success');
+                showLoader(false);
+            } catch (error) {
+                showStatus('Ошибка: ' + error.message, 'error');
+                showLoader(false);
+            }
+        });
+
+        // Скачивание конфига
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            const content = document.getElementById('resultContent').textContent;
+            const filename = currentCore === 'singbox' ? 'singbox_config.json' : 'xray_config.json';
+            
+            const blob = new Blob([content], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        async function generateConfig(keys) {
+            return new Promise((resolve, reject) => {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                // Устанавливаем ядро
+                const coreToggle = iframeDoc.getElementById('coreToggle');
+                if (coreToggle) {
+                    coreToggle.setAttribute('data-core', currentCore);
+                }
+
+                // Заполняем поля только для sing-box
+                if (currentCore === 'singbox') {
+                    const cbTun = iframeDoc.getElementById('cbTun');
+                    const cbSocks = iframeDoc.getElementById('cbSocks');
+                    const cbClash = iframeDoc.getElementById('cbClashSecret');
+                    const cbExtended = iframeDoc.getElementById('cbExtended');
+                    const tunName = iframeDoc.getElementById('tunName');
+
+                    if (cbTun) cbTun.checked = document.getElementById('tun').checked;
+                    if (cbSocks) cbSocks.checked = document.getElementById('socks').checked;
+                    if (cbClash) cbClash.checked = document.getElementById('clash').checked;
+                    if (cbExtended) cbExtended.checked = document.getElementById('extended').checked;
+                    if (tunName) tunName.value = document.getElementById('iface').value;
+                }
+
+                // Вставляем ключи
+                const linksInput = iframeDoc.getElementById('links');
+                if (!linksInput) {
+                    reject(new Error('Не удалось найти поле для ключей'));
+                    return;
+                }
+                linksInput.value = keys;
+
+                // Триггерим событие input для валидации
+                linksInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+                // Ждём немного для валидации
+                setTimeout(() => {
+                    // Кликаем по кнопке генерации
+                    const genBtn = iframeDoc.getElementById('gen');
+                    if (!genBtn) {
+                        reject(new Error('Не удалось найти кнопку генерации'));
+                        return;
+                    }
+
+                    if (genBtn.disabled) {
+                        reject(new Error('Кнопка генерации неактивна. Проверьте корректность ключей'));
+                        return;
+                    }
+
+                    genBtn.click();
+
+                    // Ждём результат
+                    setTimeout(() => {
+                        const outBlock = iframeDoc.getElementById('outBlock');
+                        const outEl = iframeDoc.getElementById('out');
+                        const errorText = iframeDoc.getElementById('errorText');
+
+                        if (errorText && errorText.textContent) {
+                            reject(new Error(errorText.textContent));
+                            return;
+                        }
+
+                        if (!outBlock || outBlock.classList.contains('hidden') || !outEl || !outEl.value) {
+                            reject(new Error('Конфиг не был сгенерирован. Возможно, некорректные ключи'));
+                            return;
+                        }
+
+                        resolve(outEl.value);
+                    }, 1000);
+                }, 500);
+            });
+        }
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status show ' + type;
+        }
+
+        function hideStatus() {
+            document.getElementById('status').classList.remove('show');
+        }
+
+        function showResult(config) {
+            document.getElementById('resultContent').textContent = config;
+            document.getElementById('result').classList.add('show');
+        }
+
+        function hideResult() {
+            document.getElementById('result').classList.remove('show');
+        }
+
+        function showLoader(show) {
+            document.getElementById('loader').classList.toggle('show', show);
+        }
+    </script>
+</body>
+</html>
