@@ -63,7 +63,7 @@ configure_wireguard() {
 while true; do
   echo "Выберите источник генерации конфига:"
   echo "1 - warp-gen.vercel.app"
-  read -r -p "Ваш выбор ответ цифрой (1 или 2): " choice
+  read -r -p "Ваш выбор ответ цифрой (1): " choice
 
   case "$choice" in
     1)
@@ -82,7 +82,7 @@ while true; do
       break
       ;;
     *)
-      echo "Неверный выбор. Пожалуйста, введите 1 или 2."
+      echo "Неверный выбор. Пожалуйста, введите 1."
       ;;
   esac
 done
