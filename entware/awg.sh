@@ -63,7 +63,6 @@ configure_wireguard() {
 while true; do
   echo "Выберите источник генерации конфига:"
   echo "1 - warp-gen.vercel.app"
-  echo "2 - config-generator-warp.vercel.app"
   read -r -p "Ваш выбор ответ цифрой (1 или 2): " choice
 
   case "$choice" in
@@ -80,25 +79,6 @@ while true; do
 
       config=$(echo "$response" | jq -r '.config')
       cleaned_config=$(echo "$config" | grep -v -e '^\[Interface\]$' -e '^\[Peer\]$' -e '^$')
-      break
-      ;;
-    2)
-      echo "Вы выбрали источник: config-generator-warp.vercel.app"
-      response=$(curl -s https://config-generator-warp.vercel.app/warp)
-      success=$(echo "$response" | jq -r '.success')
-
-      if [ "$success" != "true" ]; then
-        echo "Ошибка генерации конфига, попробуйте еще раз, либо вернитесь позднее, заодно напиши @pegakmop пусть проверит всё ли нормально."
-        logger "Ошибка генерации конфига, попробуйте еще раз, либо вернитесь позднее, заодно напиши @pegakmop пусть проверит всё ли нормально."
-        exit 1
-      fi
-
-      config_b64=$(echo "$response" | jq -r '.content')
-      config=$(echo "$config_b64" | base64 -d)
-      cleaned_config=$(echo "$config" | grep -v -e '^\[Interface\]$' \
-                                               -e '^\[Peer\]$' \
-                                               -e '^$' \
-                                               -e '^#https://config-generator-warp.vercel.app')
       break
       ;;
     *)
