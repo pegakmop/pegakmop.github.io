@@ -115,7 +115,7 @@ function FindProxyForURL(url, host) {
     host = host.toLowerCase();
     for (var i = 0; i < proxy.length; i++) {
         if (shExpMatch(host, proxy[i])) {
-            return "PROXY 45.95.233.23:2285; DIRECT";
+            return "PROXY 155.212.246.237:39300; DIRECT";
         }
     }
     return "DIRECT";
