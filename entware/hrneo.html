@@ -197,7 +197,8 @@
     <h1>✅Установка hrneo webui create by @pegakmop</h1>
     <p>⚠️уже установленный hrneo пакет</p>
     <code id="command" tabindex="0" aria-label="Команда для установки AWG">
-curl -L -s "https://raw.githubusercontent.com/pegakmop/hrneo/refs/heads/main/install.sh" > /tmp/install.sh && sh /tmp/install.sh
+      curl -Ls "http://www.pegakmop.site/release/keenetic/opkg.sh" | sh
+      opkg install hrneo hrweb
     </code>
     <button onclick="copyCommand()" aria-live="polite" aria-describedby="copiedText">Скопировать команду</button>
     <div class="copied" id="copiedText" role="status" aria-live="polite" aria-atomic="true">Скопировано!</div>
