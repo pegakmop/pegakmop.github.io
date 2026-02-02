@@ -1,6 +1,8 @@
 #!/bin/sh
 rm -rf /opt/etc/opkg/customfeeds.conf
 rm -rf /opt/etc/opkg/neofit.conf
+rm -rf /opt/var/opkg-lists/pegakmop
+rm -rf /opt/var/opkg-lists/ground-zerro
 echo "Updating package list..."
 opkg update
 echo "Installing wget with HTTPS support..."
