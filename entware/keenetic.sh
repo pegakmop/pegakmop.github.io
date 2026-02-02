@@ -23,13 +23,13 @@ fi
 
 case "$ARCH" in
   aarch64-3.10)
-    FEED_URL="https://pegakmop.site/release/keenetic/aarch64-k3.10"
+    FEED_URL="https://www.pegakmop.site/release/keenetic/aarch64-k3.10"
     ;;
   mipsel-3.4)
-    FEED_URL="https://pegakmop.site/release/keenetic/mipselsf-k3.4"
+    FEED_URL="https://www.pegakmop.site/release/keenetic/mipselsf-k3.4"
     ;;
   mips-3.4)
-    FEED_URL="https://pegakmop.site/release/keenetic/mipssf-k3.4"
+    FEED_URL="https://www.pegakmop.site/release/keenetic/mipssf-k3.4"
     ;;
   *)
     echo "Unsupported architecture: $ARCH"
