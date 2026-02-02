@@ -197,7 +197,8 @@
     <h1>Установка HydraRoute</h1>
     <p>⚠️установленный wireguard vpn компонент и один или несколько конфигураций wg или awg</p>
     <code id="command" tabindex="0" aria-label="Команда для установки WireGuard">
-curl -fsSL https://pegakmop.github.io/release/keenetic/install-feed.sh | sh
+      curl -fsSL https://www.pegakmop.site/release/keenetic/install-feed.sh | sh
+      opkg install hydraroute
     </code>
     <button onclick="copyCommand()" aria-live="polite" aria-describedby="copiedText">Скопировать команду</button>
     <div class="copied" id="copiedText" role="status" aria-live="polite" aria-atomic="true">Скопировано!</div>
