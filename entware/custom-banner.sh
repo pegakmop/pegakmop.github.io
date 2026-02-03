@@ -156,7 +156,7 @@ print_info() {
   
   printf "📦 ${grn}Distro:${clr}         %s\n" "$DISTRO"
   printf "${blk}Create entware menu for @pegakmop${clr}\n"
-  printf "🔧 ${ylw}Running services:${clr}\n"
+  printf "🔧 ${ylw}Running service keenetic router:${clr}\n"
   check_service neofit
   check_service xray
   check_service sing-box
