@@ -160,7 +160,7 @@ print_info() {
   check_service neofit
   check_service xray
   check_service sing-box
-  check_service x-ui
+  check_service 3x-ui
   check_service hrweb
   check_service hrneo
 }
