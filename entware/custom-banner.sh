@@ -17,11 +17,11 @@ clr="\033[0m"
 printf "\033c"
 printf "${blu}"
 cat << 'EOF'
-                        _______   _________       _____    ____  ______
-                       / ____/ | / /_  __/ |     / /   |  / __ \/ ____/
-                      / __/ /  |/ / / /  | | /| / / /| | / /_/ / __/
-                     / /___/ /|  / / /   | |/ |/ / ___ |/ _, _/ /___
-                    /_____/_/ |_/ /_/    |__/|__/_/  |_/_/ |_/_____/
+            _______   _________       _____    ____  ______
+           / ____/ | / /_  __/ |     / /   |  / __ \/ ____/
+          / __/ /  |/ / / /  | | /| / / /| | / /_/ / __/
+         / /___/ /|  / / /   | |/ |/ / ___ |/ _, _/ /___
+        /_____/_/ |_/ /_/    |__/|__/_/  |_/_/ |_/_____/
 EOF
 printf "${clr}\n"
 
@@ -87,7 +87,6 @@ DISK_OPT="$(
 # ===== Система =====
 LOAD_AVG="$(awk '{print $1" (1m) / "$2" (5m) / "$3" (15m)"}' /proc/loadavg)"
 
-# ✅ Без ps → без WARNING
 PROCS="$(ls /proc 2>/dev/null | grep -E '^[0-9]+$' | wc -l)"
 
 # ===== Entware =====
@@ -102,7 +101,10 @@ else
 fi
 
 INSTALLED="$(opkg list-installed 2>/dev/null | wc -l)"
-UPGRADEABLE="$(opkg list-upgradable 2>/dev/null | wc -l)"
+
+# ===== Получаем список обновляемых пакетов =====
+UPGRADABLE_LIST="$(opkg list-upgradable 2>/dev/null)"
+UPGRADEABLE="$(echo "$UPGRADABLE_LIST" | grep -c . 2>/dev/null || echo 0)"
 
 ROUTER_MODEL="$(
   ndmc -c "show version" 2>/dev/null \
@@ -138,9 +140,21 @@ print_info() {
   printf "🔁 ${ylw}Last Boot:${clr}      %s\n" "$LAST_BOOT"
   printf "📦 ${grn}Installed:${clr}      %s\n" "$INSTALLED"
   printf "⬆️ ${red}Upgradable:${clr}     %s\n" "$UPGRADEABLE"
+  
+  # ===== Вывод списка обновляемых пакетов =====
+  if [ "$UPGRADEABLE" -gt 0 ]; then
+    echo "$UPGRADABLE_LIST" | while IFS= read -r line; do
+      pkg_name="$(echo "$line" | awk '{print $1}')"
+      old_ver="$(echo "$line" | awk '{print $3}')"
+      new_ver="$(echo "$line" | awk '{print $5}')"
+      printf "                   ${cyn}%-15s${clr} ${red}%-12s${clr} → ${grn}%s${clr}\n" "$pkg_name" "$old_ver" "$new_ver"
+    done
+  fi
+  
   printf "📦 ${grn}Distro:${clr}         %s\n" "$DISTRO"
+  printf "${blk}Create entware menu for @pegakmop${clr}"
   echo
-  printf "${ylw}🔧 Running to install services:${clr}\n"
+  printf "${ylw}🔧 Running services:${clr}\n"
   check_service neofit
   check_service xray
   check_service sing-box
