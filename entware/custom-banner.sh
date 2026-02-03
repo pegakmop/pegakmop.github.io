@@ -113,10 +113,13 @@ ROUTER_MODEL="$(
 
 # ===== Проверка сервисов =====
 check_service() {
-  if pidof "$1" >/dev/null 2>&1; then
-    printf "🟢 %-12s ${grn}running${clr}\n" "$1"
+  # Проверяем, установлен ли пакет
+  if ! opkg list-installed 2>/dev/null | grep -q "^$1 "; then
+    printf "                   ⚪ %-15s ${wht}not installed${clr}\n" "$1"
+  elif pidof "$1" >/dev/null 2>&1; then
+    printf "                   🟢 %-14s ${grn}running${clr}\n" "$1"
   else
-    printf "🔴 %-12s ${red}stopped${clr}\n" "$1"
+    printf "                   🔴 %-14s ${red}stopped${clr}\n" "$1"
   fi
 }
 
@@ -152,9 +155,8 @@ print_info() {
   fi
   
   printf "📦 ${grn}Distro:${clr}         %s\n" "$DISTRO"
-  printf "${blk}Create entware menu for @pegakmop${clr}"
-  echo
-  printf "${ylw}🔧 Running services:${clr}\n"
+  printf "${blk}Create entware menu for @pegakmop${clr}\n"
+  printf "🔧 ${ylw}Running services:${clr}\n"
   check_service neofit
   check_service xray
   check_service sing-box
