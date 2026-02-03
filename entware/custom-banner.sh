@@ -140,7 +140,7 @@ print_info() {
   printf "⬆️ ${red}Upgradable:${clr}     %s\n" "$UPGRADEABLE"
   printf "📦 ${grn}Distro:${clr}         %s\n" "$DISTRO"
   echo
-  printf "${ylw}🔧 Running services:${clr}\n"
+  printf "${ylw}🔧 Running to install services:${clr}\n"
   check_service neofit
   check_service xray
   check_service sing-box
