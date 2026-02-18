@@ -1,4 +1,5 @@
 #!/opt/bin/sh
+# curl -o /opt/etc/ndm/netfilter.d/020-3x-ui.sh https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/entware/020-3x-ui.sh
 # chmod +x /opt/etc/ndm/netfilter.d/020-3x-ui.sh
 # /opt/etc/ndm/netfilter.d/020-3x-ui.sh
 
