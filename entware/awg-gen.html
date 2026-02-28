@@ -244,6 +244,35 @@
   .range-row { display: flex; gap: 8px; }
   .range-row input { flex: 1; }
 
+  .info-box {
+    background: rgba(0,153,255,0.05);
+    border: 1px solid rgba(0,153,255,0.2);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+  }
+  .info-title {
+    font-size: 11px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .info-text {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+  .info-text code {
+    background: rgba(0,212,170,0.1);
+    color: var(--accent);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 10px;
+  }
+  .info-hl { color: var(--accent); font-weight: 600; }
+
   .badge {
     display: inline-block;
     font-size: 8px;
@@ -268,67 +297,96 @@
   <button class="preset-btn" onclick="applyPreset('clear')">Сбросить</button>
 </div>
 
-<div class="section-title">Основные параметры (обязательные)</div>
+<div class="info-box">
+  <div class="info-title">🛡 Как работает обфускация AWG</div>
+  <div class="info-text">
+    Обычный WireGuard легко детектируется DPI (глубокая инспекция пакетов) — его handshake имеет фиксированную структуру и размеры пакетов. AmneziaWG ломает эту сигнатуру тремя способами:<br><br>
+    <span class="info-hl">1. Junk-пакеты</span> — перед реальным handshake отправляются случайные «мусорные» пакеты. DPI видит непонятный трафик и не может идентифицировать протокол.<br>
+    <span class="info-hl">2. Padding (S1/S2)</span> — размеры пакетов инициации и ответа увеличиваются на случайное значение, убирая фиксированную сигнатуру размера.<br>
+    <span class="info-hl">3. Magic headers (H1–H4)</span> — заменяют стандартные 4-байтовые заголовки WG-пакетов на уникальные числа. Именно по этим заголовкам DPI распознаёт WireGuard.
+  </div>
+</div>
+
+<div class="section-title">Junk-пакеты — имитация случайного трафика</div>
 
 <div class="grid">
   <div class="field">
-    <label>Jc — кол-во junk-пакетов <span class="tip">1–128</span></label>
+    <label>Jc — количество junk-пакетов <span class="tip">1–128</span></label>
     <input type="number" id="jc" min="1" max="128" placeholder="4" oninput="update()">
-    <span class="desc">Сколько «мусорных» пакетов отправить в начале handshake для обфускации</span>
+    <span class="desc">Сколько «мусорных» UDP-пакетов отправить <em>до</em> начала реального handshake. Больше = лучше маскировка, но чуть медленнее установка соединения. Оптимально: 3–8.</span>
   </div>
   <div class="field">
     <label>Jmin — мин. размер junk <span class="tip">байт</span></label>
     <input type="number" id="jmin" min="0" max="1280" placeholder="40" oninput="update()">
-    <span class="desc">Минимальный размер junk-пакета</span>
+    <span class="desc">Минимальный размер одного junk-пакета в байтах. Реальный размер будет случайным в диапазоне Jmin–Jmax.</span>
   </div>
   <div class="field">
-    <label>Jmax — макс. размер junk <span class="tip">байт</span></label>
+    <label>Jmax — макс. размер junk <span class="tip">байт, ≥ Jmin</span></label>
     <input type="number" id="jmax" min="0" max="1280" placeholder="70" oninput="update()">
-    <span class="desc">Максимальный размер junk-пакета (должен быть ≥ Jmin)</span>
-  </div>
-  <div class="field">
-    <label>S1 — размер init сообщения <span class="tip">байт</span></label>
-    <input type="number" id="s1" min="0" max="1280" placeholder="50" oninput="update()">
-    <span class="desc">Дополнительный случайный размер пакета инициации</span>
-  </div>
-  <div class="field">
-    <label>S2 — размер resp сообщения <span class="tip">байт</span></label>
-    <input type="number" id="s2" min="0" max="1280" placeholder="50" oninput="update()">
-    <span class="desc">Дополнительный случайный размер пакета ответа</span>
+    <span class="desc">Максимальный размер junk-пакета. Широкий диапазон (например 40–1400) делает трафик менее предсказуемым для анализа.</span>
   </div>
 </div>
 
-<div class="section-title">Magic заголовки (H1–H4)</div>
+<div class="section-title">Padding — маскировка размера пакетов</div>
 
 <div class="grid">
   <div class="field">
-    <label>H1 — init magic header</label>
+    <label>S1 — padding инициации <span class="tip">байт</span></label>
+    <input type="number" id="s1" min="0" max="1280" placeholder="50" oninput="update()">
+    <span class="desc">На сколько байт увеличить пакет инициации handshake (Initiation Message). Стандартный WG всегда имеет фиксированный размер — этот padding его ломает.</span>
+  </div>
+  <div class="field">
+    <label>S2 — padding ответа <span class="tip">байт</span></label>
+    <input type="number" id="s2" min="0" max="1280" placeholder="50" oninput="update()">
+    <span class="desc">На сколько байт увеличить пакет ответа handshake (Response Message). Работает аналогично S1, но для ответной стороны (сервера).</span>
+  </div>
+</div>
+
+<div class="section-title">Magic Headers — замена сигнатурных заголовков</div>
+
+<div class="info-box" style="margin-bottom:14px;">
+  <div class="info-text">В оригинальном WireGuard первые 4 байта каждого пакета — это тип сообщения: <code>0x01</code> (init), <code>0x02</code> (response), <code>0x03</code> (under load), <code>0x04</code> (data). DPI блокирует по ним. AWG заменяет их на ваши уникальные числа H1–H4. <strong>Главное правило: все четыре значения должны быть разными.</strong></div>
+</div>
+
+<div class="grid">
+  <div class="field">
+    <label>H1 — init message header</label>
     <input type="number" id="h1" min="1" max="4294967295" placeholder="1234567891" oninput="update()">
+    <span class="desc">Заменяет стандартный тип <code>0x01000000</code> (Initiation). Это первый пакет, который клиент отправляет серверу.</span>
   </div>
   <div class="field">
-    <label>H2 — resp magic header</label>
+    <label>H2 — response message header</label>
     <input type="number" id="h2" min="1" max="4294967295" placeholder="1234567892" oninput="update()">
+    <span class="desc">Заменяет стандартный тип <code>0x02000000</code> (Response). Ответ сервера на инициацию.</span>
   </div>
   <div class="field">
-    <label>H3 — under load magic header</label>
+    <label>H3 — under load header</label>
     <input type="number" id="h3" min="1" max="4294967295" placeholder="1234567893" oninput="update()">
+    <span class="desc">Заменяет тип <code>0x03000000</code> (Cookie Reply). Используется когда сервер под нагрузкой и просит cookie перед handshake.</span>
   </div>
   <div class="field">
-    <label>H4 — transport magic header</label>
+    <label>H4 — transport data header</label>
     <input type="number" id="h4" min="1" max="4294967295" placeholder="1234567894" oninput="update()">
+    <span class="desc">Заменяет тип <code>0x04000000</code> (Transport Data). Это заголовок всех обычных пакетов данных после установки туннеля.</span>
   </div>
 </div>
 
 <div class="section-title">Расширенные параметры <span class="badge opt">опционально</span></div>
 
+<div class="info-box" style="margin-bottom:14px;">
+  <div class="info-text">Доступны в новых версиях AWG. S3/S4 — дополнительный padding для cookie и transport пакетов. I1–I5 — интервалы и таймеры (ms). Оставьте пустыми если не знаете зачем они нужны.</div>
+</div>
+
 <div class="grid">
   <div class="field">
-    <label>S3 <span class="badge opt">opt</span></label>
+    <label>S3 <span class="badge opt">opt</span> — padding cookie</label>
     <input type="number" id="s3" min="0" max="1280" placeholder="" oninput="update()">
+    <span class="desc">Padding для Cookie Reply пакетов (H3).</span>
   </div>
   <div class="field">
-    <label>S4 <span class="badge opt">opt</span></label>
+    <label>S4 <span class="badge opt">opt</span> — padding transport</label>
     <input type="number" id="s4" min="0" max="1280" placeholder="" oninput="update()">
+    <span class="desc">Padding для Transport Data пакетов (H4).</span>
   </div>
   <div class="field">
     <label>I1 <span class="badge opt">opt</span></label>
