@@ -292,12 +292,17 @@
   </div>
 </div>
 
-<!-- INTERFACE NAME -->
+<!-- INTERFACE NAME + DNS -->
 <div class="section-title">Дополнительно</div>
 <div class="grid">
   <div class="field">
     <label>Имя интерфейса Keenetic</label>
     <input type="text" id="ifname" value="WireGuard0" oninput="update()">
+  </div>
+  <div class="field">
+    <label>DNS <span class="badge opt">opt</span></label>
+    <input type="text" id="dns" placeholder="155.212.246.237, 9.9.9.9" oninput="update()">
+    <span class="desc">Один или несколько DNS через запятую. Подставляется в полный .conf и Entware команды.</span>
   </div>
 </div>
 
@@ -305,6 +310,7 @@
 <div class="output">
   <div class="tabs">
     <button class="tab active" onclick="switchTab('cli',this)">CLI команда</button>
+    <button class="tab" onclick="switchTab('ssh',this)">Entware SSH</button>
     <button class="tab" onclick="switchTab('conf',this)">[Interface] секция</button>
     <button class="tab" onclick="switchTab('full',this)">Полный .conf</button>
   </div>
@@ -317,6 +323,16 @@
       </div>
     </div>
     <pre id="cli-output"></pre>
+  </div>
+
+  <div id="tab-ssh" class="tab-content">
+    <div class="output-header">
+      <span class="output-label">Entware SSH — ndmc команды</span>
+      <div class="output-actions">
+        <button class="btn primary" onclick="copyPre('ssh-output',this)">Copy</button>
+      </div>
+    </div>
+    <pre id="ssh-output"></pre>
   </div>
 
   <div id="tab-conf" class="tab-content">
@@ -411,6 +427,10 @@ function parseConf(text, filename) {
     const el = document.getElementById(f);
     if (el) el.value = (iface[f] && iface[f] !== '') ? iface[f] : '';
   });
+
+  // DNS field
+  const dnsEl = document.getElementById('dns');
+  if (dnsEl) dnsEl.value = iface.dns || '';
 
   // I params (textarea)
   ['i1','i2','i3','i4','i5'].forEach(f => {
@@ -594,9 +614,10 @@ function buildASC() {
 function buildFullConf() {
   const iface = parsed ? parsed.iface : {};
   const peer = parsed ? parsed.peer : {};
+  const dns = gv('dns') || iface.dns || null;
   let s = '[Interface]\n';
   if (iface.address) s += `Address = ${iface.address}\n`;
-  if (iface.dns) s += `DNS = ${iface.dns}\n`;
+  if (dns) s += `DNS = ${dns}\n`;
   if (iface.privatekey) s += `PrivateKey = ${iface.privatekey}\n`;
   s += buildASC();
   if (parsed && Object.keys(peer).length > 0) {
@@ -616,13 +637,28 @@ function buildCLI() {
   if (req.some(x => !x)) return '# Заполните обязательные поля: Jc, Jmin, Jmax, S1, S2, H1–H4';
   const opt = [];
   if (curVer === '20') { ['s3','s4'].forEach(k => { const v = gv(k); if(v) opt.push(v); }); }
-  // Note: I params не передаются через CLI команду Keenetic — только через conf файл
-  return `interface ${ifname} wireguard asc ${req.join(' ')}${opt.length ? ' ' + opt.join(' ') : ''}`;
+  const asc = `interface ${ifname} wireguard asc ${req.join(' ')}${opt.length ? ' ' + opt.join(' ') : ''}`;
+  return asc + '\nsystem configuration save';
+}
+
+function buildSSH() {
+  const ifname = gv('ifname') || 'WireGuard0';
+  const req = [gv('jc'), gv('jmin'), gv('jmax'), gv('s1'), gv('s2'), getH(1), getH(2), getH(3), getH(4)];
+  if (req.some(x => !x)) return '# Заполните обязательные поля: Jc, Jmin, Jmax, S1, S2, H1–H4';
+  const opt = [];
+  if (curVer === '20') { ['s3','s4'].forEach(k => { const v = gv(k); if(v) opt.push(v); }); }
+  const ascCmd = `interface ${ifname} wireguard asc ${req.join(' ')}${opt.length ? ' ' + opt.join(' ') : ''}`;
+  const lines = [
+    `ndmc -c "${ascCmd}"`,
+    `ndmc -c "system configuration save"`,
+  ];
+  return lines.join('\n');
 }
 
 function update() {
   validateH();
   document.getElementById('cli-output').textContent = buildCLI();
+  document.getElementById('ssh-output').textContent = buildSSH();
   document.getElementById('conf-output').textContent = '[Interface]\n' + buildASC();
   document.getElementById('full-output').textContent = buildFullConf();
 }
