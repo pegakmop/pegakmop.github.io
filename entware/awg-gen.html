@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWG ASC Config Generator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Unbounded:wght@300;700&display=swap');
+
+  :root {
+    --bg: #0a0e14;
+    --surface: #111720;
+    --border: #1e2d3d;
+    --accent: #00d4aa;
+    --accent2: #0099ff;
+    --danger: #ff4757;
+    --warn: #ffa502;
+    --text: #cdd6f4;
+    --muted: #4a6070;
+    --glow: 0 0 20px rgba(0, 212, 170, 0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px;
+    background-image: 
+      radial-gradient(ellipse 60% 40% at 80% 10%, rgba(0,212,170,0.05) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 10% 80%, rgba(0,153,255,0.05) 0%, transparent 60%);
+  }
+
+  h1 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 28px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .field.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .tip {
+    color: var(--accent);
+    font-size: 9px;
+    background: rgba(0,212,170,0.1);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  .tip.warn { color: var(--warn); background: rgba(255,165,2,0.1); }
+
+  input[type=number], input[type=text] {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 8px 12px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -moz-appearance: textfield;
+    width: 100%;
+  }
+
+  input::-webkit-inner-spin-button, input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(0,212,170,0.12);
+  }
+
+  input.invalid { border-color: var(--danger); }
+
+  .section-title {
+    font-size: 10px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 20px 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--border), transparent);
+  }
+
+  .presets {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .preset-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 5px 10px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.15s;
+  }
+
+  .preset-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .output {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 16px;
+    position: relative;
+  }
+
+  .output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .output-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .copy-btn {
+    background: rgba(0,212,170,0.1);
+    border: 1px solid rgba(0,212,170,0.3);
+    border-radius: 5px;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .copy-btn:hover { background: rgba(0,212,170,0.2); }
+  .copy-btn.copied { color: var(--warn); border-color: var(--warn); background: rgba(255,165,2,0.1); }
+
+  pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  .cli-block pre {
+    color: var(--accent);
+  }
+
+  .highlight-key { color: var(--accent2); }
+  .highlight-val { color: var(--accent); }
+  .highlight-comment { color: var(--muted); font-style: italic; }
+
+  .tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tab {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 8px 14px;
+    cursor: pointer;
+    color: var(--muted);
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: 5px 5px 0 0;
+    background: transparent;
+    transition: all 0.15s;
+    margin-bottom: -1px;
+  }
+
+  .tab.active { color: var(--accent); border-color: var(--border); background: var(--surface); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .desc { 
+    font-size: 10px; 
+    color: var(--muted); 
+    line-height: 1.6;
+    margin-top: 2px;
+  }
+
+  .range-row { display: flex; gap: 8px; }
+  .range-row input { flex: 1; }
+
+  .badge {
+    display: inline-block;
+    font-size: 8px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    vertical-align: middle;
+    margin-left: 4px;
+  }
+
+  .badge.opt { background: rgba(74,96,112,0.3); color: var(--muted); }
+</style>
+</head>
+<body>
+
+<h1>AWG · ASC Config</h1>
+<p class="subtitle">AmneziaWG · Anti-Censorship Settings · Keenetic NDM-4298</p>
+
+<div class="presets">
+  <span style="font-size:10px;color:var(--muted);align-self:center;text-transform:uppercase;letter-spacing:1px;">Пресеты:</span>
+  <button class="preset-btn" onclick="applyPreset('amnezia')">Amnezia Default</button>
+  <button class="preset-btn" onclick="applyPreset('random')">Случайные</button>
+  <button class="preset-btn" onclick="applyPreset('clear')">Сбросить</button>
+</div>
+
+<div class="section-title">Основные параметры (обязательные)</div>
+
+<div class="grid">
+  <div class="field">
+    <label>Jc — кол-во junk-пакетов <span class="tip">1–128</span></label>
+    <input type="number" id="jc" min="1" max="128" placeholder="4" oninput="update()">
+    <span class="desc">Сколько «мусорных» пакетов отправить в начале handshake для обфускации</span>
+  </div>
+  <div class="field">
+    <label>Jmin — мин. размер junk <span class="tip">байт</span></label>
+    <input type="number" id="jmin" min="0" max="1280" placeholder="40" oninput="update()">
+    <span class="desc">Минимальный размер junk-пакета</span>
+  </div>
+  <div class="field">
+    <label>Jmax — макс. размер junk <span class="tip">байт</span></label>
+    <input type="number" id="jmax" min="0" max="1280" placeholder="70" oninput="update()">
+    <span class="desc">Максимальный размер junk-пакета (должен быть ≥ Jmin)</span>
+  </div>
+  <div class="field">
+    <label>S1 — размер init сообщения <span class="tip">байт</span></label>
+    <input type="number" id="s1" min="0" max="1280" placeholder="50" oninput="update()">
+    <span class="desc">Дополнительный случайный размер пакета инициации</span>
+  </div>
+  <div class="field">
+    <label>S2 — размер resp сообщения <span class="tip">байт</span></label>
+    <input type="number" id="s2" min="0" max="1280" placeholder="50" oninput="update()">
+    <span class="desc">Дополнительный случайный размер пакета ответа</span>
+  </div>
+</div>
+
+<div class="section-title">Magic заголовки (H1–H4)</div>
+
+<div class="grid">
+  <div class="field">
+    <label>H1 — init magic header</label>
+    <input type="number" id="h1" min="1" max="4294967295" placeholder="1234567891" oninput="update()">
+  </div>
+  <div class="field">
+    <label>H2 — resp magic header</label>
+    <input type="number" id="h2" min="1" max="4294967295" placeholder="1234567892" oninput="update()">
+  </div>
+  <div class="field">
+    <label>H3 — under load magic header</label>
+    <input type="number" id="h3" min="1" max="4294967295" placeholder="1234567893" oninput="update()">
+  </div>
+  <div class="field">
+    <label>H4 — transport magic header</label>
+    <input type="number" id="h4" min="1" max="4294967295" placeholder="1234567894" oninput="update()">
+  </div>
+</div>
+
+<div class="section-title">Расширенные параметры <span class="badge opt">опционально</span></div>
+
+<div class="grid">
+  <div class="field">
+    <label>S3 <span class="badge opt">opt</span></label>
+    <input type="number" id="s3" min="0" max="1280" placeholder="" oninput="update()">
+  </div>
+  <div class="field">
+    <label>S4 <span class="badge opt">opt</span></label>
+    <input type="number" id="s4" min="0" max="1280" placeholder="" oninput="update()">
+  </div>
+  <div class="field">
+    <label>I1 <span class="badge opt">opt</span></label>
+    <input type="number" id="i1" placeholder="" oninput="update()">
+  </div>
+  <div class="field">
+    <label>I2 <span class="badge opt">opt</span></label>
+    <input type="number" id="i2" placeholder="" oninput="update()">
+  </div>
+  <div class="field">
+    <label>I3 <span class="badge opt">opt</span></label>
+    <input type="number" id="i3" placeholder="" oninput="update()">
+  </div>
+  <div class="field">
+    <label>I4 <span class="badge opt">opt</span></label>
+    <input type="number" id="i4" placeholder="" oninput="update()">
+  </div>
+  <div class="field">
+    <label>I5 <span class="badge opt">opt</span></label>
+    <input type="number" id="i5" placeholder="" oninput="update()">
+  </div>
+  <div class="field">
+    <label>Имя интерфейса</label>
+    <input type="text" id="ifname" value="WireGuard0" oninput="update()">
+  </div>
+</div>
+
+<div class="output">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('cli')">CLI команда</button>
+    <button class="tab" onclick="switchTab('conf')">wg conf секция</button>
+  </div>
+
+  <div id="tab-cli" class="tab-content active" style="padding-top:14px;">
+    <div class="output-header">
+      <span class="output-label">Keenetic CLI</span>
+      <button class="copy-btn" onclick="copyText('cli-output', this)">Copy</button>
+    </div>
+    <pre id="cli-output"></pre>
+  </div>
+
+  <div id="tab-conf" class="tab-content" style="padding-top:14px;">
+    <div class="output-header">
+      <span class="output-label">wg config [Interface]</span>
+      <button class="copy-btn" onclick="copyText('conf-output', this)">Copy</button>
+    </div>
+    <pre id="conf-output"></pre>
+  </div>
+</div>
+
+<script>
+const FIELDS = ['jc','jmin','jmax','s1','s2','h1','h2','h3','h4','s3','s4','i1','i2','i3','i4','i5'];
+const REQUIRED = ['jc','jmin','jmax','s1','s2','h1','h2','h3','h4'];
+const OPTIONAL = ['s3','s4','i1','i2','i3','i4','i5'];
+
+const PRESETS = {
+  amnezia: { jc:4, jmin:40, jmax:70, s1:50, s2:50, h1:1234567891, h2:1234567892, h3:1234567893, h4:1234567894 },
+};
+
+function applyPreset(name) {
+  if (name === 'clear') {
+    FIELDS.forEach(f => { document.getElementById(f).value = ''; });
+  } else if (name === 'random') {
+    document.getElementById('jc').value = rnd(1, 10);
+    document.getElementById('jmin').value = rnd(20, 60);
+    const jmin = +document.getElementById('jmin').value;
+    document.getElementById('jmax').value = rnd(jmin, jmin + 80);
+    document.getElementById('s1').value = rnd(20, 100);
+    document.getElementById('s2').value = rnd(20, 100);
+    ['h1','h2','h3','h4'].forEach(h => {
+      document.getElementById(h).value = rnd(100000000, 4294967295);
+    });
+  } else {
+    const p = PRESETS[name];
+    Object.entries(p).forEach(([k,v]) => { document.getElementById(k).value = v; });
+  }
+  update();
+}
+
+function rnd(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+
+function v(id) {
+  const val = document.getElementById(id).value.trim();
+  return val === '' ? null : val;
+}
+
+function update() {
+  const ifname = document.getElementById('ifname').value.trim() || 'WireGuard0';
+  
+  const req = REQUIRED.map(f => v(f));
+  const hasAll = req.every(x => x !== null);
+
+  const optVals = OPTIONAL.map(f => v(f));
+  const hasOpt = optVals.some(x => x !== null);
+
+  let cli = '';
+  let conf = '';
+
+  if (hasAll) {
+    const base = req.join(' ');
+    const ext = hasOpt ? ' ' + optVals.filter(x => x !== null).join(' ') : '';
+    cli = `interface ${ifname} wireguard asc ${base}${ext}`;
+
+    const jc = v('jc'), jmin = v('jmin'), jmax = v('jmax');
+    const s1 = v('s1'), s2 = v('s2');
+    const h1 = v('h1'), h2 = v('h2'), h3 = v('h3'), h4 = v('h4');
+
+    conf = `[Interface]\n`;
+    conf += `# AmneziaWG ASC params\n`;
+    conf += `Jc = ${jc}\n`;
+    conf += `Jmin = ${jmin}\n`;
+    conf += `Jmax = ${jmax}\n`;
+    conf += `S1 = ${s1}\n`;
+    conf += `S2 = ${s2}\n`;
+    conf += `H1 = ${h1}\n`;
+    conf += `H2 = ${h2}\n`;
+    conf += `H3 = ${h3}\n`;
+    conf += `H4 = ${h4}\n`;
+
+    if (hasOpt) {
+      const optNames = ['S3','S4','I1','I2','I3','I4','I5'];
+      OPTIONAL.forEach((f, i) => {
+        const val = v(f);
+        if (val !== null) conf += `${optNames[i]} = ${val}\n`;
+      });
+    }
+  } else {
+    cli = '# Заполните обязательные поля (Jc, Jmin, Jmax, S1, S2, H1–H4)';
+    conf = '# Заполните обязательные поля';
+  }
+
+  document.getElementById('cli-output').textContent = cli;
+  document.getElementById('conf-output').textContent = conf;
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+function copyText(id, btn) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+update();
+</script>
+</body>
+</html>
