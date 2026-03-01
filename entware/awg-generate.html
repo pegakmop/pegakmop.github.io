@@ -33,10 +33,13 @@
     padding:13px 15px;margin-bottom:18px;display:none;}
   .meta-box.visible{display:block;}
   .meta-title{font-size:10px;color:var(--accent2);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:9px;}
-  .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px 14px;}
-  .meta-item{font-size:11px;color:var(--muted);}
-  .meta-item span{color:var(--text);}
-  .meta-item.full{grid-column:1/-1;word-break:break-all;}
+  .meta-list{display:flex;flex-direction:column;}
+  .meta-row{display:flex;gap:8px;padding:3px 0;border-bottom:1px solid rgba(30,45,61,.6);font-size:11px;line-height:1.6;min-width:0;}
+  .meta-row:last-child{border-bottom:none;}
+  .meta-key{color:var(--muted);flex-shrink:0;width:82px;}
+  .meta-val{color:var(--text);flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+  .meta-val.long{cursor:pointer;}
+  .meta-val.long:hover,.meta-val.expanded{white-space:normal;word-break:break-all;color:var(--accent);}
 
   /* TOOLBAR */
   .toolbar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:13px;align-items:center;}
@@ -140,7 +143,7 @@
 <!-- META -->
 <div class="meta-box" id="metaBox">
   <div class="meta-title">📋 Данные конфига — только для справки</div>
-  <div class="meta-grid" id="metaGrid"></div>
+  <div class="meta-list" id="metaGrid"></div>
 </div>
 
 <!-- VERSION TOGGLE -->
@@ -485,8 +488,9 @@ function showMeta() {
   ].filter(([,v]) => v);
   const mb = document.getElementById('metaBox');
   document.getElementById('metaGrid').innerHTML = rows.map(([k,v]) => {
-    const cls = (k === 'PublicKey' || k === 'AllowedIPs') ? ' full' : '';
-    return `<div class="meta-item${cls}">${k}: <span>${v}</span></div>`;
+    const isLong = String(v).length > 36;
+    const esc = String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return `<div class="meta-row"><span class="meta-key">${k}</span><span class="meta-val${isLong?' long':''}" onclick="this.classList.toggle('expanded')">${esc}</span></div>`;
   }).join('');
   mb.classList.add('visible');
 }
@@ -623,7 +627,7 @@ function buildASC() {
   if (curVer === '15' || curVer === '20') {
     ['i1','i2','i3','i4','i5'].forEach((k,i) => {
       const v = gv(k);
-      if (v) s += `I${i+1} = ${v}\n`;
+      s += `I${i+1} = ${v !== null ? v : ''}\n`;
     });
   }
   return s;
