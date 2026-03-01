@@ -306,6 +306,11 @@
   </div>
 </div>
 
+<div id="hex-warn" style="display:none;background:rgba(255,165,2,.08);border:1px solid rgba(255,165,2,.3);border-radius:8px;padding:11px 14px;margin-top:14px;font-size:11px;color:var(--warn);line-height:1.7;">
+  ⚠️ <strong>I-параметры с &lt;b 0x...&gt; через CLI/SSH не работают</strong> — строка слишком длинная для терминала.<br>
+  Используй вкладку <strong>Полный .conf</strong> → скачай файл → импортируй через веб-интерфейс Keenetic в настройках WireGuard.
+</div>
+
 <!-- OUTPUT -->
 <div class="output">
   <div class="tabs">
@@ -647,31 +652,43 @@ function buildFullConf() {
 function buildAscArgs() {
   // {jc} {jmin} {jmax} {s1} {s2} {h1} {h2} {h3} {h4} [{s3} {s4} {i1} {i2} {i3} {i4} {i5}]
   // Опциональная группа: либо все 7, либо никакие. Пустые = 0.
+  // hex I-параметры <b 0x...> CLI не принимает — заменяем на 0
   const req = [gv('jc'), gv('jmin'), gv('jmax'), gv('s1'), gv('s2'), getH(1), getH(2), getH(3), getH(4)];
   if (req.some(x => !x)) return null;
 
-  const optRaw = [
-    gv('s3'), gv('s4'),
-    gv('i1'), gv('i2'), gv('i3'), gv('i4'), gv('i5')
-  ];
+  const sanitizeI = k => {
+    const v = gv(k);
+    if (!v) return null;
+    if (v.includes('<b ')) return null; // hex-строки не передаются через CLI вообще
+    return v;
+  };
 
-  // Проверяем версию — в 1.0 опциональных нет
   if (curVer === '10') return req.join(' ');
 
-  // В 1.5 нет S3/S4 — группа только i1-i5 (5 параметров)
   if (curVer === '15') {
-    const iVals = optRaw.slice(2); // i1-i5
+    const iVals = ['i1','i2','i3','i4','i5'].map(sanitizeI);
     const hasAny = iVals.some(v => v !== null);
     if (!hasAny) return req.join(' ');
-    // Все 5 обязательны
-    return req.join(' ') + ' ' + iVals.map(v => v || '0').join(' ');
+    // Только до последнего заполненного
+    let lastI = -1;
+    for (let i = iVals.length - 1; i >= 0; i--) {
+      if (iVals[i] !== null) { lastI = i; break; }
+    }
+    return req.join(' ') + ' ' + iVals.slice(0, lastI + 1).map(v => v || '0').join(' ');
   }
 
-  // В 2.0 — группа все 7 (s3 s4 i1-i5)
+  // 2.0 — все 7
+  const optRaw = [gv('s3'), gv('s4'), ...['i1','i2','i3','i4','i5'].map(sanitizeI)];
   const hasAny = optRaw.some(v => v !== null);
   if (!hasAny) return req.join(' ');
-  // Все 7 обязательны
   return req.join(' ') + ' ' + optRaw.map(v => v || '0').join(' ');
+}
+
+function hasHexIParams() {
+  return ['i1','i2','i3','i4','i5'].some(k => {
+    const v = gv(k);
+    return v && v.includes('<b ');
+  });
 }
 
 function buildCLI() {
@@ -694,6 +711,10 @@ function update() {
   document.getElementById('ssh-output').textContent = buildSSH();
   document.getElementById('conf-output').textContent = '[Interface]\n' + buildASC();
   document.getElementById('full-output').textContent = buildFullConf();
+
+  // Предупреждение про hex I-параметры
+  const warn = document.getElementById('hex-warn');
+  if (warn) warn.style.display = hasHexIParams() ? 'block' : 'none';
 }
 
 // ── Tabs ───────────────────────────────────────────────────
