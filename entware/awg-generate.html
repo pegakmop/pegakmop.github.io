@@ -297,7 +297,7 @@
 <div class="grid">
   <div class="field">
     <label>Имя интерфейса Keenetic</label>
-    <input type="text" id="ifname" value="WireGuard0" oninput="update()">
+    <input type="text" id="ifname" value="Wireguard0" oninput="update()">
   </div>
   <div class="field">
     <label>DNS <span class="badge opt">opt</span></label>
@@ -535,6 +535,18 @@ function rnd(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
 function gv(id) { const el = document.getElementById(id); if(!el) return null; const v = el.value.trim(); return v === '' ? null : v; }
 
 function getH(n) {
+  // Для CLI/SSH — одно число (случайное из диапазона если AWG 2.0)
+  const a = gv('h' + n);
+  if (!a) return null;
+  if (curVer === '20') {
+    const b = gv('h' + n + 'b');
+    if (b) return String(rnd(parseInt(a), parseInt(b)));
+  }
+  return a;
+}
+
+function getHRange(n) {
+  // Для .conf файла — диапазон как есть
   const a = gv('h' + n);
   if (!a) return null;
   if (curVer === '20') {
@@ -543,6 +555,7 @@ function getH(n) {
   }
   return a;
 }
+
 
 // ── Validate H ranges ──────────────────────────────────────
 function validateH() {
@@ -598,10 +611,10 @@ function buildASC() {
     s += f('S3', gv('s3'));
     s += f('S4', gv('s4'));
   }
-  s += f('H1', getH(1));
-  s += f('H2', getH(2));
-  s += f('H3', getH(3));
-  s += f('H4', getH(4));
+  s += f('H1', getHRange(1));
+  s += f('H2', getHRange(2));
+  s += f('H3', getHRange(3));
+  s += f('H4', getHRange(4));
   if (curVer === '15' || curVer === '20') {
     ['i1','i2','i3','i4','i5'].forEach((k,i) => {
       const v = gv(k);
@@ -631,28 +644,48 @@ function buildFullConf() {
   return s;
 }
 
-function buildCLI() {
-  const ifname = gv('ifname') || 'WireGuard0';
+function buildAscArgs() {
+  // {jc} {jmin} {jmax} {s1} {s2} {h1} {h2} {h3} {h4} [{s3} {s4} {i1} {i2} {i3} {i4} {i5}]
+  // Опциональная группа: либо все 7, либо никакие. Пустые = 0.
   const req = [gv('jc'), gv('jmin'), gv('jmax'), gv('s1'), gv('s2'), getH(1), getH(2), getH(3), getH(4)];
-  if (req.some(x => !x)) return '# Заполните обязательные поля: Jc, Jmin, Jmax, S1, S2, H1–H4';
-  const opt = [];
-  if (curVer === '20') { ['s3','s4'].forEach(k => { const v = gv(k); if(v) opt.push(v); }); }
-  const asc = `interface ${ifname} wireguard asc ${req.join(' ')}${opt.length ? ' ' + opt.join(' ') : ''}`;
-  return asc + '\nsystem configuration save';
+  if (req.some(x => !x)) return null;
+
+  const optRaw = [
+    gv('s3'), gv('s4'),
+    gv('i1'), gv('i2'), gv('i3'), gv('i4'), gv('i5')
+  ];
+
+  // Проверяем версию — в 1.0 опциональных нет
+  if (curVer === '10') return req.join(' ');
+
+  // В 1.5 нет S3/S4 — группа только i1-i5 (5 параметров)
+  if (curVer === '15') {
+    const iVals = optRaw.slice(2); // i1-i5
+    const hasAny = iVals.some(v => v !== null);
+    if (!hasAny) return req.join(' ');
+    // Все 5 обязательны
+    return req.join(' ') + ' ' + iVals.map(v => v || '0').join(' ');
+  }
+
+  // В 2.0 — группа все 7 (s3 s4 i1-i5)
+  const hasAny = optRaw.some(v => v !== null);
+  if (!hasAny) return req.join(' ');
+  // Все 7 обязательны
+  return req.join(' ') + ' ' + optRaw.map(v => v || '0').join(' ');
+}
+
+function buildCLI() {
+  const ifname = gv('ifname') || 'Wireguard0';
+  const args = buildAscArgs();
+  if (!args) return '# Заполните обязательные поля: Jc, Jmin, Jmax, S1, S2, H1–H4';
+  return `interface ${ifname} wireguard asc ${args}\nsystem configuration save`;
 }
 
 function buildSSH() {
-  const ifname = gv('ifname') || 'WireGuard0';
-  const req = [gv('jc'), gv('jmin'), gv('jmax'), gv('s1'), gv('s2'), getH(1), getH(2), getH(3), getH(4)];
-  if (req.some(x => !x)) return '# Заполните обязательные поля: Jc, Jmin, Jmax, S1, S2, H1–H4';
-  const opt = [];
-  if (curVer === '20') { ['s3','s4'].forEach(k => { const v = gv(k); if(v) opt.push(v); }); }
-  const ascCmd = `interface ${ifname} wireguard asc ${req.join(' ')}${opt.length ? ' ' + opt.join(' ') : ''}`;
-  const lines = [
-    `ndmc -c "${ascCmd}"`,
-    `ndmc -c "system configuration save"`,
-  ];
-  return lines.join('\n');
+  const ifname = gv('ifname') || 'Wireguard0';
+  const args = buildAscArgs();
+  if (!args) return '# Заполните обязательные поля: Jc, Jmin, Jmax, S1, S2, H1–H4';
+  return `ndmc -c "interface ${ifname} wireguard asc ${args}"\nndmc -c "system configuration save"`;
 }
 
 function update() {
