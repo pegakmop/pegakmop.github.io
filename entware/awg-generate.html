@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AWG ASC Config Generator</title>
+<title>AWG (1/1.5/2) ASC Config Generator</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Unbounded:wght@300;700&display=swap');
   :root {
@@ -129,8 +129,8 @@
 </head>
 <body>
 
-<h1>AWG · ASC Config</h1>
-<p class="subtitle">AmneziaWG · Anti-Censorship Settings · Keenetic NDM-4298</p>
+<h1><button style="font-size:12px;" onclick="history.back();return false;"> 🔙 AWG · ASC Config Keenetic</button></h1>
+<p class="subtitle">AmneziaWG · ASC Settings · Keenetic NDM</p>
 
 <!-- DROP ZONE -->
 <div class="drop-zone" id="dropZone">
@@ -158,7 +158,7 @@
 <!-- TOOLBAR -->
 <div class="toolbar">
   <span class="toolbar-label">Пресеты:</span>
-  <button class="btn" onclick="applyPreset('amnezia')">Amnezia Default</button>
+  <button class="btn" onclick="applyPreset('amnezia')">AmneziaWG Default</button>
   <button class="btn" onclick="applyPreset('random')">🎲 Случайные</button>
   <button class="btn" onclick="applyPreset('clear')">Сбросить</button>
 </div>
@@ -311,7 +311,7 @@
 
 <div id="hex-warn" style="display:none;background:rgba(255,165,2,.08);border:1px solid rgba(255,165,2,.3);border-radius:8px;padding:11px 14px;margin-top:14px;font-size:11px;color:var(--warn);line-height:1.7;">
   ⚠️ <strong>I-параметры с &lt;b 0x...&gt; через CLI/SSH не работают</strong> — строка слишком длинная для терминала.<br>
-  Используй вкладку <strong>Полный .conf</strong> → скачай файл → импортируй через веб-интерфейс Keenetic в настройках WireGuard.
+  Используй вкладку <strong>Скачать .conf</strong> → скачай файл → импортируй через веб-интерфейс Keenetic в настройках WireGuard.
 </div>
 
 <!-- OUTPUT -->
