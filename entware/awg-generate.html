@@ -301,7 +301,7 @@
   </div>
   <div class="field">
     <label>DNS <span class="badge opt">opt</span></label>
-    <input type="text" id="dns" placeholder="155.212.246.237, 9.9.9.9" oninput="update()">
+    <input type="text" id="dns" placeholder="1.1.1.1, 9.9.9.9" oninput="update()">
     <span class="desc">Один или несколько DNS через запятую. Подставляется в полный .conf и Entware команды.</span>
   </div>
 </div>
@@ -316,7 +316,7 @@
   <div class="tabs">
     <button class="tab active" onclick="switchTab('cli',this)">CLI команда</button>
     <button class="tab" onclick="switchTab('ssh',this)">Entware SSH</button>
-    <button class="tab" onclick="switchTab('conf',this)">[Interface] секция</button>
+    <button hidden class="tab" onclick="switchTab('conf',this)">[Interface] секция</button>
     <button class="tab" onclick="switchTab('full',this)">Полный .conf</button>
   </div>
 
@@ -340,7 +340,7 @@
     <pre id="ssh-output"></pre>
   </div>
 
-  <div id="tab-conf" class="tab-content">
+  <div hidden id="tab-conf" class="tab-content">
     <div class="output-header">
       <span class="output-label">[Interface] секция</span>
       <div class="output-actions">
