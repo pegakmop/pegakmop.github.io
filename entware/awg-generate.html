@@ -317,7 +317,7 @@
     <button class="tab active" onclick="switchTab('cli',this)">CLI команда</button>
     <button class="tab" onclick="switchTab('ssh',this)">Entware SSH</button>
     <button hidden class="tab" onclick="switchTab('conf',this)">[Interface] секция</button>
-    <button class="tab" onclick="switchTab('full',this)">Полный .conf</button>
+    <button class="tab" onclick="switchTab('full',this)">Скачать .conf</button>
   </div>
 
   <div id="tab-cli" class="tab-content active">
@@ -352,7 +352,7 @@
 
   <div id="tab-full" class="tab-content">
     <div class="output-header">
-      <span class="output-label">Полный .conf файл</span>
+      <span class="output-label">Скачать .conf файл</span>
       <div class="output-actions">
         <button class="btn blue" onclick="downloadConf()">⬇ Скачать .conf</button>
         <button class="btn primary" onclick="copyPre('full-output',this)">Copy</button>
