@@ -3,542 +3,754 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AWG ASC Config Generator</title>
+<title>AWG (1.0/1.5/2.0) ASC set config Generator</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Unbounded:wght@300;700&display=swap');
-
   :root {
-    --bg: #0a0e14;
-    --surface: #111720;
-    --border: #1e2d3d;
-    --accent: #00d4aa;
-    --accent2: #0099ff;
-    --danger: #ff4757;
-    --warn: #ffa502;
-    --text: #cdd6f4;
-    --muted: #4a6070;
-    --glow: 0 0 20px rgba(0, 212, 170, 0.15);
+    --bg:#0a0e14; --surface:#111720; --surface2:#161f2c; --border:#1e2d3d;
+    --accent:#00d4aa; --accent2:#0099ff; --warn:#ffa502; --danger:#ff4757;
+    --text:#cdd6f4; --muted:#4a6070;
   }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'JetBrains Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh;padding:24px;
+    background-image:radial-gradient(ellipse 60% 40% at 80% 10%,rgba(0,212,170,.05) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 60% at 10% 80%,rgba(0,153,255,.05) 0%,transparent 60%);}
+  h1{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:700;color:var(--accent);margin-bottom:4px;}
+  .subtitle{font-size:11px;color:var(--muted);margin-bottom:24px;letter-spacing:1px;text-transform:uppercase;}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  /* DROP ZONE */
+  .drop-zone{border:2px dashed var(--border);border-radius:10px;padding:22px;text-align:center;
+    cursor:pointer;transition:all .2s;margin-bottom:18px;position:relative;background:var(--surface);}
+  .drop-zone:hover,.drop-zone.dragover{border-color:var(--accent);background:rgba(0,212,170,.04);}
+  .drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+  .drop-icon{font-size:26px;margin-bottom:6px;}
+  .drop-label{font-size:12px;color:var(--muted);}
+  .drop-label strong{color:var(--accent);}
+  .drop-loaded{font-size:11px;color:var(--accent);margin-top:7px;display:none;}
 
-  body {
-    font-family: 'JetBrains Mono', monospace;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 24px;
-    background-image: 
-      radial-gradient(ellipse 60% 40% at 80% 10%, rgba(0,212,170,0.05) 0%, transparent 60%),
-      radial-gradient(ellipse 40% 60% at 10% 80%, rgba(0,153,255,0.05) 0%, transparent 60%);
-  }
+  /* META */
+  .meta-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+    padding:13px 15px;margin-bottom:18px;display:none;}
+  .meta-box.visible{display:block;}
+  .meta-title{font-size:10px;color:var(--accent2);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:9px;}
+  .meta-list{display:flex;flex-direction:column;}
+  .meta-row{display:flex;gap:8px;padding:3px 0;border-bottom:1px solid rgba(30,45,61,.6);font-size:11px;line-height:1.6;min-width:0;}
+  .meta-row:last-child{border-bottom:none;}
+  .meta-key{color:var(--muted);flex-shrink:0;width:82px;}
+  .meta-val{color:var(--text);flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+  .meta-val.long{cursor:pointer;}
+  .meta-val.long:hover,.meta-val.expanded{white-space:normal;word-break:break-all;color:var(--accent);}
 
-  h1 {
-    font-family: 'Unbounded', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    color: var(--accent);
-    margin-bottom: 4px;
-  }
+  /* TOOLBAR */
+  .toolbar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:13px;align-items:center;}
+  .toolbar-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+  .btn{background:var(--surface);border:1px solid var(--border);border-radius:5px;color:var(--muted);
+    font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px 10px;cursor:pointer;
+    text-transform:uppercase;letter-spacing:1px;transition:all .15s;white-space:nowrap;}
+  .btn:hover{border-color:var(--accent);color:var(--accent);}
+  .btn.primary{background:rgba(0,212,170,.1);border-color:rgba(0,212,170,.3);color:var(--accent);}
+  .btn.primary:hover{background:rgba(0,212,170,.2);}
+  .btn.blue{background:rgba(0,153,255,.08);border-color:rgba(0,153,255,.25);color:var(--accent2);}
+  .btn.blue:hover{background:rgba(0,153,255,.15);}
+  .btn.copied{color:var(--warn);border-color:var(--warn);background:rgba(255,165,2,.1);}
 
-  .subtitle {
-    font-size: 11px;
-    color: var(--muted);
-    margin-bottom: 28px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
+  /* VERSION TOGGLE */
+  .ver-toggle{display:flex;gap:0;margin-bottom:16px;border:1px solid var(--border);border-radius:6px;overflow:hidden;width:fit-content;}
+  .ver-btn{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;
+    padding:7px 14px;cursor:pointer;color:var(--muted);background:var(--surface);border:none;transition:all .15s;}
+  .ver-btn.active{background:rgba(0,212,170,.12);color:var(--accent);}
+  .ver-btn.active.warn{background:rgba(255,165,2,.12);color:var(--warn);}
 
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
+  /* FIELDS */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px;}
+  .field{display:flex;flex-direction:column;gap:4px;}
+  label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;display:flex;align-items:center;gap:5px;}
+  .tip{color:var(--accent);font-size:9px;background:rgba(0,212,170,.1);padding:2px 6px;border-radius:3px;}
+  .tip.warn{color:var(--warn);background:rgba(255,165,2,.1);}
+  input[type=number],input[type=text]{background:var(--surface);border:1px solid var(--border);border-radius:6px;
+    color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:8px 11px;
+    transition:border-color .2s,box-shadow .2s;-moz-appearance:textfield;width:100%;}
+  input::-webkit-inner-spin-button,input::-webkit-outer-spin-button{-webkit-appearance:none;}
+  input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,212,170,.12);}
+  input.err{border-color:var(--danger);}
+  textarea{background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);
+    font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px 11px;width:100%;resize:vertical;
+    min-height:70px;transition:border-color .2s;}
+  textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,212,170,.12);}
+  .desc{font-size:10px;color:var(--muted);line-height:1.6;margin-top:1px;}
+  .desc code{background:rgba(0,212,170,.1);color:var(--accent);padding:1px 4px;border-radius:3px;font-size:9px;}
+  .desc em{color:var(--warn);}
 
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
+  .section-title{font-size:10px;color:var(--accent2);text-transform:uppercase;letter-spacing:2px;
+    margin:18px 0 9px;display:flex;align-items:center;gap:8px;}
+  .section-title::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--border),transparent);}
 
-  .field.full { grid-column: 1 / -1; }
+  .info-box{background:rgba(0,153,255,.05);border:1px solid rgba(0,153,255,.18);border-radius:8px;
+    padding:11px 13px;margin-bottom:13px;font-size:11px;color:var(--muted);line-height:1.8;}
+  .info-box code{background:rgba(0,212,170,.1);color:var(--accent);padding:1px 5px;border-radius:3px;font-size:10px;}
+  .info-box.warn-box{background:rgba(255,165,2,.05);border-color:rgba(255,165,2,.2);}
+  .hl{color:var(--accent);font-weight:600;}
+  .hl-warn{color:var(--warn);font-weight:600;}
 
-  label {
-    font-size: 10px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
+  .badge{display:inline-block;font-size:8px;padding:1px 5px;border-radius:3px;vertical-align:middle;margin-left:3px;}
+  .badge.opt{background:rgba(74,96,112,.3);color:var(--muted);}
+  .badge.v2{background:rgba(255,165,2,.15);color:var(--warn);}
+  .badge.v1{background:rgba(0,153,255,.15);color:var(--accent2);}
 
-  .tip {
-    color: var(--accent);
-    font-size: 9px;
-    background: rgba(0,212,170,0.1);
-    padding: 2px 6px;
-    border-radius: 3px;
-  }
+  .range-pair{display:flex;gap:5px;align-items:center;}
+  .range-pair input{flex:1;min-width:0;}
+  .range-sep{color:var(--muted);font-size:14px;flex-shrink:0;}
 
-  .tip.warn { color: var(--warn); background: rgba(255,165,2,0.1); }
+  /* error label */
+  .err-label{font-size:10px;color:var(--danger);margin-top:2px;display:none;}
+  .err-label.visible{display:block;}
 
-  input[type=number], input[type=text] {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    padding: 8px 12px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    -moz-appearance: textfield;
-    width: 100%;
-  }
+  /* OUTPUT */
+  .output{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:15px;margin-top:15px;}
+  .tabs{display:flex;border-bottom:1px solid var(--border);}
+  .tab{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;
+    padding:7px 13px;cursor:pointer;color:var(--muted);border:1px solid transparent;border-bottom:none;
+    border-radius:5px 5px 0 0;background:transparent;transition:all .15s;margin-bottom:-1px;}
+  .tab.active{color:var(--accent);border-color:var(--border);background:var(--surface);}
+  .tab-content{display:none;}
+  .tab-content.active{display:block;}
+  .output-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;padding-top:13px;gap:7px;flex-wrap:wrap;}
+  .output-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;}
+  .output-actions{display:flex;gap:5px;}
+  pre{font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.8;color:var(--text);white-space:pre-wrap;word-break:break-all;}
+  #cli-output{color:var(--accent);}
 
-  input::-webkit-inner-spin-button, input::-webkit-outer-spin-button { -webkit-appearance: none; }
-
-  input:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px rgba(0,212,170,0.12);
-  }
-
-  input.invalid { border-color: var(--danger); }
-
-  .section-title {
-    font-size: 10px;
-    color: var(--accent2);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin: 20px 0 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(to right, var(--border), transparent);
-  }
-
-  .presets {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-bottom: 16px;
-  }
-
-  .preset-btn {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    color: var(--muted);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    padding: 5px 10px;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: all 0.15s;
-  }
-
-  .preset-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  .output {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px;
-    margin-top: 16px;
-    position: relative;
-  }
-
-  .output-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-  }
-
-  .output-label {
-    font-size: 10px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-  }
-
-  .copy-btn {
-    background: rgba(0,212,170,0.1);
-    border: 1px solid rgba(0,212,170,0.3);
-    border-radius: 5px;
-    color: var(--accent);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    padding: 4px 10px;
-    cursor: pointer;
-    transition: all 0.15s;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-
-  .copy-btn:hover { background: rgba(0,212,170,0.2); }
-  .copy-btn.copied { color: var(--warn); border-color: var(--warn); background: rgba(255,165,2,0.1); }
-
-  pre {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    line-height: 1.8;
-    color: var(--text);
-    white-space: pre-wrap;
-    word-break: break-all;
-  }
-
-  .cli-block pre {
-    color: var(--accent);
-  }
-
-  .highlight-key { color: var(--accent2); }
-  .highlight-val { color: var(--accent); }
-  .highlight-comment { color: var(--muted); font-style: italic; }
-
-  .tabs {
-    display: flex;
-    gap: 0;
-    margin-bottom: 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .tab {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    padding: 8px 14px;
-    cursor: pointer;
-    color: var(--muted);
-    border: 1px solid transparent;
-    border-bottom: none;
-    border-radius: 5px 5px 0 0;
-    background: transparent;
-    transition: all 0.15s;
-    margin-bottom: -1px;
-  }
-
-  .tab.active { color: var(--accent); border-color: var(--border); background: var(--surface); }
-
-  .tab-content { display: none; }
-  .tab-content.active { display: block; }
-
-  .desc { 
-    font-size: 10px; 
-    color: var(--muted); 
-    line-height: 1.6;
-    margin-top: 2px;
-  }
-
-  .range-row { display: flex; gap: 8px; }
-  .range-row input { flex: 1; }
-
-  .info-box {
-    background: rgba(0,153,255,0.05);
-    border: 1px solid rgba(0,153,255,0.2);
-    border-radius: 8px;
-    padding: 14px 16px;
-    margin-bottom: 20px;
-  }
-  .info-title {
-    font-size: 11px;
-    color: var(--accent2);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin-bottom: 8px;
-    font-weight: 600;
-  }
-  .info-text {
-    font-size: 11px;
-    color: var(--muted);
-    line-height: 1.8;
-  }
-  .info-text code {
-    background: rgba(0,212,170,0.1);
-    color: var(--accent);
-    padding: 1px 5px;
-    border-radius: 3px;
-    font-size: 10px;
-  }
-  .info-hl { color: var(--accent); font-weight: 600; }
-
-  .badge {
-    display: inline-block;
-    font-size: 8px;
-    padding: 1px 5px;
-    border-radius: 3px;
-    vertical-align: middle;
-    margin-left: 4px;
-  }
-
-  .badge.opt { background: rgba(74,96,112,0.3); color: var(--muted); }
+  /* hidden by version */
+  .v2-only{display:none;}
+  .v15-only{display:none;}
+  body.ver-20 .v2-only{display:block;}
+  body.ver-15 .v15-only{display:block;}
 </style>
 </head>
 <body>
 
-<h1>AWG · ASC Config</h1>
-<p class="subtitle">AmneziaWG · Anti-Censorship Settings · Keenetic NDM-4298</p>
+<h1><button onclick="history.back();return false;"> 🔙 вернуться назад</button>
+</h1><h1>AWG · ASC set Keenetic</h1>
+<p class="subtitle">AmneziaWG · ASC Settings · Keenetic NDM</p>
 
-<div class="presets">
-  <span style="font-size:10px;color:var(--muted);align-self:center;text-transform:uppercase;letter-spacing:1px;">Пресеты:</span>
-  <button class="preset-btn" onclick="applyPreset('amnezia')">Amnezia Default</button>
-  <button class="preset-btn" onclick="applyPreset('random')">Случайные</button>
-  <button class="preset-btn" onclick="applyPreset('clear')">Сбросить</button>
+<!-- DROP ZONE -->
+<div class="drop-zone" id="dropZone">
+  <input type="file" id="fileInput" accept=".conf,.txt" onchange="handleFile(this.files[0])">
+  <div class="drop-icon">📄</div>
+  <div class="drop-label">Перетащи <strong>.conf файл</strong> или нажми для выбора</div>
+  <div class="drop-loaded" id="dropLoaded"></div>
 </div>
 
-<div class="info-box">
-  <div class="info-title">🛡 Как работает обфускация AWG</div>
-  <div class="info-text">
-    Обычный WireGuard легко детектируется DPI (глубокая инспекция пакетов) — его handshake имеет фиксированную структуру и размеры пакетов. AmneziaWG ломает эту сигнатуру тремя способами:<br><br>
-    <span class="info-hl">1. Junk-пакеты</span> — перед реальным handshake отправляются случайные «мусорные» пакеты. DPI видит непонятный трафик и не может идентифицировать протокол.<br>
-    <span class="info-hl">2. Padding (S1/S2)</span> — размеры пакетов инициации и ответа увеличиваются на случайное значение, убирая фиксированную сигнатуру размера.<br>
-    <span class="info-hl">3. Magic headers (H1–H4)</span> — заменяют стандартные 4-байтовые заголовки WG-пакетов на уникальные числа. Именно по этим заголовкам DPI распознаёт WireGuard.
-  </div>
+<!-- META -->
+<div class="meta-box" id="metaBox">
+  <div class="meta-title">📋 Данные конфига — только для справки</div>
+  <div class="meta-list" id="metaGrid"></div>
 </div>
 
+<!-- VERSION TOGGLE -->
+<div class="ver-toggle">
+  <button class="ver-btn active" id="vbtn-10" onclick="setVer('10')">AWG 1.0 Legacy</button>
+  <button class="ver-btn" id="vbtn-15" onclick="setVer('15')">AWG 1.5</button>
+  <button class="ver-btn warn" id="vbtn-20" onclick="setVer('20')">AWG 2.0 ⚡</button>
+</div>
+
+<div class="info-box" id="verInfo"></div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <span class="toolbar-label">Пресеты:</span>
+  <button class="btn" onclick="applyPreset('amnezia')">AmneziaWG Default</button>
+  <button class="btn" onclick="applyPreset('random')">🎲 Случайные</button>
+  <button class="btn" onclick="applyPreset('clear')">Сбросить</button>
+</div>
+
+<!-- JUNK -->
 <div class="section-title">Junk-пакеты — имитация случайного трафика</div>
-
 <div class="grid">
   <div class="field">
-    <label>Jc — количество junk-пакетов <span class="tip">1–128</span></label>
+    <label>Jc — количество junk <span class="tip">1–128</span></label>
     <input type="number" id="jc" min="1" max="128" placeholder="4" oninput="update()">
-    <span class="desc">Сколько «мусорных» UDP-пакетов отправить <em>до</em> начала реального handshake. Больше = лучше маскировка, но чуть медленнее установка соединения. Оптимально: 3–8.</span>
+    <span class="desc">Кол-во «мусорных» UDP-пакетов до handshake. Больше = лучше маскировка, но медленнее старт. Оптимум: 3–8.</span>
   </div>
   <div class="field">
-    <label>Jmin — мин. размер junk <span class="tip">байт</span></label>
+    <label>Jmin <span class="tip">байт</span></label>
     <input type="number" id="jmin" min="0" max="1280" placeholder="40" oninput="update()">
-    <span class="desc">Минимальный размер одного junk-пакета в байтах. Реальный размер будет случайным в диапазоне Jmin–Jmax.</span>
+    <span class="desc">Мин. размер junk-пакета. Реальный размер — случайный в диапазоне Jmin–Jmax.</span>
   </div>
   <div class="field">
-    <label>Jmax — макс. размер junk <span class="tip">байт, ≥ Jmin</span></label>
+    <label>Jmax <span class="tip">байт, ≥ Jmin</span></label>
     <input type="number" id="jmax" min="0" max="1280" placeholder="70" oninput="update()">
-    <span class="desc">Максимальный размер junk-пакета. Широкий диапазон (например 40–1400) делает трафик менее предсказуемым для анализа.</span>
+    <span class="desc">Макс. размер junk-пакета. Широкий диапазон труднее детектировать.</span>
   </div>
 </div>
 
-<div class="section-title">Padding — маскировка размера пакетов</div>
-
+<!-- PADDING -->
+<div class="section-title">Padding — маскировка размера пакетов handshake</div>
 <div class="grid">
   <div class="field">
     <label>S1 — padding инициации <span class="tip">байт</span></label>
     <input type="number" id="s1" min="0" max="1280" placeholder="50" oninput="update()">
-    <span class="desc">На сколько байт увеличить пакет инициации handshake (Initiation Message). Стандартный WG всегда имеет фиксированный размер — этот padding его ломает.</span>
+    <span class="desc">Увеличивает размер пакета Initiation Handshake. WG всегда имеет фиксированный размер — padding его ломает.</span>
   </div>
   <div class="field">
     <label>S2 — padding ответа <span class="tip">байт</span></label>
     <input type="number" id="s2" min="0" max="1280" placeholder="50" oninput="update()">
-    <span class="desc">На сколько байт увеличить пакет ответа handshake (Response Message). Работает аналогично S1, но для ответной стороны (сервера).</span>
+    <span class="desc">Padding для Response Handshake (сторона сервера).</span>
   </div>
-</div>
-
-<div class="section-title">Magic Headers — замена сигнатурных заголовков</div>
-
-<div class="info-box" style="margin-bottom:14px;">
-  <div class="info-text">В оригинальном WireGuard первые 4 байта каждого пакета — это тип сообщения: <code>0x01</code> (init), <code>0x02</code> (response), <code>0x03</code> (under load), <code>0x04</code> (data). DPI блокирует по ним. AWG заменяет их на ваши уникальные числа H1–H4. <strong>Главное правило: все четыре значения должны быть разными.</strong></div>
-</div>
-
-<div class="grid">
-  <div class="field">
-    <label>H1 — init message header</label>
-    <input type="number" id="h1" min="1" max="4294967295" placeholder="1234567891" oninput="update()">
-    <span class="desc">Заменяет стандартный тип <code>0x01000000</code> (Initiation). Это первый пакет, который клиент отправляет серверу.</span>
-  </div>
-  <div class="field">
-    <label>H2 — response message header</label>
-    <input type="number" id="h2" min="1" max="4294967295" placeholder="1234567892" oninput="update()">
-    <span class="desc">Заменяет стандартный тип <code>0x02000000</code> (Response). Ответ сервера на инициацию.</span>
-  </div>
-  <div class="field">
-    <label>H3 — under load header</label>
-    <input type="number" id="h3" min="1" max="4294967295" placeholder="1234567893" oninput="update()">
-    <span class="desc">Заменяет тип <code>0x03000000</code> (Cookie Reply). Используется когда сервер под нагрузкой и просит cookie перед handshake.</span>
-  </div>
-  <div class="field">
-    <label>H4 — transport data header</label>
-    <input type="number" id="h4" min="1" max="4294967295" placeholder="1234567894" oninput="update()">
-    <span class="desc">Заменяет тип <code>0x04000000</code> (Transport Data). Это заголовок всех обычных пакетов данных после установки туннеля.</span>
-  </div>
-</div>
-
-<div class="section-title">Расширенные параметры <span class="badge opt">опционально</span></div>
-
-<div class="info-box" style="margin-bottom:14px;">
-  <div class="info-text">Доступны в новых версиях AWG. S3/S4 — дополнительный padding для cookie и transport пакетов. I1–I5 — интервалы и таймеры (ms). Оставьте пустыми если не знаете зачем они нужны.</div>
-</div>
-
-<div class="grid">
-  <div class="field">
-    <label>S3 <span class="badge opt">opt</span> — padding cookie</label>
+  <div class="field v2-only">
+    <label>S3 <span class="badge v2">2.0</span> — padding cookie</label>
     <input type="number" id="s3" min="0" max="1280" placeholder="" oninput="update()">
-    <span class="desc">Padding для Cookie Reply пакетов (H3).</span>
+    <span class="desc">Padding для Cookie Reply пакетов. Добавлен в AWG 2.0.</span>
   </div>
-  <div class="field">
-    <label>S4 <span class="badge opt">opt</span> — padding transport</label>
+  <div class="field v2-only">
+    <label>S4 <span class="badge v2">2.0</span> — padding transport</label>
     <input type="number" id="s4" min="0" max="1280" placeholder="" oninput="update()">
-    <span class="desc">Padding для Transport Data пакетов (H4).</span>
+    <span class="desc">Padding для Transport Data пакетов. Добавлен в AWG 2.0.</span>
+  </div>
+</div>
+
+<!-- MAGIC HEADERS -->
+<div class="section-title">Magic Headers — замена сигнатурных заголовков</div>
+<div class="info-box" id="hInfo">
+  В оригинальном WG первые 4 байта каждого пакета — фиксированный тип: <code>0x01</code> init, <code>0x02</code> response, <code>0x03</code> under load, <code>0x04</code> data. DPI блокирует именно по ним.<br>
+  AWG заменяет их твоими уникальными числами. <span class="hl">Все H должны быть разными и не пересекаться!</span>
+</div>
+
+<div class="grid" id="hGrid">
+  <div class="field">
+    <label>H1 — init message</label>
+    <div class="range-pair">
+      <input type="number" id="h1" min="1" max="4294967295" placeholder="1098133141" oninput="update()">
+      <span class="range-sep h-range-sep" style="display:none">–</span>
+      <input type="number" id="h1b" min="1" max="4294967295" placeholder="1192664475" oninput="update()" class="h-range-input" style="display:none">
+    </div>
+    <span class="err-label" id="h1-err"></span>
+    <span class="desc">Заменяет <code>0x01000000</code>. Первый пакет клиента.</span>
   </div>
   <div class="field">
-    <label>I1 <span class="badge opt">opt</span></label>
-    <input type="number" id="i1" placeholder="" oninput="update()">
+    <label>H2 — response message</label>
+    <div class="range-pair">
+      <input type="number" id="h2" min="1" max="4294967295" placeholder="2042328547" oninput="update()">
+      <span class="range-sep h-range-sep" style="display:none">–</span>
+      <input type="number" id="h2b" min="1" max="4294967295" placeholder="2099787149" oninput="update()" class="h-range-input" style="display:none">
+    </div>
+    <span class="err-label" id="h2-err"></span>
+    <span class="desc">Заменяет <code>0x02000000</code>. Ответ сервера на инициацию.</span>
+  </div>
+  <div class="field">
+    <label>H3 — under load</label>
+    <div class="range-pair">
+      <input type="number" id="h3" min="1" max="4294967295" placeholder="2140257290" oninput="update()">
+      <span class="range-sep h-range-sep" style="display:none">–</span>
+      <input type="number" id="h3b" min="1" max="4294967295" placeholder="2141776552" oninput="update()" class="h-range-input" style="display:none">
+    </div>
+    <span class="err-label" id="h3-err"></span>
+    <span class="desc">Заменяет <code>0x03000000</code>. Cookie Reply при нагрузке.</span>
+  </div>
+  <div class="field">
+    <label>H4 — transport data</label>
+    <div class="range-pair">
+      <input type="number" id="h4" min="1" max="4294967295" placeholder="2143751475" oninput="update()">
+      <span class="range-sep h-range-sep" style="display:none">–</span>
+      <input type="number" id="h4b" min="1" max="4294967295" placeholder="2146111773" oninput="update()" class="h-range-input" style="display:none">
+    </div>
+    <span class="err-label" id="h4-err"></span>
+    <span class="desc">Заменяет <code>0x04000000</code>. Все обычные пакеты данных.</span>
+  </div>
+</div>
+
+<!-- I PARAMS -->
+<div class="section-title v15-only v2-only" style="display:none" id="iSectionTitle">
+  I-параметры — маскировка под протоколы <span class="badge v2">1.5+</span>
+</div>
+
+<div class="info-box warn-box v15-only v2-only" style="display:none" id="iInfoBox">
+  <span class="hl-warn">I1–I5</span> — это не числа, а бинарные пакеты-сигнатуры реальных протоколов (QUIC, DNS и т.д.).<br>
+  AWG отправляет их как junk, и DPI видит знакомый протокол.<br><br>
+  Формат: <code>&lt;b 0xHEX...&gt;</code> — hex-дамп реального UDP-пакета из Wireshark.<br>
+  Пример получения: захватить трафик Wireshark → выбрать UDP-пакет → правой кнопкой → <em>Copy → as Hex Stream</em> → добавить <code>&lt;b 0x...&gt;</code>.<br><br>
+  <span class="hl">Оставь пустым</span> чтобы не использовать маскировку под протокол. В AWG 2.0 значения с сервера применяются ко всем клиентам автоматически.
+</div>
+
+<div class="grid v15-only v2-only" style="display:none" id="iGrid">
+  <div class="field" style="grid-column:1/-1">
+    <label>I1 — первый junk-пакет <span class="tip warn">hex payload</span></label>
+    <textarea id="i1" placeholder="<b 0xc70000000108ce1bf31eec7d93...> — hex из Wireshark или оставь пустым" oninput="update()"></textarea>
+    <span class="desc">Самый важный. Обычно сигнатура QUIC Initial пакета. Применяется для маскировки первого junk до handshake.</span>
   </div>
   <div class="field">
     <label>I2 <span class="badge opt">opt</span></label>
-    <input type="number" id="i2" placeholder="" oninput="update()">
+    <textarea id="i2" placeholder="<b 0x...>" rows="2" oninput="update()"></textarea>
   </div>
   <div class="field">
     <label>I3 <span class="badge opt">opt</span></label>
-    <input type="number" id="i3" placeholder="" oninput="update()">
+    <textarea id="i3" placeholder="<b 0x...>" rows="2" oninput="update()"></textarea>
   </div>
   <div class="field">
     <label>I4 <span class="badge opt">opt</span></label>
-    <input type="number" id="i4" placeholder="" oninput="update()">
+    <textarea id="i4" placeholder="<b 0x...>" rows="2" oninput="update()"></textarea>
   </div>
   <div class="field">
     <label>I5 <span class="badge opt">opt</span></label>
-    <input type="number" id="i5" placeholder="" oninput="update()">
-  </div>
-  <div class="field">
-    <label>Имя интерфейса</label>
-    <input type="text" id="ifname" value="WireGuard0" oninput="update()">
+    <textarea id="i5" placeholder="<b 0x...>" rows="2" oninput="update()"></textarea>
   </div>
 </div>
 
+<!-- INTERFACE NAME + DNS -->
+<div class="section-title">Дополнительно</div>
+<div class="grid">
+  <div class="field">
+    <label>Имя интерфейса Keenetic</label>
+    <input type="text" id="ifname" value="Wireguard0" oninput="update()">
+  </div>
+  <div class="field">
+    <label>DNS <span class="badge opt">opt</span></label>
+    <input type="text" id="dns" placeholder="1.1.1.1, 9.9.9.9" oninput="update()">
+    <span class="desc">Один или несколько DNS через запятую. Подставляется в полный .conf и Entware команды.</span>
+  </div>
+</div>
+
+<div id="hex-warn" style="display:none;background:rgba(255,165,2,.08);border:1px solid rgba(255,165,2,.3);border-radius:8px;padding:11px 14px;margin-top:14px;font-size:11px;color:var(--warn);line-height:1.7;">
+  ⚠️ <strong>I-параметры с &lt;b 0x...&gt; через CLI/SSH не работают</strong> — строка слишком длинная для терминала.<br>
+  Используй вкладку <strong>Скачать .conf</strong> → скачай файл → импортируй через веб-интерфейс Keenetic в настройках WireGuard.
+</div>
+
+<!-- OUTPUT -->
 <div class="output">
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('cli')">CLI команда</button>
-    <button class="tab" onclick="switchTab('conf')">wg conf секция</button>
+    <button class="tab active" onclick="switchTab('cli',this)">CLI команда</button>
+    <button class="tab" onclick="switchTab('ssh',this)">Entware SSH</button>
+    <button hidden class="tab" onclick="switchTab('conf',this)">[Interface] секция</button>
+    <button class="tab" onclick="switchTab('full',this)">Скачать .conf</button>
   </div>
 
-  <div id="tab-cli" class="tab-content active" style="padding-top:14px;">
+  <div id="tab-cli" class="tab-content active">
     <div class="output-header">
       <span class="output-label">Keenetic CLI</span>
-      <button class="copy-btn" onclick="copyText('cli-output', this)">Copy</button>
+      <div class="output-actions">
+        <button class="btn primary" onclick="copyPre('cli-output',this)">Copy</button>
+      </div>
     </div>
     <pre id="cli-output"></pre>
   </div>
 
-  <div id="tab-conf" class="tab-content" style="padding-top:14px;">
+  <div id="tab-ssh" class="tab-content">
     <div class="output-header">
-      <span class="output-label">wg config [Interface]</span>
-      <button class="copy-btn" onclick="copyText('conf-output', this)">Copy</button>
+      <span class="output-label">Entware SSH — ndmc команды</span>
+      <div class="output-actions">
+        <button class="btn primary" onclick="copyPre('ssh-output',this)">Copy</button>
+      </div>
+    </div>
+    <pre id="ssh-output"></pre>
+  </div>
+
+  <div hidden id="tab-conf" class="tab-content">
+    <div class="output-header">
+      <span class="output-label">[Interface] секция</span>
+      <div class="output-actions">
+        <button class="btn primary" onclick="copyPre('conf-output',this)">Copy</button>
+      </div>
     </div>
     <pre id="conf-output"></pre>
+  </div>
+
+  <div id="tab-full" class="tab-content">
+    <div class="output-header">
+      <span class="output-label">Скачать .conf файл</span>
+      <div class="output-actions">
+        <button class="btn blue" onclick="downloadConf()">⬇ Скачать .conf</button>
+        <button class="btn primary" onclick="copyPre('full-output',this)">Copy</button>
+      </div>
+    </div>
+    <pre id="full-output"></pre>
   </div>
 </div>
 
 <script>
-const FIELDS = ['jc','jmin','jmax','s1','s2','h1','h2','h3','h4','s3','s4','i1','i2','i3','i4','i5'];
-const REQUIRED = ['jc','jmin','jmax','s1','s2','h1','h2','h3','h4'];
-const OPTIONAL = ['s3','s4','i1','i2','i3','i4','i5'];
+// ── State ─────────────────────────────────────────────────
+let parsed = null;
+let curVer = '10';
 
-const PRESETS = {
-  amnezia: { jc:4, jmin:40, jmax:70, s1:50, s2:50, h1:1234567891, h2:1234567892, h3:1234567893, h4:1234567894 },
+const VER_INFO = {
+  '10': 'AWG <b>1.0 Legacy</b> — базовая версия. Параметры: Jc, Jmin, Jmax, S1, S2, H1–H4. I1–I5 не поддерживаются.',
+  '15': 'AWG <b>1.5</b> — добавлены I1–I5 (бинарные пакеты-сигнатуры протоколов для маскировки junk-трафика). H1–H4 — одиночные числа.',
+  '20': 'AWG <b>2.0</b> — текущая версия. Добавлены S3/S4. H1–H4 теперь <b>диапазоны</b> — каждый раз выбирается случайное число, диапазоны не должны пересекаться. Требует AmneziaVPN 4.8.12.7+.',
 };
 
+// ── Version switch ─────────────────────────────────────────
+function setVer(v) {
+  curVer = v;
+  document.querySelectorAll('.ver-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('vbtn-' + v).classList.add('active');
+  document.getElementById('verInfo').innerHTML = VER_INFO[v];
+
+  // body class for CSS show/hide
+  document.body.className = 'ver-' + v;
+
+  // H range inputs visibility
+  const showRange = v === '20';
+  document.querySelectorAll('.h-range-sep').forEach(el => el.style.display = showRange ? 'inline' : 'none');
+  document.querySelectorAll('.h-range-input').forEach(el => el.style.display = showRange ? 'block' : 'none');
+
+  // I section & grid
+  const showI = v === '15' || v === '20';
+  document.getElementById('iSectionTitle').style.display = showI ? 'flex' : 'none';
+  document.getElementById('iInfoBox').style.display = showI ? 'block' : 'none';
+  document.getElementById('iGrid').style.display = showI ? 'grid' : 'none';
+
+  update();
+}
+
+// ── Drag & Drop ────────────────────────────────────────────
+const dz = document.getElementById('dropZone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); const f = e.dataTransfer.files[0]; if(f) handleFile(f); });
+
+function handleFile(file) {
+  const r = new FileReader();
+  r.onload = e => parseConf(e.target.result, file.name);
+  r.readAsText(file);
+}
+
+function parseConf(text, filename) {
+  parsed = { filename, raw: text, iface: {}, peer: {} };
+  let sec = null;
+  for (const raw of text.split('\n')) {
+    const line = raw.trim();
+    if (!line || line.startsWith('#')) continue;
+    if (line === '[Interface]') { sec = 'iface'; continue; }
+    if (line === '[Peer]') { sec = 'peer'; continue; }
+    if (!sec) continue;
+    const eq = line.indexOf('=');
+    if (eq < 0) continue;
+    const k = line.slice(0, eq).trim().toLowerCase();
+    const v = line.slice(eq + 1).trim();
+    parsed[sec][k] = v;
+  }
+
+  const iface = parsed.iface;
+
+  // Simple numeric ASC fields
+  ['jc','jmin','jmax','s1','s2','s3','s4'].forEach(f => {
+    const el = document.getElementById(f);
+    if (el) el.value = (iface[f] && iface[f] !== '') ? iface[f] : '';
+  });
+
+  // DNS field
+  const dnsEl = document.getElementById('dns');
+  if (dnsEl) dnsEl.value = iface.dns || '';
+
+  // I params (textarea)
+  ['i1','i2','i3','i4','i5'].forEach(f => {
+    const el = document.getElementById(f);
+    if (el) el.value = (iface[f] && iface[f] !== '') ? iface[f] : '';
+  });
+
+  // H params — detect version
+  let isV2 = false;
+  let hasI = false;
+  ['h1','h2','h3','h4'].forEach(h => {
+    const val = iface[h] || '';
+    if (val.includes('-')) {
+      isV2 = true;
+      const [a, b] = val.split('-');
+      document.getElementById(h).value = a.trim();
+      document.getElementById(h + 'b').value = b.trim();
+    } else {
+      document.getElementById(h).value = val;
+      document.getElementById(h + 'b').value = '';
+    }
+  });
+
+  ['i1','i2','i3','i4','i5'].forEach(f => {
+    if (iface[f] && iface[f].trim() !== '') hasI = true;
+  });
+
+  // Auto-detect version
+  const hasS3S4 = (iface.s3 && iface.s3 !== '') || (iface.s4 && iface.s4 !== '');
+  if (isV2 || hasS3S4) setVer('20');
+  else if (hasI) setVer('15');
+  else setVer('10');
+
+  document.getElementById('dropLoaded').textContent = '✅ ' + filename;
+  document.getElementById('dropLoaded').style.display = 'block';
+  showMeta();
+  update();
+}
+
+function showMeta() {
+  const iface = parsed.iface, peer = parsed.peer;
+  const rows = [
+    ['Address', iface.address], ['DNS', iface.dns],
+    ['Endpoint', peer.endpoint], ['PublicKey', peer.publickey],
+    ['PresharedKey', peer.presharedkey ? '••••••••' : null],
+    ['AllowedIPs', peer.allowedips], ['Keepalive', peer.persistentkeepalive],
+  ].filter(([,v]) => v);
+  const mb = document.getElementById('metaBox');
+  document.getElementById('metaGrid').innerHTML = rows.map(([k,v]) => {
+    const isLong = String(v).length > 36;
+    const esc = String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return `<div class="meta-row"><span class="meta-key">${k}</span><span class="meta-val${isLong?' long':''}" onclick="this.classList.toggle('expanded')">${esc}</span></div>`;
+  }).join('');
+  mb.classList.add('visible');
+}
+
+// ── Presets ────────────────────────────────────────────────
 function applyPreset(name) {
+  const allFields = ['jc','jmin','jmax','s1','s2','s3','s4','h1','h1b','h2','h2b','h3','h3b','h4','h4b','i1','i2','i3','i4','i5'];
   if (name === 'clear') {
-    FIELDS.forEach(f => { document.getElementById(f).value = ''; });
+    allFields.forEach(f => { const el = document.getElementById(f); if(el) el.value = ''; });
+  } else if (name === 'amnezia') {
+    const p = {jc:4,jmin:40,jmax:70,s1:50,s2:50,h1:1234567891,h2:1234567892,h3:1234567893,h4:1234567894};
+    Object.entries(p).forEach(([k,v]) => { const el = document.getElementById(k); if(el) el.value = v; });
+    ['h1b','h2b','h3b','h4b','s3','s4','i1','i2','i3','i4','i5'].forEach(f => { const el = document.getElementById(f); if(el) el.value = ''; });
   } else if (name === 'random') {
     document.getElementById('jc').value = rnd(1, 10);
-    document.getElementById('jmin').value = rnd(20, 60);
-    const jmin = +document.getElementById('jmin').value;
-    document.getElementById('jmax').value = rnd(jmin, jmin + 80);
-    document.getElementById('s1').value = rnd(20, 100);
-    document.getElementById('s2').value = rnd(20, 100);
-    ['h1','h2','h3','h4'].forEach(h => {
-      document.getElementById(h).value = rnd(100000000, 4294967295);
+    const jmin = rnd(20, 70);
+    document.getElementById('jmin').value = jmin;
+    document.getElementById('jmax').value = rnd(jmin + 10, Math.min(1280, jmin + 120));
+    document.getElementById('s1').value = rnd(15, 120);
+    document.getElementById('s2').value = rnd(15, 120);
+    if (curVer === '20') {
+      document.getElementById('s3').value = rnd(5, 60);
+      document.getElementById('s4').value = rnd(5, 60);
+    }
+    // Generate non-overlapping H ranges
+    const ranges = genNonOverlappingRanges(4);
+    ['h1','h2','h3','h4'].forEach((h, i) => {
+      document.getElementById(h).value = ranges[i][0];
+      if (curVer === '20') document.getElementById(h + 'b').value = ranges[i][1];
     });
-  } else {
-    const p = PRESETS[name];
-    Object.entries(p).forEach(([k,v]) => { document.getElementById(k).value = v; });
   }
   update();
 }
 
+function genNonOverlappingRanges(count) {
+  // Split 0–4294967295 into non-overlapping segments
+  const total = 4294967295;
+  const step = Math.floor(total / count);
+  const res = [];
+  for (let i = 0; i < count; i++) {
+    const base = i * step + rnd(1000, 50000000);
+    const width = rnd(10000000, 80000000);
+    res.push([base, Math.min(base + width, (i + 1) * step - 1)]);
+  }
+  return res;
+}
+
 function rnd(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
 
-function v(id) {
-  const val = document.getElementById(id).value.trim();
-  return val === '' ? null : val;
+// ── Get field values ───────────────────────────────────────
+function gv(id) { const el = document.getElementById(id); if(!el) return null; const v = el.value.trim(); return v === '' ? null : v; }
+
+function getH(n) {
+  // Для CLI/SSH — одно число (случайное из диапазона если AWG 2.0)
+  const a = gv('h' + n);
+  if (!a) return null;
+  if (curVer === '20') {
+    const b = gv('h' + n + 'b');
+    if (b) return String(rnd(parseInt(a), parseInt(b)));
+  }
+  return a;
 }
 
-function update() {
-  const ifname = document.getElementById('ifname').value.trim() || 'WireGuard0';
-  
-  const req = REQUIRED.map(f => v(f));
-  const hasAll = req.every(x => x !== null);
+function getHRange(n) {
+  // Для .conf файла — диапазон как есть
+  const a = gv('h' + n);
+  if (!a) return null;
+  if (curVer === '20') {
+    const b = gv('h' + n + 'b');
+    if (b) return `${a}-${b}`;
+  }
+  return a;
+}
 
-  const optVals = OPTIONAL.map(f => v(f));
-  const hasOpt = optVals.some(x => x !== null);
 
-  let cli = '';
-  let conf = '';
-
-  if (hasAll) {
-    const base = req.join(' ');
-    const ext = hasOpt ? ' ' + optVals.filter(x => x !== null).join(' ') : '';
-    cli = `interface ${ifname} wireguard asc ${base}${ext}`;
-
-    const jc = v('jc'), jmin = v('jmin'), jmax = v('jmax');
-    const s1 = v('s1'), s2 = v('s2');
-    const h1 = v('h1'), h2 = v('h2'), h3 = v('h3'), h4 = v('h4');
-
-    conf = `[Interface]\n`;
-    conf += `# AmneziaWG ASC params\n`;
-    conf += `Jc = ${jc}\n`;
-    conf += `Jmin = ${jmin}\n`;
-    conf += `Jmax = ${jmax}\n`;
-    conf += `S1 = ${s1}\n`;
-    conf += `S2 = ${s2}\n`;
-    conf += `H1 = ${h1}\n`;
-    conf += `H2 = ${h2}\n`;
-    conf += `H3 = ${h3}\n`;
-    conf += `H4 = ${h4}\n`;
-
-    if (hasOpt) {
-      const optNames = ['S3','S4','I1','I2','I3','I4','I5'];
-      OPTIONAL.forEach((f, i) => {
-        const val = v(f);
-        if (val !== null) conf += `${optNames[i]} = ${val}\n`;
-      });
-    }
-  } else {
-    cli = '# Заполните обязательные поля (Jc, Jmin, Jmax, S1, S2, H1–H4)';
-    conf = '# Заполните обязательные поля';
+// ── Validate H ranges ──────────────────────────────────────
+function validateH() {
+  let ok = true;
+  if (curVer !== '20') {
+    ['h1','h2','h3','h4'].forEach(h => {
+      document.getElementById(h + '-err').classList.remove('visible');
+      document.getElementById(h).classList.remove('err');
+    });
+    return true;
   }
 
-  document.getElementById('cli-output').textContent = cli;
-  document.getElementById('conf-output').textContent = conf;
+  // Check ranges don't overlap
+  const ranges = ['h1','h2','h3','h4'].map(h => {
+    const a = parseInt(gv(h) || '0');
+    const b = parseInt(gv(h + 'b') || gv(h) || '0');
+    return [Math.min(a,b), Math.max(a,b), h];
+  });
+
+  ['h1','h2','h3','h4'].forEach(h => {
+    document.getElementById(h + '-err').textContent = '';
+    document.getElementById(h + '-err').classList.remove('visible');
+    document.getElementById(h).classList.remove('err');
+    document.getElementById(h + 'b').classList.remove('err');
+  });
+
+  for (let i = 0; i < ranges.length; i++) {
+    for (let j = i + 1; j < ranges.length; j++) {
+      const [a1,a2,ha] = ranges[i], [b1,b2,hb] = ranges[j];
+      if (a1 <= b2 && b1 <= a2) {
+        const errA = document.getElementById(ha + '-err');
+        errA.textContent = `Пересекается с ${hb.toUpperCase()}!`;
+        errA.classList.add('visible');
+        document.getElementById(ha).classList.add('err');
+        document.getElementById(ha + 'b').classList.add('err');
+        ok = false;
+      }
+    }
+  }
+  return ok;
 }
 
-function switchTab(name) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
-  document.getElementById('tab-' + name).classList.add('active');
+// ── Build outputs ──────────────────────────────────────────
+function buildASC() {
+  const f = (k, v) => v !== null ? `${k} = ${v}\n` : '';
+  let s = '';
+  s += f('Jc', gv('jc'));
+  s += f('Jmin', gv('jmin'));
+  s += f('Jmax', gv('jmax'));
+  s += f('S1', gv('s1'));
+  s += f('S2', gv('s2'));
+  if (curVer === '20') {
+    s += f('S3', gv('s3'));
+    s += f('S4', gv('s4'));
+  }
+  s += f('H1', getHRange(1));
+  s += f('H2', getHRange(2));
+  s += f('H3', getHRange(3));
+  s += f('H4', getHRange(4));
+  if (curVer === '15' || curVer === '20') {
+    ['i1','i2','i3','i4','i5'].forEach((k,i) => {
+      const v = gv(k);
+      s += `I${i+1} = ${v !== null ? v : ''}\n`;
+    });
+  }
+  return s;
 }
 
-function copyText(id, btn) {
-  const text = document.getElementById(id).textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    btn.textContent = 'Copied!';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+function buildFullConf() {
+  const iface = parsed ? parsed.iface : {};
+  const peer = parsed ? parsed.peer : {};
+  const dns = gv('dns') || iface.dns || null;
+  let s = '[Interface]\n';
+  if (iface.address) s += `Address = ${iface.address}\n`;
+  if (dns) s += `DNS = ${dns}\n`;
+  if (iface.privatekey) s += `PrivateKey = ${iface.privatekey}\n`;
+  s += buildASC();
+  if (parsed && Object.keys(peer).length > 0) {
+    s += '\n[Peer]\n';
+    if (peer.publickey) s += `PublicKey = ${peer.publickey}\n`;
+    if (peer.presharedkey) s += `PresharedKey = ${peer.presharedkey}\n`;
+    if (peer.allowedips) s += `AllowedIPs = ${peer.allowedips}\n`;
+    if (peer.endpoint) s += `Endpoint = ${peer.endpoint}\n`;
+    if (peer.persistentkeepalive) s += `PersistentKeepalive = ${peer.persistentkeepalive}\n`;
+  }
+  return s;
+}
+
+function buildAscArgs() {
+  // {jc} {jmin} {jmax} {s1} {s2} {h1} {h2} {h3} {h4} [{s3} {s4} {i1} {i2} {i3} {i4} {i5}]
+  // Опциональная группа: либо все 7, либо никакие. Пустые = 0.
+  // hex I-параметры <b 0x...> CLI не принимает — заменяем на 0
+  const req = [gv('jc'), gv('jmin'), gv('jmax'), gv('s1'), gv('s2'), getH(1), getH(2), getH(3), getH(4)];
+  if (req.some(x => !x)) return null;
+
+  const sanitizeI = k => {
+    const v = gv(k);
+    if (!v) return null;
+    if (v.includes('<b ')) return null; // hex-строки не передаются через CLI вообще
+    return v;
+  };
+
+  if (curVer === '10') return req.join(' ');
+
+  if (curVer === '15') {
+    const iVals = ['i1','i2','i3','i4','i5'].map(sanitizeI);
+    const hasAny = iVals.some(v => v !== null);
+    if (!hasAny) return req.join(' ');
+    // Только до последнего заполненного
+    let lastI = -1;
+    for (let i = iVals.length - 1; i >= 0; i--) {
+      if (iVals[i] !== null) { lastI = i; break; }
+    }
+    return req.join(' ') + ' ' + iVals.slice(0, lastI + 1).map(v => v || '0').join(' ');
+  }
+
+  // 2.0 — все 7
+  const optRaw = [gv('s3'), gv('s4'), ...['i1','i2','i3','i4','i5'].map(sanitizeI)];
+  const hasAny = optRaw.some(v => v !== null);
+  if (!hasAny) return req.join(' ');
+  return req.join(' ') + ' ' + optRaw.map(v => v || '0').join(' ');
+}
+
+function hasHexIParams() {
+  return ['i1','i2','i3','i4','i5'].some(k => {
+    const v = gv(k);
+    return v && v.includes('<b ');
   });
 }
 
-update();
+function buildCLI() {
+  const ifname = gv('ifname') || 'Wireguard0';
+  const args = buildAscArgs();
+  if (!args) return '# Заполните обязательные поля: Jc, Jmin, Jmax, S1, S2, H1–H4';
+  return `interface ${ifname} wireguard asc ${args}\nsystem configuration save`;
+}
+
+function buildSSH() {
+  const ifname = gv('ifname') || 'Wireguard0';
+  const args = buildAscArgs();
+  if (!args) return '# Заполните обязательные поля: Jc, Jmin, Jmax, S1, S2, H1–H4';
+  return `ndmc -c "interface ${ifname} wireguard asc ${args}"\nndmc -c "system configuration save"`;
+}
+
+function update() {
+  validateH();
+  document.getElementById('cli-output').textContent = buildCLI();
+  document.getElementById('ssh-output').textContent = buildSSH();
+  document.getElementById('conf-output').textContent = '[Interface]\n' + buildASC();
+  document.getElementById('full-output').textContent = buildFullConf();
+
+  // Предупреждение про hex I-параметры
+  const warn = document.getElementById('hex-warn');
+  if (warn) warn.style.display = hasHexIParams() ? 'block' : 'none';
+}
+
+// ── Tabs ───────────────────────────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// ── Copy / Download ────────────────────────────────────────
+function copyPre(id, btn) {
+  navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => {
+    const o = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = o; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+function downloadConf() {
+  const text = document.getElementById('full-output').textContent;
+  const fname = parsed ? parsed.filename.replace(/\.conf$/i,'') + '_modified.conf' : 'awg_config.conf';
+  const a = document.createElement('a');
+  a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(text);
+  a.download = fname;
+  a.click();
+}
+
+// ── Init ───────────────────────────────────────────────────
+setVer('10');
 </script>
 </body>
 </html>
