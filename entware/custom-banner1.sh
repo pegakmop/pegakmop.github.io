@@ -78,7 +78,10 @@ print_info() {
   printf "📦 ${grn}Installed:${clr}      %s\n" "$INSTALLED"
   printf "⬆️ ${red}Upgradable:${clr}     %s\n" "$UPGRADEABLE"
   printf "📦 ${grn}Distro:${clr}         %s\n" "$DISTRO"
+  printf "${blk}Create entware menu for @pegakmop${clr}"
+  echo
   echo
 }
 
 print_info
+df -h | grep opt
