@@ -1,5 +1,5 @@
 #!/bin/sh
-echo "Добавление доменов chatgpt через днс направляя"
+echo "Добавление доменов claude через днс направляя"
 ndmc -c "dns-proxy tls upstream 9.9.9.9 sni dns.quad9.net domain claude.ai"
 ndmc -c "dns-proxy tls upstream 9.9.9.9 sni dns.quad9.net domain claude.app"
 ndmc -c "dns-proxy tls upstream 9.9.9.9 sni dns.quad9.net domain anthropic.com"
