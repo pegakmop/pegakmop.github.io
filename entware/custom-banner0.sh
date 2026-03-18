@@ -169,3 +169,4 @@ print_info() {
 print_info
 echo
 df -h | grep opt
+echo
