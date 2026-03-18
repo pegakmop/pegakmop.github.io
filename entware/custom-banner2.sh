@@ -47,6 +47,7 @@ check_service() {
 print_info() {
   printf "Ваша модель роутера: $ROUTER_MODEL и его температура $TEMP"
   echo
+  printf "${blk}Create entware menu for @pegakmop${clr}"
   echo
   printf "${ylw}🔧 Состояние сервисов на роутере:${clr}\n"
   check_service x-ui
