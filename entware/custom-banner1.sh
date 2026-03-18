@@ -85,3 +85,4 @@ print_info() {
 
 print_info
 df -h | grep opt
+echo
