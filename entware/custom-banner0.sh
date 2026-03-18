@@ -155,12 +155,15 @@ print_info() {
   printf "${blk}Create entware menu for @pegakmop${clr}"
   echo
   printf "${ylw}🔧 Running services:${clr}\n"
+  check_service x-ui
   check_service neofit
   check_service xray
   check_service sing-box
-  check_service x-ui
+  check_service lighttpd
   check_service hrweb
   check_service hrneo
+  check_service mihomo
+  check_service AdGuardHome
 }
 
 print_info
