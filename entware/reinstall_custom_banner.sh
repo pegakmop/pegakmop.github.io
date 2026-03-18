@@ -18,7 +18,8 @@ while true; do
             curl -fsSL -o /opt/etc/custom-banner.sh https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/entware/custom-banner0.sh && \
             chmod +x /opt/etc/custom-banner.sh && \
             grep -qxF '/opt/etc/custom-banner.sh' ~/.profile || echo '/opt/etc/custom-banner.sh' >> ~/.profile
-            echo "Установка завершена."
+            echo "Установка завершена, переподключитесь к терминалу..."
+            exit 0
             ;;
         2)
             echo "Выполняется Medium установка..."
@@ -27,7 +28,8 @@ while true; do
             curl -fsSL -o /opt/etc/custom-banner.sh https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/entware/custom-banner1.sh && \
             chmod +x /opt/etc/custom-banner.sh && \
             grep -qxF '/opt/etc/custom-banner.sh' ~/.profile || echo '/opt/etc/custom-banner.sh' >> ~/.profile
-            echo "Установка завершена."
+            echo "Установка завершена, переподключитесь к терминалу..."
+            exit 0
             ;;
         3)
             echo "Выполняется Lite установка..."
@@ -36,13 +38,15 @@ while true; do
             curl -fsSL -o /opt/etc/custom-banner.sh https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/entware/custom-banner2.sh && \
             chmod +x /opt/etc/custom-banner.sh && \
             grep -qxF '/opt/etc/custom-banner.sh' ~/.profile || echo '/opt/etc/custom-banner.sh' >> ~/.profile
-            echo "Установка завершена."
+            echo "Установка завершена, переподключитесь к терминалу..."
+            exit 0
             ;;
         4)
             echo "Выполняется удаление..."
             rm -f /opt/etc/custom-banner.sh
             sed -i '/\/opt\/etc\/custom-banner\.sh/d' ~/.profile
-            echo "Удаление завершено."
+            echo "Удаление завершено, переподключитесь к терминалу..."
+            exit 0
             ;;
         5)
             echo "Выход."
