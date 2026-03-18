@@ -13,7 +13,7 @@ while true; do
             echo "Выполняется установка..."
             opkg update && \
             opkg install curl wget wget-ssl coreutils-df procps-ng-free procps-ng-uptime && \
-            curl -fsSL -o /opt/etc/custom-banner.sh https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/entware/custom-banner.sh && \
+            curl -fsSL -o /opt/etc/custom-banner.sh https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/entware/custom-banner2.sh && \
             chmod +x /opt/etc/custom-banner.sh && \
             grep -qxF '/opt/etc/custom-banner.sh' ~/.profile || echo '/opt/etc/custom-banner.sh' >> ~/.profile
             echo "Установка завершена."
