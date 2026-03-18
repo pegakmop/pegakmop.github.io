@@ -62,5 +62,5 @@ print_info() {
 
 print_info
 echo
-echo
+df -h | grep opt
 echo
