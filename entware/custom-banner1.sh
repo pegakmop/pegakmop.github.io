@@ -53,8 +53,11 @@ else
   DISTRO="Entware"
 fi
 
-INSTALLED="$(opkg list-installed | wc -l)"
-UPGRADEABLE="$(opkg list-upgradable | wc -l)"
+INSTALLED="$(opkg list-installed 2>/dev/null | wc -l)"
+
+# ===== Получаем список обновляемых пакетов =====
+UPGRADABLE_LIST="$(opkg list-upgradable 2>/dev/null)"
+UPGRADEABLE="$(echo "$UPGRADABLE_LIST" | grep -c . 2>/dev/null || echo 0)"
 ROUTER_MODEL="$(ndmc -c "show version" | awk -F": " '/model/ {print $2}')"
 
 # Вывод — одна колонка
