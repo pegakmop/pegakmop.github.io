@@ -1,5 +1,5 @@
 #!/bin/sh
-# curl -fsSL https://pegakmop.github.io/release/keenetic/install-feed.sh | sh
+# curl -fsSL https://www.pegakmop.site/keenetic.sh | sh
 
 # === АНИМАЦИЯ ===
 animation() {
