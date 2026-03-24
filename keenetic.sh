@@ -26,8 +26,8 @@ run_with_animation() {
 }
 
 echo "Запуск установки репозитория..."
-
 ndmc -c "dns-proxy tls upstream 9.9.9.9 sni dns.quad9.net" >/dev/null 2>&1
+ndmc -c "system configuration save" >/dev/null 2>&1
 
 run_with_animation "Обновление списка пакетов" opkg update
 run_with_animation "Установка wget с поддержкой HTTPS" opkg install wget-ssl curl
