@@ -56,7 +56,7 @@ FEED_LINE="src/gz pegakmop $FEED_URL"
 if ! grep -q "$FEED_URL" "$FEED_CONF" 2>/dev/null; then
   run_with_animation "$FEED_LINE" >> "$FEED_CONF"
 else
-  run_with_animation "Репозиторий уже добавлен в $FEED_CONF..."
+  echo "[✔] Репозиторий уже добавлен в $FEED_CONF..."
 fi
 
 run_with_animation "Обновление нового списка пакетов..." opkg update
