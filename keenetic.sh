@@ -54,9 +54,9 @@ FEED_LINE="src/gz pegakmop $FEED_URL"
 [ ! -d "/opt/etc/opkg" ] && mkdir -p /opt/etc/opkg
 
 if ! grep -q "$FEED_URL" "$FEED_CONF" 2>/dev/null; then
-  echo "$FEED_LINE" >> "$FEED_CONF"
+  run_with_animation "$FEED_LINE" >> "$FEED_CONF"
 else
-  echo "Репозиторий уже добавлен в $FEED_CONF..."
+  run_with_animation "Репозиторий уже добавлен в $FEED_CONF..."
 fi
 
 run_with_animation "Обновление нового списка пакетов..." opkg update
