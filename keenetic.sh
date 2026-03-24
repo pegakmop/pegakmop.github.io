@@ -1,69 +1,70 @@
 #!/bin/sh
-rm -rf /opt/etc/opkg/customfeeds.conf
-rm -rf /opt/etc/opkg/neofit.conf
-rm -rf /opt/var/opkg-lists/pegakmop
-rm -rf /opt/var/opkg-lists/ground-zerro
-echo "Обновление списка пакетов..."
-opkg update
-echo "Установка curl и wget-ssl..."
-opkg install curl wget-ssl
-opkg remove wget-nossl
+# curl -fsSL https://pegakmop.github.io/release/keenetic/install-feed.sh | sh
 
-echo "Определение архитектуры роутера кинетика..."
-ARCH=$(opkg print-architecture | awk '
-  /^arch/ && $2 !~ /_kn$/ && $2 ~ /-[0-9]+\.[0-9]+$/ {
-    print $2; exit
-  }'
-)
+# === АНИМАЦИЯ ===
+animation() {
+    local pid=$1 message=$2 spin='|/-\\' i=0
+    echo -n "[ ] $message..."
+    while kill -0 $pid 2>/dev/null; do
+        i=$(( (i+1) %4 ))
+        printf "\r[%s] %s..." "${spin:$i:1}" "$message"
+        usleep 100000
+    done
+    wait $pid
+    if [ $? -eq 0 ]; then
+        printf "\r[✔] %s\n" "$message"
+    else
+        printf "\r[✖] %s\n" "$message"
+    fi
+}
 
-if [ -z "$ARCH" ]; then
-  echo "Ошибка определения архитектуры!"
-  exit 1
-fi
+run_with_animation() {
+    local msg="$1"
+    shift
+    ("$@") >/dev/null 2>&1 &
+    animation $! "$msg"
+}
+
+echo "Запуск установки репозитория..."
+
+ndmc -c "dns-proxy tls upstream 9.9.9.9 sni dns.quad9.net" >/dev/null 2>&1
+
+run_with_animation "Обновление списка пакетов" opkg update
+run_with_animation "Установка wget с поддержкой HTTPS" opkg install wget-ssl curl
+run_with_animation "Удаление wget без SSL" opkg remove wget-nossl
+
+# === Определение архитектуры ===
+echo "Определение архитектуры системы..."
+ARCH=$(opkg print-architecture | awk '/^arch/ && $2 !~ /_kn$/ && $2 ~ /-[0-9]+\.[0-9]+$/ {print $2; exit}')
+if [ -z "$ARCH" ]; then echo "Не удалось определить архитектуру."; exit 1; fi
 
 case "$ARCH" in
-  aarch64-3.10)
-    FEED_URL="https://www.pegakmop.site/release/keenetic/aarch64-k3.10"
-    ;;
-  mipsel-3.4)
-    FEED_URL="https://www.pegakmop.site/release/keenetic/mipselsf-k3.4"
-    ;;
-  mips-3.4)
-    FEED_URL="https://www.pegakmop.site/release/keenetic/mipssf-k3.4"
-    ;;
-  *)
-    echo "Не поддерживаемая архитектура: $ARCH"
-    exit 1
-    ;;
+  aarch64-3.10) FEED_URL="https://www.pegakmop.site/release/keenetic/aarch64-k3.10" ;;
+  mipsel-3.4)   FEED_URL="https://www.pegakmop.site/release/keenetic/mipselsf-k3.4" ;;
+  mips-3.4)     FEED_URL="https://www.pegakmop.site/release/keenetic/mipssf-k3.4" ;;
+  *) echo "Неподдерживаемая архитектура: $ARCH"; exit 1 ;;
 esac
 
-echo "Определена архитектура: $ARCH"
-echo "Устанавливаю репозиторий: $FEED_URL"
+echo "Архитектура: $ARCH"
+echo "Выбранный репозиторий: $FEED_URL"
 
 FEED_CONF="/opt/etc/opkg/neofit.conf"
 FEED_LINE="src/gz pegakmop $FEED_URL"
 
-# Ensure the opkg directory exists
-if [ ! -d "/opt/etc/opkg" ]; then
-  echo "Создаем /opt/etc/opkg директорию..."
-  mkdir -p /opt/etc/opkg
-fi
+[ ! -d "/opt/etc/opkg" ] && mkdir -p /opt/etc/opkg
 
-# Check for existing feed entry
-if grep -q "$FEED_URL" "$FEED_CONF" 2>/dev/null; then
-  echo "Репозиторий установлен: $FEED_CONF. пропускаем установку."
-else
-  echo "Добавляем репозиторий $FEED_CONF..."
+if ! grep -q "$FEED_URL" "$FEED_CONF" 2>/dev/null; then
   echo "$FEED_LINE" >> "$FEED_CONF"
+else
+  echo "Репозиторий уже добавлен в $FEED_CONF..."
 fi
 
-echo "Обновляем все списки пакетов репозиториев..."
-opkg update
+run_with_animation "Обновление нового списка пакетов..." opkg update
 
 # Optional cleanup
 SCRIPT="$0"
 if [ -f "$SCRIPT" ]; then
-  echo "Удаляем установочный скрипт с устройства..."
+  run_with_animation "Удаляем установочный скрипт с устройства..."
   rm "$SCRIPT"
 fi
 
