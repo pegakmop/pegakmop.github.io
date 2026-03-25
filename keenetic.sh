@@ -28,7 +28,10 @@ run_with_animation() {
 run_with_animation "Запуск установки репозитория..."
 ndmc -c "dns-proxy tls upstream 9.9.9.9 sni dns.quad9.net" >/dev/null 2>&1
 ndmc -c "system configuration save" >/dev/null 2>&1
-
+rm -rf /opt/etc/opkg/pegakmop.conf
+rm -rf /opt/etc/opkg/neofit.conf
+rm -rf /opt/var/opkg-lists/pegakmop
+rm -rf /opt/var/opkg-lists/neofit
 run_with_animation "Обновление списка пакетов" opkg update
 run_with_animation "Установка wget с поддержкой HTTPS" opkg install wget-ssl curl
 run_with_animation "Удаление wget без SSL" opkg remove wget-nossl
