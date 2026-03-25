@@ -33,7 +33,7 @@ rm -rf /opt/etc/opkg/neofit.conf
 rm -rf /opt/var/opkg-lists/pegakmop
 rm -rf /opt/var/opkg-lists/neofit
 run_with_animation "Обновление списка пакетов" opkg update
-run_with_animation "Установка wget с поддержкой HTTPS" opkg install wget-ssl curl
+run_with_animation "Установка wget с поддержкой HTTPS" opkg install curl wget-ssl ca-certificates
 run_with_animation "Удаление wget без SSL" opkg remove wget-nossl
 
 # === Определение архитектуры ===
