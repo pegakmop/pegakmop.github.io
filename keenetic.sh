@@ -42,9 +42,9 @@ ARCH=$(opkg print-architecture | awk '/^arch/ && $2 !~ /_kn$/ && $2 ~ /-[0-9]+\.
 if [ -z "$ARCH" ]; then echo "Не удалось определить архитектуру."; exit 1; fi
 
 case "$ARCH" in
-  aarch64-3.10) FEED_URL="https://www.pegakmop.site/release/keenetic/aarch64-k3.10" ;;
-  mipsel-3.4)   FEED_URL="https://www.pegakmop.site/release/keenetic/mipselsf-k3.4" ;;
-  mips-3.4)     FEED_URL="https://www.pegakmop.site/release/keenetic/mipssf-k3.4" ;;
+  aarch64-3.10) FEED_URL="http://www.pegakmop.site/release/keenetic/aarch64-k3.10" ;;
+  mipsel-3.4)   FEED_URL="http://www.pegakmop.site/release/keenetic/mipselsf-k3.4" ;;
+  mips-3.4)     FEED_URL="http://www.pegakmop.site/release/keenetic/mipssf-k3.4" ;;
   *) run_with_animation "Неподдерживаемая архитектура: $ARCH"; exit 1 ;;
 esac
 
