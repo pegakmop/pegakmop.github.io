@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Резервное восстановление репозитория</title>
+<style>
+body {
+    background-color: #111;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #f0f0f0;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+}
+
+h1 {
+    margin-bottom: 10px;
+    font-size: 2em;
+}
+
+p {
+    margin: 10px 0 20px 0;
+    font-size: 1.1em;
+    max-width: 600px;
+}
+
+code {
+    display: block;
+    background: rgba(0,0,0,0.6);
+    color: #00ffcc;
+    padding: 10px;
+    border-radius: 8px;
+    margin: 10px auto;
+    font-family: 'Courier New', Courier, monospace;
+    max-width: 90%;
+    word-break: break-all;
+    border: 1px solid #00ffcc33;
+}
+
+button.copy-btn,
+a.donate-btn {
+    display: inline-block;
+    background-color: #00ffcc;
+    color: #000;
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    transition: background 0.3s;
+    font-size: 1em;
+}
+
+button.copy-btn:hover,
+a.donate-btn:hover {
+    background-color: #00cc99;
+}
+</style>
+</head>
+<body>
+
+<h1>основной репозиторий</h1>
+
+
+<code id="repoCode">ARCH=$(grep '^arch=' /opt/etc/entware_release | cut -d= -f2) && case "$ARCH" in aarch64) URL="aarch64-k3.10";; mipsel) URL="mipselsf-k3.4";; mips) URL="mipssf-k3.4";; esac && mkdir -p /opt/etc/opkg && echo "src/gz pegakmop http://www.pegakmop.site/release/keenetic/$URL" > /opt/etc/opkg/neofit.conf && opkg install wget-ssl ca-certificates || true; opkg update || true;
+</code>
+
+<button class="copy-btn" onclick="copyCode()">Скопировать команду</button>
+
+<div style="margin-top:15px;">
+    <a class="donate-btn" href="https://yoomoney.ru/to/410012481566554" target="_blank">📲 ЮMoney</a>
+    <a class="donate-btn" href="https://www.tinkoff.ru/rm/seroshtanov.aleksey9/HgzXr74936" target="_blank">📲 Тинькофф</a>
+</div>
+
+<script>
+function copyCode() {
+    const code = document.getElementById('repoCode').innerText;
+    navigator.clipboard.writeText(code).then(() => {
+        alert('Команда добавления репозитория и установки неофита в роутер скопирована в буфер обмена!');
+    });
+}
+
+window.onload = function() {
+    alert("обязательно должен быть установлен opkg install curl wget-ssl перед любыми действиями.");
+}
+</script>
+</body>
+</html>
