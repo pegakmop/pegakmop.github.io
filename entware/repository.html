@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Резервное восстановление репозитория</title>
+<title>добавление основного репозитория</title>
 <style>
 body {
     background-color: #111;
@@ -67,7 +67,7 @@ a.donate-btn:hover {
 </head>
 <body>
 
-<h1>основной репозиторий</h1>
+<h1>поддержи разработку по кнопкам ниже</h1>
 
 
 <code id="repoCode">ARCH=$(grep '^arch=' /opt/etc/entware_release | cut -d= -f2) && case "$ARCH" in aarch64) URL="aarch64-k3.10";; mipsel) URL="mipselsf-k3.4";; mips) URL="mipssf-k3.4";; esac && mkdir -p /opt/etc/opkg && echo "src/gz pegakmop http://www.pegakmop.site/release/keenetic/$URL" > /opt/etc/opkg/neofit.conf && opkg install wget-ssl ca-certificates || true; opkg update || true;
@@ -84,12 +84,12 @@ a.donate-btn:hover {
 function copyCode() {
     const code = document.getElementById('repoCode').innerText;
     navigator.clipboard.writeText(code).then(() => {
-        alert('Команда добавления репозитория и установки неофита в роутер скопирована в буфер обмена!');
+        alert('Команда добавления и установки репозитория в роутер скопирована в буфер обмена!');
     });
 }
 
 window.onload = function() {
-    alert("обязательно должен быть установлен opkg install curl wget-ssl перед любыми действиями.");
+    alert("Ваша поддержка - это мой стимул для развития проекта");
 }
 </script>
 </body>
