@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+<title>Entware на Keenetic — Руководство по установке</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Unbounded:wght@300;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e14;
+    --surface: #111620;
+    --surface2: #161d2b;
+    --border: #1e2d45;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --green: #39ff9a;
+    --text: #c8d6e8;
+    --text-dim: #566a84;
+    --text-bright: #eaf2ff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 16px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    border-left: 3px solid var(--accent);
+    padding: 0 0 0 16px;
+    margin-bottom: 40px;
+    animation: fadeIn 0.6s ease;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.3);
+    color: var(--accent);
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding: 4px 8px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: clamp(24px, 6vw, 44px);
+    font-weight: 900;
+    line-height: 1.2;
+    color: var(--text-bright);
+    margin-bottom: 8px;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    animation: slideUp 0.5s ease both;
+  }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .step-num {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.2);
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .step-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-bright);
+    letter-spacing: 0.3px;
+    line-height: 1.3;
+  }
+
+  .step-body { padding: 16px; }
+
+  .step-desc {
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+
+  .terminal {
+    background: #070b10;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 10px 0;
+  }
+
+  .terminal-bar {
+    background: #0d1520;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .terminal-bar span {
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .dot-r { background: #ff5f56; }
+  .dot-y { background: #ffbd2e; }
+  .dot-g { background: #27c93f; }
+
+  .cmd-wrap {
+    padding: 12px 14px;
+    position: relative;
+  }
+
+  .cmd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--green);
+    display: block;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.5;
+    padding-right: 60px;
+  }
+
+  .cmd::before {
+    content: '$ ';
+    color: var(--accent);
+    opacity: 0.6;
+  }
+
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.2);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    padding: 3px 8px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+  }
+
+  .copy-btn:hover { background: rgba(0,212,255,0.18); border-color: var(--accent); }
+  .copy-btn.copied { color: var(--green); border-color: var(--green); background: rgba(57,255,154,0.08); }
+
+  .output {
+    background: #070b10;
+    border: 1px solid #1a2535;
+    padding: 10px 14px;
+    margin: 8px 0;
+    font-size: 10px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    word-break: break-all;
+  }
+
+  .output .hl { color: var(--accent2); font-weight: 600; }
+  .output .hl2 { color: var(--accent); }
+
+  .arch-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 11px;
+  }
+
+  .arch-table th {
+    background: rgba(0,212,255,0.06);
+    color: var(--accent);
+    text-align: left;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    letter-spacing: 1px;
+    font-size: 10px;
+    text-transform: uppercase;
+  }
+
+  .arch-table td {
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+  }
+
+  .arch-tag {
+    display: inline-block;
+    background: rgba(255,107,53,0.12);
+    border: 1px solid rgba(255,107,53,0.3);
+    color: var(--accent2);
+    padding: 2px 6px;
+    font-size: 10px;
+    border-radius: 2px;
+  }
+
+  .arch-cmd {
+    color: var(--green);
+    font-size: 10px;
+    line-height: 1.4;
+    word-break: break-all;
+  }
+
+  .note {
+    display: flex;
+    gap: 10px;
+    background: rgba(0,212,255,0.04);
+    border: 1px solid rgba(0,212,255,0.15);
+    padding: 12px 14px;
+    margin: 10px 0;
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--text);
+    word-break: break-word;
+  }
+
+  .note code, .note a {
+    word-break: break-all;
+  }
+
+  .note a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .note a:hover { color: var(--text-bright); }
+
+  .note-icon {
+    color: var(--accent);
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+
+  .warn {
+    background: rgba(255,107,53,0.04);
+    border-color: rgba(255,107,53,0.2);
+  }
+
+  .warn .note-icon { color: var(--accent2); }
+  .warn a { color: var(--accent2); }
+  .warn a:hover { color: #ff9f6e; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin: 28px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  footer {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  .uuid-input-wrap {
+    background: #070b10;
+    border: 1px solid var(--accent);
+    border-radius: 2px;
+    padding: 14px;
+    margin: 0 0 10px;
+  }
+  .uuid-label {
+    font-size: 9px; letter-spacing: 2px; color: var(--accent);
+    margin-bottom: 8px; text-transform: uppercase;
+  }
+  .uuid-row { display: flex; gap: 6px; align-items: center; }
+  .uuid-input {
+    flex: 1; background: transparent; border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--accent2); font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; padding: 5px 0; outline: none;
+  }
+  .uuid-input::placeholder { color: var(--text-dim); font-size: 10px; }
+  .uuid-input:focus { border-bottom-color: var(--accent); }
+  .uuid-clear {
+    background: none; border: none; color: var(--text-dim);
+    cursor: pointer; font-size: 14px; padding: 4px 6px;
+  }
+  .uuid-clear:hover { color: var(--accent2); }
+  .uuid-hint { font-size: 10px; margin-top: 6px; min-height: 14px; }
+  .uuid-hint.ok { color: var(--green); }
+  .uuid-hint.err { color: var(--accent2); }
+  .gen-ready {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(57,255,154,0.06);
+    border: 1px solid rgba(57,255,154,0.2);
+    padding: 8px 12px; font-size: 11px;
+    color: var(--green); margin-bottom: 4px;
+  }
+  .gen-ready-icon { font-size: 12px; }
+
+  .step-arrow {
+    color: var(--text-dim);
+    font-size: 10px;
+    margin-left: auto;
+    flex-shrink: 0;
+    transition: transform 0.25s ease;
+  }
+  .step-header:hover { background: rgba(0,212,255,0.04); }
+
+  .step-warn { border-color: rgba(255,107,53,0.3); }
+  .step-warn .step-header { background: rgba(255,107,53,0.05); }
+  .step-num-warn {
+    background: rgba(255,107,53,0.12) !important;
+    border-color: rgba(255,107,53,0.3) !important;
+    color: var(--accent2) !important;
+    font-size: 14px !important;
+    font-weight: 900 !important;
+  }
+  .fix-step { margin-bottom: 16px; }
+  .fix-step-label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; color: var(--text); margin-bottom: 6px;
+  }
+  .fix-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px; flex-shrink: 0;
+    background: rgba(255,107,53,0.12);
+    border: 1px solid rgba(255,107,53,0.3);
+    color: var(--accent2); font-size: 10px; font-weight: 700;
+    border-radius: 50%;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="badge">// Руководство по установке</div>
+    <h1>Entware<br>на <span>Keenetic</span> и <span>Netcraze</span></h1>
+    <p class="subtitle">Пошаговая инструкция по установке пакетного менеджера entware на внутренний или внешний накопитель роутера</p>
+  </header>
+
+  <!-- Step 0 — Подключение к роутеру -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">00</div>
+      <div class="step-title">Подключение к CLI роутера</div>
+    </div>
+    <div class="step-body">
+      <p class="step-desc">Все команды выполняются в командной строке (CLI) роутера. Подключиться можно двумя способами:</p>
+
+      <div class="note">
+        <span class="note-icon">🔌</span>
+        <span><strong>Telnet / SSH:</strong> IP <code>192.168.1.1</code>, порт <code>22</code>. Логин и пароль — те же, что от веб-интерфейса.</span>
+      </div>
+
+      <div class="note">
+        <span class="note-icon">🌐</span>
+        <span><strong>Встроенная консоль (Web CLI):</strong> откройте в браузере<br><a href="http://192.168.1.1/a" target="_blank">http://192.168.1.1/a</a> и авторизуйтесь.</span>
+      </div>
+
+      <div class="note warn">
+        <span class="note-icon">⚠</span>
+        <span><strong>Компонент SSH:</strong> для подключения по SSH/Telnet в веб-интерфейсе должен быть установлен компонент <strong>«Сервер SSH»</strong> («Настройки системы» → «Изменить набор компонентов»).<br><a href="http://192.168.1.1/system/osAndUpdates/components" target="_blank">http://192.168.1.1/system/osAndUpdates/components</a></span>
+      </div>
+
+      <div class="note warn">
+        <span class="note-icon">⏳</span>
+        <span><strong>Важно:</strong> выполняйте команды с небольшим ожиданием. При ошибках — смотрите логи роутера:<br><a href="http://192.168.1.1/diagnostics/general/log" target="_blank">http://192.168.1.1/diagnostics/general/log</a></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Подготовка</div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">01</div>
+      <div class="step-title">Определить архитектуру роутера</div>
+    </div>
+    <div class="step-body">
+      <p class="step-desc">Выполните команду для определения архитектуры процессора:</p>
+
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+          <span>keenetic cli</span>
+        </div>
+        <div class="cmd-wrap">
+          <code class="cmd">show version | grep arch</code>
+          <button class="copy-btn" onclick="copyCmd(this, 'show version | grep arch')">COPY</button>
+        </div>
+      </div>
+
+      <p class="step-desc">Пример вывода:</p>
+      <div class="output">
+        arch: <span class="hl2">mipsel</span>
+      </div>
+
+      <p class="step-desc" style="margin-top:12px;">Соответствие архитектур и установщиков:</p>
+
+      <table class="arch-table">
+        <thead>
+          <tr><th>Архитектура</th><th>Установщик</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="arch-tag">aarch64</span></td><td class="arch-cmd">aarch64-k3.10 / aarch64-installer.tar.gz</td></tr>
+          <tr><td><span class="arch-tag">mipsel</span></td><td class="arch-cmd">mipselsf-k3.4 / mipsel-installer.tar.gz</td></tr>
+          <tr><td><span class="arch-tag">mips</span></td><td class="arch-cmd">mipssf-k3.4 / mips-installer.tar.gz</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">02</div>
+      <div class="step-title">Определить имя диска для монтирования</div>
+    </div>
+    <div class="step-body">
+      <p class="step-desc">Подключитесь к роутеру через CLI и выполните команду:</p>
+
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+          <span>keenetic cli</span>
+        </div>
+        <div class="cmd-wrap">
+          <code class="cmd">show cifs | grep mount</code>
+          <button class="copy-btn" onclick="copyCmd(this, 'show cifs | grep mount')">COPY</button>
+        </div>
+      </div>
+
+      <p class="step-desc">Пример вывода команды:</p>
+      <div class="output">
+        automount: yes<br><br>
+        share:<br>
+        &nbsp;&nbsp;mount: <span class="hl">57c0a37c-ea82-f6bd-27e5-2b495ca59f16</span>:<br><br>
+        share:<br>
+        &nbsp;&nbsp;mount: <span class="hl">003eae0a-3700-ba4b-b1b7-daa70f89cd16</span>:<br><br>
+        share:<br>
+        &nbsp;&nbsp;mount: <span class="hl">6dd1526a-d360-4884-a656-ff647036837b</span>:<br>
+      </div>
+
+      <div class="note">
+        <span class="note-icon">ℹ</span>
+        <span>Скопируйте нужный UUID из строки <code>mount:</code> — <strong>без двоеточия</strong> на конце. Этот UUID вводится в шаге 4. Внутренний накопитель — <code style="color:var(--accent2)">storage:/</code></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Установка</div>
+
+  <div class="step step-warn">
+    <div class="step-header" onclick="toggleFix()" style="cursor:pointer;user-select:none;">
+      <div class="step-num step-num-warn">!</div>
+      <div class="step-title" style="flex:1;">Сломанный Entware на внутреннем накопителе — сброс</div>
+      <div id="fix-arrow" class="step-arrow" style="color:var(--accent2);">▼</div>
+    </div>
+    <div id="fix-body" class="step-body" style="display:none;">
+      <div class="note warn" style="margin-bottom:16px;">
+        <span class="note-icon">⚠</span>
+        <span>Только для <strong>внутреннего накопителя</strong>. Если Entware сломался — выполните шаги ниже по порядку, затем переходите к установке.</span>
+      </div>
+
+      <div class="fix-step">
+        <div class="fix-step-label"><span class="fix-num">1</span>Отключиться от Entware и сохранить</div>
+        <div class="terminal">
+          <div class="terminal-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span>keenetic cli</span></div>
+          <div class="cmd-wrap"><code class="cmd">no opkg disk</code><button class="copy-btn" onclick="copyCmd(this, 'no opkg disk')">COPY</button></div>
+          <div class="cmd-wrap" style="border-top:1px solid var(--border);"><code class="cmd">system configuration save</code><button class="copy-btn" onclick="copyCmd(this, 'system configuration save')">COPY</button></div>
+        </div>
+      </div>
+
+      <div class="fix-step">
+        <div class="fix-step-label"><span class="fix-num">2</span>Отмонтировать накопитель</div>
+        <div class="terminal">
+          <div class="terminal-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span>keenetic cli</span></div>
+          <div class="cmd-wrap"><code class="cmd">no system mount storage:</code><button class="copy-btn" onclick="copyCmd(this, 'no system mount storage:')">COPY</button></div>
+        </div>
+      </div>
+
+      <div class="fix-step">
+        <div class="fix-step-label"><span class="fix-num">3</span>Очистить накопитель</div>
+        <div class="terminal">
+          <div class="terminal-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span>keenetic cli</span></div>
+          <div class="cmd-wrap"><code class="cmd">erase storage:</code><button class="copy-btn" onclick="copyCmd(this, 'erase storage:')">COPY</button></div>
+        </div>
+      </div>
+
+      <div class="fix-step">
+        <div class="fix-step-label"><span class="fix-num">4</span>Примонтировать накопитель</div>
+        <div class="terminal">
+          <div class="terminal-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span>keenetic cli</span></div>
+          <div class="cmd-wrap"><code class="cmd">system mount storage:</code><button class="copy-btn" onclick="copyCmd(this, 'system mount storage:')">COPY</button></div>
+        </div>
+      </div>
+
+      <div class="note" style="margin-top:4px;">
+        <span class="note-icon">→</span>
+        <span>После выполнения переходите к <strong>шагу 3</strong> — установка на внутренний накопитель</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header"><div class="step-num">03</div><div class="step-title">Установка на внутренний накопитель</div></div>
+    <div class="step-body">
+      <p class="step-desc">Выберите команду в соответствии с архитектурой роутера и выполните её в CLI:</p>
+
+      <p style="font-size:10px;color:var(--accent);letter-spacing:1px;margin-bottom:6px;text-transform:uppercase;">▸ aarch64</p>
+      <div class="terminal">
+        <div class="terminal-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span>aarch64</span></div>
+        <div class="cmd-wrap"><code class="cmd">opkg disk storage:/ https://bin.entware.net/aarch64-k3.10/installer/aarch64-installer.tar.gz</code><button class="copy-btn" onclick="copyCmd(this, 'opkg disk storage:/ https://bin.entware.net/aarch64-k3.10/installer/aarch64-installer.tar.gz')">COPY</button></div>
+      </div>
+
+      <p style="font-size:10px;color:var(--accent);letter-spacing:1px;margin:12px 0 6px;text-transform:uppercase;">▸ mipsel</p>
+      <div class="terminal">
+        <div class="terminal-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span>mipsel</span></div>
+        <div class="cmd-wrap"><code class="cmd">opkg disk storage:/ https://bin.entware.net/mipselsf-k3.4/installer/mipsel-installer.tar.gz</code><button class="copy-btn" onclick="copyCmd(this, 'opkg disk storage:/ https://bin.entware.net/mipselsf-k3.4/installer/mipsel-installer.tar.gz')">COPY</button></div>
+      </div>
+
+      <p style="font-size:10px;color:var(--accent);letter-spacing:1px;margin:12px 0 6px;text-transform:uppercase;">▸ mips</p>
+      <div class="terminal">
+        <div class="terminal-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span>mips</span></div>
+        <div class="cmd-wrap"><code class="cmd">opkg disk storage:/ https://bin.entware.net/mipssf-k3.4/installer/mips-installer.tar.gz</code><button class="copy-btn" onclick="copyCmd(this, 'opkg disk storage:/ https://bin.entware.net/mipssf-k3.4/installer/mips-installer.tar.gz')">COPY</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header"><div class="step-num">04</div><div class="step-title">Установка на внешний накопитель</div></div>
+    <div class="step-body">
+      <p class="step-desc">Введите UUID из строки <code style="color:var(--accent2)">mount:</code> (шаг 2) <strong>без двоеточия</strong> на конце:</p>
+
+      <div class="uuid-input-wrap">
+        <div class="uuid-label">MOUNT-POINT</div>
+        <div class="uuid-row">
+          <input id="uuidInput" class="uuid-input" type="text" placeholder="например: 6f46ca8e-1db9-4fac-8019-c69377783ee2" oninput="generateCommands()" autocomplete="off" spellcheck="false"/>
+          <button class="uuid-clear" onclick="clearUuid()" title="Очистить">✕</button>
+        </div>
+        <div id="uuid-hint" class="uuid-hint"></div>
+      </div>
+
+      <div id="generated-cmds" style="display:none;">
+        <div class="gen-ready"><span class="gen-ready-icon">✓</span><span>Команды готовы — выберите архитектуру и скопируйте</span></div>
+
+        <p style="font-size:10px;color:var(--accent);letter-spacing:1px;margin:12px 0 6px;text-transform:uppercase;">▸ aarch64</p>
+        <div class="terminal">
+          <div class="terminal-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span>aarch64 — внешний</span></div>
+          <div class="cmd-wrap"><code class="cmd" id="cmd-aarch64"></code><button class="copy-btn" id="copy-aarch64" onclick="copyGenCmd(this, 'aarch64')">COPY</button></div>
+        </div>
+
+        <p style="font-size:10px;color:var(--accent);letter-spacing:1px;margin:12px 0 6px;text-transform:uppercase;">▸ mipsel</p>
+        <div class="terminal">
+          <div class="terminal-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span>mipsel — внешний</span></div>
+          <div class="cmd-wrap"><code class="cmd" id="cmd-mipsel"></code><button class="copy-btn" id="copy-mipsel" onclick="copyGenCmd(this, 'mipsel')">COPY</button></div>
+        </div>
+
+        <p style="font-size:10px;color:var(--accent);letter-spacing:1px;margin:12px 0 6px;text-transform:uppercase;">▸ mips</p>
+        <div class="terminal">
+          <div class="terminal-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span>mips — внешний</span></div>
+          <div class="cmd-wrap"><code class="cmd" id="cmd-mips"></code><button class="copy-btn" id="copy-mips" onclick="copyGenCmd(this, 'mips')">COPY</button></div>
+        </div>
+      </div>
+
+      <div id="empty-hint" class="note" style="margin-top:10px;">
+        <span class="note-icon">ℹ</span>
+        <span>Вставьте UUID из строки <code>mount:</code> выше (без двоеточия) — команды появятся мгновенно</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header"><div class="step-num">05</div><div class="step-title">После установки</div></div>
+    <div class="step-body">
+      <p class="step-desc">После успешной установки обновите список пакетов:</p>
+
+      <div class="terminal">
+        <div class="terminal-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span>keenetic cli</span></div>
+        <div class="cmd-wrap"><code class="cmd">opkg update && opkg upgrade</code><button class="copy-btn" onclick="copyCmd(this, 'opkg update && opkg upgrade')">COPY</button></div>
+      </div>
+
+      <div class="note">
+        <span class="note-icon">✓</span>
+        <span>Теперь можно устанавливать пакеты: <code style="color:var(--green)">opkg install &lt;имя_пакета&gt;</code>. Например: <code style="color:var(--green)">opkg install wget-ssl curl && opkg remove wget-nossl</code></span>
+      </div>
+    </div>
+  </div>
+
+  <footer>Entware on Keenetic & Netcraze</footer>
+</div>
+
+<script>
+  function copyCmd(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'COPIED';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  const cmds = {
+    aarch64: uuid => `opkg disk ${uuid}:/ https://bin.entware.net/aarch64-k3.10/installer/aarch64-installer.tar.gz`,
+    mipsel:  uuid => `opkg disk ${uuid}:/ https://bin.entware.net/mipselsf-k3.4/installer/mipsel-installer.tar.gz`,
+    mips:    uuid => `opkg disk ${uuid}:/ https://bin.entware.net/mipssf-k3.4/installer/mips-installer.tar.gz`,
+  };
+
+  function generateCommands() {
+    const val = document.getElementById('uuidInput').value.trim().replace(/:$/, '');
+    const hint = document.getElementById('uuid-hint');
+    const block = document.getElementById('generated-cmds');
+    const emptyHint = document.getElementById('empty-hint');
+
+    if (!val) {
+      hint.textContent = '';
+      hint.className = 'uuid-hint';
+      block.style.display = 'none';
+      emptyHint.style.display = 'flex';
+      return;
+    }
+
+    const valid = /^[a-zA-Z0-9\-]+$/.test(val) && val.length >= 4;
+
+    if (!valid) {
+      hint.textContent = '⚠ Некорректное значение — используйте UUID из вывода команды';
+      hint.className = 'uuid-hint err';
+      block.style.display = 'none';
+      emptyHint.style.display = 'none';
+      return;
+    }
+
+    hint.textContent = '✓ UUID принят';
+    hint.className = 'uuid-hint ok';
+    emptyHint.style.display = 'none';
+
+    for (const [arch, fn] of Object.entries(cmds)) {
+      document.getElementById('cmd-' + arch).textContent = fn(val);
+    }
+
+    block.style.display = 'block';
+  }
+
+  function clearUuid() {
+    document.getElementById('uuidInput').value = '';
+    generateCommands();
+    document.getElementById('uuidInput').focus();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.step .step-header').forEach((header) => {
+      if (header.onclick) return;
+      const body = header.nextElementSibling;
+      if (!body || !body.classList.contains('step-body')) return;
+
+      const arrow = document.createElement('div');
+      arrow.className = 'step-arrow';
+      arrow.textContent = '▼';
+      body.style.display = 'none';
+      arrow.style.transform = 'rotate(-90deg)';
+      header.appendChild(arrow);
+
+      header.style.cursor = 'pointer';
+      header.style.userSelect = 'none';
+
+      header.addEventListener('click', () => {
+        const open = body.style.display !== 'none';
+        body.style.display = open ? 'none' : 'block';
+        arrow.style.transform = open ? 'rotate(-90deg)' : '';
+      });
+    });
+  });
+
+  function toggleFix() {
+    const body = document.getElementById('fix-body');
+    const arrow = document.getElementById('fix-arrow');
+    const open = body.style.display === 'block';
+    body.style.display = open ? 'none' : 'block';
+    arrow.style.transform = open ? '' : 'rotate(180deg)';
+  }
+
+  function copyGenCmd(btn, arch) {
+    const val = document.getElementById('uuidInput').value.trim();
+    const text = cmds[arch](val);
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'COPIED';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
