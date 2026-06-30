@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WG → AmneziaWG конвертер</title>
+<style>
+  :root{
+    --bg:#0d1117;
+    --panel:#151b23;
+    --panel2:#1c2330;
+    --border:#2a3340;
+    --text:#e6edf3;
+    --muted:#8b96a5;
+    --accent:#5ee6a8;
+    --accent2:#4fb8e0;
+    --warn:#e0a64f;
+    --saved:#a78bfa;
+    --mono:'SF Mono','Cascadia Code','Fira Code',Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:radial-gradient(circle at 20% 0%, #16202b 0%, var(--bg) 55%);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    min-height:100vh;
+    padding:32px 16px 80px;
+  }
+  .wrap{max-width:760px;margin:0 auto;}
+  header{margin-bottom:28px;}
+  h1{font-size:1.5rem;margin:0 0 6px;letter-spacing:-0.01em;display:flex;align-items:center;gap:10px;}
+  .logo-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);flex-shrink:0;}
+  header p{color:var(--muted);margin:0;font-size:0.92rem;line-height:1.5;}
+
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:18px;}
+  .card h2{font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin:0 0 14px;font-weight:600;}
+
+  textarea{
+    width:100%;min-height:200px;background:#0a0f15;border:1px solid var(--border);
+    border-radius:10px;color:var(--text);font-family:var(--mono);font-size:0.83rem;
+    line-height:1.5;padding:14px;resize:vertical;outline:none;transition:border-color .15s;
+  }
+  textarea:focus{border-color:var(--accent2);}
+  textarea::placeholder{color:#46505e;}
+
+  .drop{
+    border:1.5px dashed var(--border);border-radius:10px;padding:18px;
+    text-align:center;color:var(--muted);font-size:0.85rem;margin-bottom:14px;
+    cursor:pointer;transition:border-color .15s, background .15s;
+  }
+  .drop.drag{border-color:var(--accent2);background:#10202b;color:var(--accent2);}
+  .drop input{display:none;}
+  .drop strong{color:var(--text);}
+  .filename{font-size:0.78rem;color:var(--accent2);margin-top:8px;font-family:var(--mono);}
+
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+  button{
+    font-family:inherit;font-size:0.85rem;font-weight:600;
+    border-radius:9px;border:1px solid var(--border);background:var(--panel2);
+    color:var(--text);padding:10px 16px;cursor:pointer;
+    transition:transform .08s, border-color .15s, background .15s;
+  }
+  button:hover{border-color:var(--accent2);background:#202938;}
+  button:active{transform:scale(0.97);}
+  button.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#06140e;border:none;}
+  button.primary:hover{filter:brightness(1.08);}
+  button.save-btn{border-color:var(--saved);color:var(--saved);}
+  button.save-btn:hover{background:#1e1533;border-color:var(--saved);}
+  button:disabled{opacity:0.4;cursor:not-allowed;}
+
+  .modesel{display:flex;gap:10px;}
+  .mode-btn{
+    flex:1;background:var(--panel2);border:1px solid var(--border);
+    border-radius:10px;padding:14px;text-align:left;cursor:pointer;
+    transition:border-color .15s, background .15s;
+  }
+  .mode-btn h3{margin:0 0 4px;font-size:0.92rem;}
+  .mode-btn p{margin:0;font-size:0.76rem;color:var(--muted);line-height:1.4;}
+  .mode-btn.active{border-color:var(--accent);background:#10241c;}
+  .mode-btn.active h3{color:var(--accent);}
+
+  /* saved params banner */
+  .saved-banner{
+    display:none;
+    background:#150e2a;border:1px solid var(--saved);
+    border-radius:10px;padding:12px 14px;margin-top:14px;
+    font-size:0.82rem;color:var(--saved);
+  }
+  .saved-banner.visible{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .saved-banner strong{font-size:0.78rem;opacity:.7;display:block;}
+  .saved-use{
+    display:flex;align-items:center;gap:6px;cursor:pointer;
+    font-size:0.83rem;color:var(--saved);user-select:none;
+  }
+  .saved-use input{accent-color:var(--saved);cursor:pointer;width:15px;height:15px;}
+
+  .status{font-size:0.8rem;padding:10px 12px;border-radius:8px;margin-top:10px;display:none;}
+  .status.ok{display:block;background:#0f2418;color:var(--accent);border:1px solid #1f4a32;}
+  .status.err{display:block;background:#2a1414;color:#ff8a8a;border:1px solid #4a1f1f;}
+  .status.info{display:block;background:#150e2a;color:var(--saved);border:1px solid #3d2a6e;}
+
+  pre.out{
+    background:#0a0f15;border:1px solid var(--border);border-radius:10px;
+    padding:14px;font-family:var(--mono);font-size:0.82rem;line-height:1.55;
+    white-space:pre-wrap;word-break:break-all;max-height:480px;overflow:auto;margin:0 0 14px;
+  }
+  .empty-out{color:var(--muted);font-size:0.85rem;text-align:center;padding:30px 0;}
+
+  footer{text-align:center;color:var(--muted);font-size:0.75rem;margin-top:30px;}
+
+  input[type=text]{
+    background:#0a0f15;border:1px solid var(--border);border-radius:8px;
+    color:var(--text);font-family:var(--mono);font-size:0.85rem;
+    padding:7px 10px;outline:none;
+  }
+  input[type=text]:focus{border-color:var(--accent2);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1><span class="logo-dot"></span>WG → AmneziaWG</h1>
+    <p>Загрузите обычный конфиг WireGuard или вставьте его текст. Инструмент добавит параметры обфускации AmneziaWG 1.0 или 2.0 — всё считается локально в браузере, ничего никуда не отправляется.</p>
+  </header>
+
+  <!-- CARD 1: Input -->
+  <div class="card">
+    <h2>1 · Исходный конфиг</h2>
+    <div class="drop" id="drop">
+      <input type="file" id="fileInput" accept=".conf,.txt">
+      <span><strong>Перетащите файл</strong> сюда или нажмите, чтобы выбрать</span>
+      <div class="filename" id="fname"></div>
+    </div>
+    <textarea id="input" placeholder="[Interface]
+PrivateKey = ...
+Address = ...
+DNS = ...
+
+[Peer]
+PublicKey = ...
+Endpoint = ...
+AllowedIPs = 0.0.0.0/0
+PersistentKeepalive = 25"></textarea>
+    <div class="row">
+      <button id="pasteBtn">📋 Вставить из буфера</button>
+      <button id="clearBtn">Очистить</button>
+    </div>
+  </div>
+
+  <!-- CARD 2: Mode -->
+  <div class="card">
+    <h2>2 · Режим обфускации</h2>
+    <div class="modesel">
+      <div class="mode-btn active" id="modeAwg1">
+        <h3>AmneziaWG 1.0</h3>
+        <p>Junk-пакеты + подмена magic-заголовков (Jc/Jmin/Jmax, S1/S2, H1–H4)</p>
+      </div>
+      <div class="mode-btn" id="modeAwg2">
+        <h3>AmneziaWG 2.0</h3>
+        <p>Всё из 1.0 + S3/S4 и I-блобы для глубокой маскировки трафика</p>
+      </div>
+    </div>
+
+    <!-- Saved params banner -->
+    <div class="saved-banner" id="savedBanner">
+      <div style="flex:1;min-width:200px;">
+        <strong>🔒 Сохранённые параметры обфускации</strong>
+        <span id="savedSummary"></span>
+      </div>
+      <label class="saved-use">
+        <input type="checkbox" id="useSavedChk" checked>
+        Использовать при генерации
+      </label>
+      <button id="clearSavedBtn" style="font-size:0.75rem;padding:6px 10px;color:#ff8a8a;border-color:#4a1f1f;">
+        🗑 Сбросить
+      </button>
+    </div>
+
+    <div class="row">
+      <button class="primary" id="genBtn">⚙️ Сгенерировать конфиг</button>
+      <button id="regenBtn" style="display:none;">🎲 Новые случайные параметры</button>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <!-- CARD 3: Result -->
+  <div class="card">
+    <h2>3 · Результат</h2>
+    <div id="outWrap">
+      <div class="empty-out">Здесь появится готовый конфиг после генерации</div>
+    </div>
+    <div class="row" id="outActions" style="display:none;">
+      <button class="primary" id="copyBtn">📋 Скопировать конфиг</button>
+      <button id="downloadBtn">⬇️ Скачать .conf</button>
+      <button class="save-btn" id="saveParamsBtn">🔒 Зафиксировать параметры</button>
+    </div>
+  </div>
+
+  <!-- CARD 4: CLI -->
+  <div class="card" id="cliCard" style="display:none;">
+    <h2>4 · CLI-команда для сервера</h2>
+    <p style="font-size:0.8rem;color:var(--muted);margin:0 0 12px;">
+      Вставьте эту команду на роутере/сервере с AmneziaWG, чтобы синхронизировать параметры с клиентским конфигом.
+    </p>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
+      <label style="font-size:0.8rem;color:var(--muted);white-space:nowrap;">Имя интерфейса:</label>
+      <input id="ifaceName" type="text" value="Wireguard0" style="width:160px;">
+      <button id="rebuildCliBtn" style="font-size:0.78rem;padding:7px 12px;">Обновить</button>
+    </div>
+    <pre class="out" id="cliOut" style="min-height:unset;max-height:200px;"></pre>
+    <div class="row" style="margin-top:10px;">
+      <button class="primary" id="copyCliBtn">📋 Скопировать команду</button>
+    </div>
+  </div>
+
+  <footer>Параметры генерируются случайно в допустимых диапазонах AmneziaWG. Для нескольких клиентов одного сервера — зафиксируйте параметры кнопкой 🔒 и используйте их для каждого следующего конфига.</footer>
+</div>
+
+<script>
+(function(){
+  const LS_KEY = 'awg_saved_params';
+
+  // DOM refs
+  const inputEl      = document.getElementById('input');
+  const fileInput    = document.getElementById('fileInput');
+  const drop         = document.getElementById('drop');
+  const fname        = document.getElementById('fname');
+  const pasteBtn     = document.getElementById('pasteBtn');
+  const clearBtn     = document.getElementById('clearBtn');
+  const genBtn       = document.getElementById('genBtn');
+  const regenBtn     = document.getElementById('regenBtn');
+  const statusEl     = document.getElementById('status');
+  const outWrap      = document.getElementById('outWrap');
+  const outActions   = document.getElementById('outActions');
+  const copyBtn      = document.getElementById('copyBtn');
+  const downloadBtn  = document.getElementById('downloadBtn');
+  const saveParamsBtn= document.getElementById('saveParamsBtn');
+  const modeAwg1     = document.getElementById('modeAwg1');
+  const modeAwg2     = document.getElementById('modeAwg2');
+  const cliCard      = document.getElementById('cliCard');
+  const cliOut       = document.getElementById('cliOut');
+  const copyCliBtn   = document.getElementById('copyCliBtn');
+  const rebuildCliBtn= document.getElementById('rebuildCliBtn');
+  const ifaceName    = document.getElementById('ifaceName');
+  const savedBanner  = document.getElementById('savedBanner');
+  const savedSummary = document.getElementById('savedSummary');
+  const useSavedChk  = document.getElementById('useSavedChk');
+  const clearSavedBtn= document.getElementById('clearSavedBtn');
+
+  let mode = 'awg1';
+  let lastOutput = '';
+  let lastParams = null;
+  let parsedSections = null;
+
+  // ── Mode switch ──────────────────────────────────────────────
+  modeAwg1.addEventListener('click', () => setMode('awg1'));
+  modeAwg2.addEventListener('click', () => setMode('awg2'));
+  function setMode(m){
+    mode = m;
+    modeAwg1.classList.toggle('active', m === 'awg1');
+    modeAwg2.classList.toggle('active', m === 'awg2');
+  }
+
+  // ── Saved params (localStorage) ──────────────────────────────
+  function loadSaved(){
+    try{ return JSON.parse(localStorage.getItem(LS_KEY)) || null; }
+    catch(e){ return null; }
+  }
+  function storeSaved(p){
+    localStorage.setItem(LS_KEY, JSON.stringify(p));
+  }
+  function clearSaved(){
+    localStorage.removeItem(LS_KEY);
+    savedBanner.classList.remove('visible');
+  }
+  function updateSavedBanner(){
+    const saved = loadSaved();
+    if(!saved){ savedBanner.classList.remove('visible'); return; }
+    savedBanner.classList.add('visible');
+    const modeLabel = saved.mode === 'awg2' ? 'AWG 2.0' : 'AWG 1.0';
+    savedSummary.textContent = `${modeLabel} · Jc=${saved.Jc} Jmin=${saved.Jmin} Jmax=${saved.Jmax} S1=${saved.S1} S2=${saved.S2}`;
+  }
+
+  saveParamsBtn.addEventListener('click', () => {
+    if(!lastParams) return;
+    storeSaved({ ...lastParams, mode });
+    updateSavedBanner();
+    useSavedChk.checked = true;
+    showStatus('🔒 Параметры зафиксированы — они будут применяться ко всем следующим конфигам этого сервера', 'info');
+  });
+
+  clearSavedBtn.addEventListener('click', () => {
+    clearSaved();
+    showStatus('Сохранённые параметры удалены — следующая генерация создаст новые случайные', 'ok');
+  });
+
+  updateSavedBanner(); // show on load if exist
+
+  // ── File handling ─────────────────────────────────────────────
+  drop.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', e => { if(e.target.files[0]) readFile(e.target.files[0]); });
+  ['dragover','dragenter'].forEach(ev => drop.addEventListener(ev, e => {
+    e.preventDefault(); drop.classList.add('drag');
+  }));
+  ['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => {
+    e.preventDefault(); drop.classList.remove('drag');
+  }));
+  drop.addEventListener('drop', e => { if(e.dataTransfer.files[0]) readFile(e.dataTransfer.files[0]); });
+  function readFile(file){
+    const reader = new FileReader();
+    reader.onload = ev => { inputEl.value = ev.target.result; fname.textContent = '✓ ' + file.name; };
+    reader.readAsText(file);
+  }
+
+  pasteBtn.addEventListener('click', async () => {
+    try{
+      const text = await navigator.clipboard.readText();
+      inputEl.value = text; fname.textContent = '';
+      showStatus('Вставлено из буфера обмена', 'ok');
+    }catch(e){ showStatus('Вставьте вручную (Ctrl/Cmd+V) в поле выше', 'err'); }
+  });
+  clearBtn.addEventListener('click', () => {
+    inputEl.value = ''; fname.textContent = '';
+    outWrap.innerHTML = '<div class="empty-out">Здесь появится готовый конфиг после генерации</div>';
+    outActions.style.display = 'none';
+    regenBtn.style.display = 'none';
+    cliCard.style.display = 'none';
+    statusEl.className = 'status';
+  });
+
+  function showStatus(msg, type){
+    statusEl.textContent = msg;
+    statusEl.className = 'status ' + type;
+  }
+
+  // ── Config parsing ────────────────────────────────────────────
+  function parseConfig(text){
+    const lines = text.split(/\r?\n/);
+    const sections = [];
+    let current = null;
+    for(const raw of lines){
+      const line = raw.trim();
+      if(!line) continue;
+      const sm = line.match(/^\[(\w+)\]$/i);
+      if(sm){ current = {name:sm[1], entries:[], comments:[]}; sections.push(current); continue; }
+      if(!current) continue;
+      if(line.startsWith('#') || line.startsWith(';')){ current.comments.push(line); continue; }
+      const kv = line.match(/^([^=]+?)\s*=\s*(.*)$/);
+      if(kv) current.entries.push({key:kv[1].trim(), val:kv[2].trim()});
+    }
+    return sections;
+  }
+
+  // ── Random helpers ────────────────────────────────────────────
+  function randInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+  function genBaseParams(){
+    const Jc   = randInt(3, 10);
+    const Jmin = randInt(40, 70);
+    const Jmax = randInt(900, 1280);
+    let S1 = randInt(15, 100);
+    let S2 = randInt(15, 100);
+    while(S1+56 === S2){ S2 = randInt(15, 100); }
+    // H1-H4 single values, one per uint32 quadrant — no overlaps
+    const H1 = randInt(1,          1073741823);
+    const H2 = randInt(1073741824, 2147483647);
+    const H3 = randInt(2147483648, 3221225471);
+    const H4 = randInt(3221225472, 4294967290);
+    return {Jc, Jmin, Jmax, S1, S2, H1, H2, H3, H4};
+  }
+
+  function genAwg2Extra(){
+    const S3 = randInt(15, 60);
+    const S4 = randInt(15, 60);
+    // H1-H4 as RANGES — one per quadrant, guaranteed non-overlapping
+    const quadrants = [
+      [1, 1073741823],
+      [1073741824, 2147483647],
+      [2147483648, 3221225471],
+      [3221225472, 4294967290],
+    ];
+    const [H1r, H2r, H3r, H4r] = quadrants.map(([qlo, qhi]) => {
+      const w = randInt(5000, 50000);
+      const lo = randInt(qlo, qhi - w);
+      return `${lo}-${lo+w}`;
+    });
+    // I1-I5: fixed protocol blobs from reference AWG 2.0 config
+    const Ipackets = [
+      '<b 0xc30000000113c686df214ce1329f3a4fd3ab6655ef2d16abed0f24a0a746d372332c448cd8a9c78cd000f373105b><rc 24><t><r 1000><r 176>',
+      '<b 0xc30000000110f3e344a64f0267a642da07f50832a44a0ac0c863b3b5a17e7a900b1eb8de3cee55ea17349294b39b596d968433ae47bdd61ac2ea04b1c738eb387b3a6616><rc 12><t><r 1000><r 166>',
+      '<b 0xc0000000010e789432e8be5bd105687273324cc00883a4faf3c48c624f0980d1749cb5c093052d13758e8e><rc 11><t><r 1000><r 192>',
+      '<b 0xc3000000010dca9764592f7ca1044831adb1ff14be66b98d566c9276ccf52700b1a1671eec304c261e5a384d27b30d9d58afc7004edd812b411398983ee9536c7bf903318e2b5eea7efdad><rc 33><t><r 1000><r 138>',
+      '<b 0xc00000000109eaacd959afae06ebfa05e095f02d281ec7829bd6bbe9db56c3b9e77bbd8e9e368e1c8a2834f89221e589eced632775c9a33b><rc 13><t><r 1000><r 177>',
+    ];
+    return {S3, S4, H1r, H2r, H3r, H4r, Ipackets};
+  }
+
+  // ── Build config text ─────────────────────────────────────────
+  const AWG_KEYS = new Set(['Jc','Jmin','Jmax','S1','S2','S3','S4',
+    'H1','H2','H3','H4','I1','I2','I3','I4','I5']);
+
+  function buildConfig(sections, p){
+    let out = '';
+    sections.forEach((section, idx) => {
+      out += `[${section.name}]\n`;
+      section.comments.forEach(c => out += c+'\n');
+      const entries = section.name.toLowerCase() === 'interface'
+        ? section.entries.filter(e => !AWG_KEYS.has(e.key))
+        : section.entries;
+      entries.forEach(e => out += `${e.key} = ${e.val}\n`);
+      if(section.name.toLowerCase() === 'interface'){
+        out += `Jc = ${p.Jc}\n`;
+        out += `Jmin = ${p.Jmin}\n`;
+        out += `Jmax = ${p.Jmax}\n`;
+        out += `S1 = ${p.S1}\n`;
+        out += `S2 = ${p.S2}\n`;
+        if(p.extra){
+          out += `S3 = ${p.extra.S3}\n`;
+          out += `S4 = ${p.extra.S4}\n`;
+          out += `H1 = ${p.extra.H1r}\n`;
+          out += `H2 = ${p.extra.H2r}\n`;
+          out += `H3 = ${p.extra.H3r}\n`;
+          out += `H4 = ${p.extra.H4r}\n`;
+          p.extra.Ipackets.forEach((blob, i) => out += `I${i+1} = ${blob}\n`);
+        } else {
+          out += `H1 = ${p.H1}\n`;
+          out += `H2 = ${p.H2}\n`;
+          out += `H3 = ${p.H3}\n`;
+          out += `H4 = ${p.H4}\n`;
+        }
+      }
+      if(idx < sections.length-1) out += '\n';
+    });
+    return out.trim()+'\n';
+  }
+
+  // ── CLI command ───────────────────────────────────────────────
+  function buildCliCmd(){
+    if(!lastParams) return '';
+    const p = lastParams;
+    const iface = ifaceName.value.trim() || 'Wireguard0';
+    if(mode === 'awg2' && p.extra){
+      const ex = p.extra;
+      const blobs = ex.Ipackets.map(b => `"${b}"`).join(' ');
+      return `interface ${iface} wireguard asc ${p.Jc} ${p.Jmin} ${p.Jmax} ${p.S1} ${p.S2} ${ex.H1r} ${ex.H2r} ${ex.H3r} ${ex.H4r} ${ex.S3} ${ex.S4} ${blobs}`;
+    }
+    return `interface ${iface} wireguard asc ${p.Jc} ${p.Jmin} ${p.Jmax} ${p.S1} ${p.S2} ${p.H1} ${p.H2} ${p.H3} ${p.H4}`;
+  }
+
+  function renderCli(){
+    cliOut.textContent = buildCliCmd();
+    cliCard.style.display = 'block';
+  }
+
+  rebuildCliBtn.addEventListener('click', renderCli);
+  ifaceName.addEventListener('keydown', e => { if(e.key==='Enter') renderCli(); });
+
+  // ── Main generate ─────────────────────────────────────────────
+  function generate(){
+    const raw = inputEl.value;
+    if(!raw || !raw.trim()){ showStatus('Сначала вставьте или загрузите конфиг', 'err'); return; }
+    const sections = parseConfig(raw);
+    if(!sections.some(s => s.name.toLowerCase()==='interface')){
+      showStatus('Не найдена секция [Interface] — проверьте формат конфига', 'err'); return;
+    }
+
+    // Use saved params or generate new
+    const saved = loadSaved();
+    let p;
+    if(saved && useSavedChk.checked && saved.mode === mode){
+      p = saved;
+      showStatus(`🔒 Использованы сохранённые параметры (${mode==='awg1'?'AWG 1.0':'AWG 2.0'})`, 'info');
+    } else {
+      if(saved && useSavedChk.checked && saved.mode !== mode){
+        showStatus(`Сохранённые параметры для ${saved.mode==='awg2'?'AWG 2.0':'AWG 1.0'}, но выбран ${mode==='awg1'?'AWG 1.0':'AWG 2.0'} — сгенерированы новые`, 'err');
+      } else {
+        showStatus(`Готово: ${mode==='awg1'?'AWG 1.0':'AWG 2.0'} — параметры обфускации сгенерированы случайно`, 'ok');
+      }
+      p = genBaseParams();
+      if(mode === 'awg2') p.extra = genAwg2Extra();
+    }
+
+    lastParams = p;
+    parsedSections = sections;
+    renderOutput();
+    regenBtn.style.display = saved && useSavedChk.checked ? 'none' : 'inline-block';
+  }
+
+  function renderOutput(){
+    if(!parsedSections || !lastParams) return;
+    lastOutput = buildConfig(parsedSections, lastParams);
+    outWrap.innerHTML = `<pre class="out">${escapeHtml(lastOutput)}</pre>`;
+    outActions.style.display = 'flex';
+    renderCli();
+  }
+
+  function escapeHtml(s){
+    return s.replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  }
+
+  genBtn.addEventListener('click', generate);
+  regenBtn.addEventListener('click', () => {
+    lastParams = genBaseParams();
+    if(mode === 'awg2') lastParams.extra = genAwg2Extra();
+    renderOutput();
+    showStatus(`Сгенерированы новые случайные параметры (${mode==='awg1'?'AWG 1.0':'AWG 2.0'})`, 'ok');
+  });
+
+  copyBtn.addEventListener('click', async () => {
+    if(!lastOutput) return;
+    try{
+      await navigator.clipboard.writeText(lastOutput);
+      flash(copyBtn, '✓ Скопировано', '📋 Скопировать конфиг');
+    }catch(e){ showStatus('Выделите текст вручную', 'err'); }
+  });
+
+  copyCliBtn.addEventListener('click', async () => {
+    const cmd = buildCliCmd();
+    if(!cmd) return;
+    try{
+      await navigator.clipboard.writeText(cmd);
+      flash(copyCliBtn, '✓ Скопировано', '📋 Скопировать команду');
+    }catch(e){ showStatus('Выделите текст вручную', 'err'); }
+  });
+
+  downloadBtn.addEventListener('click', () => {
+    if(!lastOutput) return;
+    const blob = new Blob([lastOutput],{type:'text/plain'});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = `wg-${mode==='awg1'?'awg10':'awg20'}.conf`;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+  });
+
+  function flash(btn, tempText, origText){
+    btn.textContent = tempText;
+    setTimeout(() => btn.textContent = origText, 1500);
+  }
+})();
+</script>
+</body>
+</html>
