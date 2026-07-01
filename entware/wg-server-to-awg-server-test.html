@@ -3,544 +3,1773 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WG → AmneziaWG конвертер</title>
+<title>AmneziaWG Config Analyzer</title>
 <style>
-  :root{
-    --bg:#0d1117;
-    --panel:#151b23;
-    --panel2:#1c2330;
-    --border:#2a3340;
-    --text:#e6edf3;
-    --muted:#8b96a5;
-    --accent:#5ee6a8;
-    --accent2:#4fb8e0;
-    --warn:#e0a64f;
-    --saved:#a78bfa;
-    --mono:'SF Mono','Cascadia Code','Fira Code',Consolas,monospace;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    background:radial-gradient(circle at 20% 0%, #16202b 0%, var(--bg) 55%);
-    color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    min-height:100vh;
-    padding:32px 16px 80px;
-  }
-  .wrap{max-width:760px;margin:0 auto;}
-  header{margin-bottom:28px;}
-  h1{font-size:1.5rem;margin:0 0 6px;letter-spacing:-0.01em;display:flex;align-items:center;gap:10px;}
-  .logo-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);flex-shrink:0;}
-  header p{color:var(--muted);margin:0;font-size:0.92rem;line-height:1.5;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#080f1e;color:#e2e8f0;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:24px 16px;}
+.container{max-width:920px;margin:0 auto;}
 
-  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:18px;}
-  .card h2{font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin:0 0 14px;font-weight:600;}
+header{text-align:center;margin-bottom:28px;}
+header h1{font-size:1.75rem;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;}
+header p{color:#475569;font-size:.85rem;}
+header .subline{color:#64748b;font-size:.75rem;margin-top:2px;}
 
-  textarea{
-    width:100%;min-height:200px;background:#0a0f15;border:1px solid var(--border);
-    border-radius:10px;color:var(--text);font-family:var(--mono);font-size:0.83rem;
-    line-height:1.5;padding:14px;resize:vertical;outline:none;transition:border-color .15s;
-  }
-  textarea:focus{border-color:var(--accent2);}
-  textarea::placeholder{color:#46505e;}
+.drop-zone{background:#0d1526;border:2px dashed #1e3a5f;border-radius:12px;padding:16px;margin-bottom:8px;transition:border-color .2s,background .2s;cursor:pointer;}
+.drop-zone.dragover{border-color:#8b5cf6;background:#111827;}
+.drop-zone label{display:block;font-size:.75rem;color:#475569;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+textarea{width:100%;background:transparent;border:none;color:#94a3b8;font-family:'Courier New',monospace;font-size:.8rem;padding:0;resize:vertical;min-height:140px;outline:none;}
+textarea:focus{color:#e2e8f0;}
+textarea::placeholder{color:#1e3a5f;}
 
-  .drop{
-    border:1.5px dashed var(--border);border-radius:10px;padding:18px;
-    text-align:center;color:var(--muted);font-size:0.85rem;margin-bottom:14px;
-    cursor:pointer;transition:border-color .15s, background .15s;
-  }
-  .drop.drag{border-color:var(--accent2);background:#10202b;color:var(--accent2);}
-  .drop input{display:none;}
-  .drop strong{color:var(--text);}
-  .filename{font-size:0.78rem;color:var(--accent2);margin-top:8px;font-family:var(--mono);}
+.controls{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.btn{flex:1;min-width:120px;padding:11px;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s,transform .1s;}
+.btn:hover{opacity:.88;transform:translateY(-1px);}
+.btn:active{transform:translateY(0);}
+.btn-primary{background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;}
+.btn-clear{background:#1e293b;color:#64748b;}
 
-  .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
-  button{
-    font-family:inherit;font-size:0.85rem;font-weight:600;
-    border-radius:9px;border:1px solid var(--border);background:var(--panel2);
-    color:var(--text);padding:10px 16px;cursor:pointer;
-    transition:transform .08s, border-color .15s, background .15s;
-  }
-  button:hover{border-color:var(--accent2);background:#202938;}
-  button:active{transform:scale(0.97);}
-  button.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#06140e;border:none;}
-  button.primary:hover{filter:brightness(1.08);}
-  button.save-btn{border-color:var(--saved);color:var(--saved);}
-  button.save-btn:hover{background:#1e1533;border-color:var(--saved);}
-  button:disabled{opacity:0.4;cursor:not-allowed;}
+/* Version badge */
+.version-banner{display:none;background:#0d1526;border:1px solid #312e81;border-radius:10px;padding:14px 20px;margin-bottom:16px;align-items:center;gap:14px;flex-wrap:wrap;}
+.ver-badge{padding:6px 18px;border-radius:999px;font-weight:800;font-size:1rem;flex-shrink:0;}
+.ver-wg{background:#1e293b;color:#94a3b8;border:1px solid #334155;}
+.ver-10{background:#1e1b4b;color:#a5b4fc;border:1px solid #4338ca;}
+.ver-15{background:#1a2e1a;color:#86efac;border:1px solid #16a34a;}
+.ver-20{background:#2e1a4e;color:#d8b4fe;border:1px solid #7c3aed;}
+.ver-desc{color:#94a3b8;font-size:.85rem;line-height:1.5;flex:1;min-width:200px;}
+.ver-level{display:inline-block;margin-left:8px;padding:3px 10px;border-radius:6px;font-size:.72rem;font-weight:700;background:#312e81;color:#c4b5fd;}
 
-  .modesel{display:flex;gap:10px;}
-  .mode-btn{
-    flex:1;background:var(--panel2);border:1px solid var(--border);
-    border-radius:10px;padding:14px;text-align:left;cursor:pointer;
-    transition:border-color .15s, background .15s;
-  }
-  .mode-btn h3{margin:0 0 4px;font-size:0.92rem;}
-  .mode-btn p{margin:0;font-size:0.76rem;color:var(--muted);line-height:1.4;}
-  .mode-btn.active{border-color:var(--accent);background:#10241c;}
-  .mode-btn.active h3{color:var(--accent);}
+/* Summary box — что это за конфиг */
+.summary{display:none;background:linear-gradient(135deg,#0d1526 0%,#0f0d1e 100%);border:1px solid #1e1b4b;border-radius:12px;padding:18px 20px;margin-bottom:16px;}
+.summary-title{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:#8b5cf6;margin-bottom:10px;font-weight:700;}
+.summary-text{color:#cbd5e1;font-size:.88rem;line-height:1.6;}
+.summary-text strong{color:#a78bfa;}
+.summary-text .pill{display:inline-block;background:#1e1b4b;color:#c4b5fd;padding:1px 8px;border-radius:6px;font-family:monospace;font-size:.78rem;margin:0 2px;}
+.summary-line{margin:4px 0;}
+.summary-line + .summary-line{padding-top:4px;border-top:1px dashed #1e293b;}
 
-  /* saved params banner */
-  .saved-banner{
-    display:none;
-    background:#150e2a;border:1px solid var(--saved);
-    border-radius:10px;padding:12px 14px;margin-top:14px;
-    font-size:0.82rem;color:var(--saved);
-  }
-  .saved-banner.visible{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-  .saved-banner strong{font-size:0.78rem;opacity:.7;display:block;}
-  .saved-use{
-    display:flex;align-items:center;gap:6px;cursor:pointer;
-    font-size:0.83rem;color:var(--saved);user-select:none;
-  }
-  .saved-use input{accent-color:var(--saved);cursor:pointer;width:15px;height:15px;}
+/* Score area */
+.score-section{display:none;background:#0d1526;border:1px solid #1e293b;border-radius:12px;padding:24px;margin-bottom:16px;}
+.score-top{display:flex;align-items:center;gap:32px;flex-wrap:wrap;margin-bottom:20px;}
+.ring-svg{width:130px;height:130px;flex-shrink:0;}
+.ring-track{fill:none;stroke:#1e293b;stroke-width:10;}
+.ring-fill{fill:none;stroke-width:10;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dasharray .9s cubic-bezier(.4,0,.2,1),stroke .5s;}
+.verdict-area{flex:1;min-width:200px;}
+.verdict-badge{display:inline-block;padding:5px 16px;border-radius:999px;font-weight:700;font-size:1rem;margin-bottom:8px;}
+.verdict-text{color:#94a3b8;font-size:.85rem;line-height:1.5;margin-bottom:12px;}
 
-  .status{font-size:0.8rem;padding:10px 12px;border-radius:8px;margin-top:10px;display:none;}
-  .status.ok{display:block;background:#0f2418;color:var(--accent);border:1px solid #1f4a32;}
-  .status.err{display:block;background:#2a1414;color:#ff8a8a;border:1px solid #4a1f1f;}
-  .status.info{display:block;background:#150e2a;color:var(--saved);border:1px solid #3d2a6e;}
+/* Mini scores */
+.mini-scores{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;}
+.mini-card{background:#111827;border:1px solid #1e293b;border-radius:8px;padding:10px 12px;}
+.mini-label{font-size:.67rem;text-transform:uppercase;letter-spacing:.07em;color:#475569;margin-bottom:4px;}
+.mini-val{font-size:1.1rem;font-weight:700;}
 
-  pre.out{
-    background:#0a0f15;border:1px solid var(--border);border-radius:10px;
-    padding:14px;font-family:var(--mono);font-size:0.82rem;line-height:1.55;
-    white-space:pre-wrap;word-break:break-all;max-height:480px;overflow:auto;margin:0 0 14px;
-  }
-  .empty-out{color:var(--muted);font-size:0.85rem;text-align:center;padding:30px 0;}
+/* Auto-fix */
+.autofix{background:#080f08;border:1px solid #14532d;border-radius:10px;padding:14px 16px;margin-bottom:16px;display:none;}
+.autofix-title{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:#4ade80;margin-bottom:10px;font-weight:700;}
+.fix-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:.82rem;color:#86efac;line-height:1.5;}
+.fix-item::before{content:'→';color:#4ade80;flex-shrink:0;font-weight:700;}
+.fix-item .fix-code{background:#060e1e;color:#22d3ee;font-family:monospace;font-size:.76rem;padding:1px 6px;border-radius:3px;}
+.fix-severity{display:inline-block;padding:1px 7px;border-radius:4px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-right:6px;}
+.fix-severity.crit{background:#450a0a;color:#fca5a5;}
+.fix-severity.high{background:#451a03;color:#fcd34d;}
+.fix-severity.med{background:#1e1b4b;color:#a5b4fc;}
+.fix-severity.low{background:#111827;color:#64748b;}
 
-  footer{text-align:center;color:var(--muted);font-size:0.75rem;margin-top:30px;}
+/* Upgrade path — как усилить */
+.upgrade{display:none;background:#0a0f1e;border:1px solid #1e3a5f;border-radius:10px;padding:14px 16px;margin-bottom:16px;}
+.upgrade-title{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:#22d3ee;margin-bottom:10px;font-weight:700;}
+.upgrade-step{color:#94a3b8;font-size:.82rem;line-height:1.55;padding:8px 0;border-bottom:1px dashed #1a2740;}
+.upgrade-step:last-child{border-bottom:none;}
+.upgrade-step strong{color:#22d3ee;}
+.upgrade-step .cmd{display:block;background:#060e1e;color:#86efac;font-family:monospace;font-size:.75rem;padding:6px 10px;border-radius:5px;margin-top:6px;overflow-x:auto;white-space:pre;}
 
-  input[type=text]{
-    background:#0a0f15;border:1px solid var(--border);border-radius:8px;
-    color:var(--text);font-family:var(--mono);font-size:0.85rem;
-    padding:7px 10px;outline:none;
-  }
-  input[type=text]:focus{border-color:var(--accent2);}
+/* Checks */
+.checks-grid{display:grid;gap:8px;}
+.check-item{background:#0d1526;border:1px solid #1a2740;border-radius:9px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px;}
+.check-item.pass{border-left:3px solid #22c55e;}
+.check-item.warn{border-left:3px solid #f59e0b;}
+.check-item.fail{border-left:3px solid #ef4444;}
+.check-item.info{border-left:3px solid #8b5cf6;}
+.check-icon{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;flex-shrink:0;margin-top:1px;}
+.pass .check-icon{background:#14532d;color:#4ade80;}
+.warn .check-icon{background:#451a03;color:#fbbf24;}
+.fail .check-icon{background:#450a0a;color:#f87171;}
+.info .check-icon{background:#2e1a4e;color:#c4b5fd;}
+.check-body{flex:1;min-width:0;}
+.check-title{font-weight:600;font-size:.88rem;margin-bottom:2px;}
+.check-detail{color:#64748b;font-size:.79rem;line-height:1.45;}
+.check-value{display:inline-block;background:#060e1e;color:#22d3ee;font-family:monospace;font-size:.76rem;padding:1px 7px;border-radius:3px;margin-top:3px;word-break:break-all;max-width:100%;}
+.check-weight{font-size:.7rem;color:#334155;align-self:center;flex-shrink:0;min-width:36px;text-align:right;}
+
+.section-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:#334155;margin:18px 0 8px;display:flex;align-items:center;gap:8px;}
+.section-title::after{content:'';flex:1;height:1px;background:#1a2740;}
+
+.parsed-params{background:#060e1e;border:1px solid #1a2740;border-radius:8px;padding:12px;font-family:monospace;font-size:.77rem;color:#4b5563;margin-bottom:16px;display:none;white-space:pre;overflow-x:auto;}
+.parsed-params span{color:#a78bfa;}
+
+.error-msg{background:#1a0808;border:1px solid #7f1d1d;border-radius:8px;padding:12px;color:#f87171;font-size:.85rem;display:none;margin-bottom:14px;}
+.hint{color:#1e293b;font-size:.75rem;margin-top:6px;text-align:center;}
+
+@media(max-width:520px){.score-top{flex-direction:column;align-items:flex-start;}.ring-svg{width:110px;height:110px;}}
+
+/* ===== Light Theme ===== */
+body.light{background:#f3f6fb;color:#0f172a;}
+body.light .drop-zone,
+body.light .check-item,
+body.light .score-section,
+body.light .version-banner,
+body.light .summary,
+body.light .upgrade{background:#ffffff;border-color:#d1d9e6;}
+body.light .summary{background:linear-gradient(135deg,#fff 0%,#f8f4ff 100%);}
+body.light textarea{color:#0f172a;}
+body.light textarea::placeholder{color:#94a3b8;}
+body.light .mini-card{background:#ffffff;border-color:#d1d9e6;}
+body.light .check-detail{color:#475569;}
+body.light .parsed-params{background:#ffffff;border-color:#d1d9e6;color:#475569;}
+body.light .btn-clear{background:#e2e8f0;color:#0f172a;}
+body.light .section-title::after{background:#cbd5e1;}
+body.light #ringScore,body.light .ring-svg text{fill:#0f172a !important;}
+body.light #ringSub{fill:#475569 !important;}
+body.light .summary-text{color:#334155;}
+body.light .summary-line + .summary-line{border-top-color:#e2e8f0;}
+body.light .upgrade-step{color:#475569;border-color:#e2e8f0;}
+body.light .check-title{color:#0f172a;}
+
+/* ── Obfuscation panel ─────────────────────────── */
+.obf-panel{display:none;background:#0a0f1e;border:1px solid #312e81;border-radius:10px;
+  padding:14px 16px;margin-bottom:14px;}
+.obf-panel.open{display:block;}
+.obf-modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.obf-mode{background:#0d1526;border:1px solid #1a2740;border-radius:8px;
+  padding:11px 13px;cursor:pointer;transition:border-color .15s,background .15s;text-align:left;}
+.obf-mode:hover{border-color:#6d28d9;}
+.obf-mode.sel{border-color:#8b5cf6;background:#160d2e;}
+.obf-mode .om-t{font-weight:700;font-size:.86rem;color:#c4b5fd;margin-bottom:2px;}
+.obf-mode .om-s{font-size:.71rem;color:#475569;line-height:1.35;}
+.obf-saved{display:none;background:#160d2e;border:1px solid #4c1d95;border-radius:7px;
+  padding:8px 11px;margin-bottom:10px;font-size:.77rem;color:#a78bfa;
+  align-items:center;gap:10px;flex-wrap:wrap;}
+.obf-saved.vis{display:flex;}
+.obf-saved strong{font-size:.68rem;opacity:.65;display:block;margin-bottom:1px;}
+.obf-saved label{display:flex;align-items:center;gap:4px;cursor:pointer;}
+.obf-saved input{accent-color:#8b5cf6;}
+.obf-saved .obf-clr{background:none;border:none;color:#f87171;font-size:.72rem;cursor:pointer;padding:2px 6px;}
+.obf-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.obf-notice{font-size:.77rem;padding:7px 11px;border-radius:6px;margin-bottom:8px;display:none;}
+.obf-notice.ok{display:block;background:#0a1a0a;color:#4ade80;border:1px solid #14532d;}
+.obf-notice.er{display:block;background:#1a0a0a;color:#f87171;border:1px solid #7f1d1d;}
+.obf-notice.inf{display:block;background:#160d2e;color:#a78bfa;border:1px solid #4c1d95;}
+.cli-block{background:#060e1e;border:1px solid #1a2740;border-radius:7px;padding:10px 12px;margin-top:8px;}
+.cli-block .cli-lbl{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:#334155;margin-bottom:6px;}
+.cli-iface{display:flex;align-items:center;gap:7px;margin-bottom:6px;flex-wrap:wrap;}
+.cli-iface label{font-size:.74rem;color:#475569;}
+.cli-iface select{background:#080f1e;border:1px solid #1a2740;border-radius:5px;color:#94a3b8;
+  font-family:inherit;font-size:.82rem;padding:4px 8px;outline:none;cursor:pointer;}
+.cli-iface select:focus{border-color:#8b5cf6;color:#e2e8f0;}
+body.light .cli-iface select{background:#fff;border-color:#d1d9e6;color:#334155;}
+.cli-cmd{font-family:'Courier New',monospace;font-size:.73rem;color:#86efac;
+  white-space:pre-wrap;word-break:break-all;line-height:1.5;}
+.btn-obf{background:linear-gradient(135deg,#4c1d95,#312e81);color:#c4b5fd;}
+body.light .obf-panel{background:#f8f4ff;border-color:#a78bfa;}
+body.light .obf-mode{background:#fff;border-color:#d1d9e6;}
+body.light .obf-mode.sel{background:#f0e9ff;border-color:#8b5cf6;}
+body.light .obf-saved{background:#f0e9ff;border-color:#8b5cf6;}
+body.light .cli-block{background:#fff;border-color:#d1d9e6;}
+body.light .cli-cmd{color:#15803d;}
 </style>
 </head>
 <body>
-<div class="wrap">
-
+<div class="container">
   <header>
-    <h1><span class="logo-dot"></span>WG → AmneziaWG</h1>
-    <p>Загрузите обычный конфиг WireGuard или вставьте его текст. Инструмент добавит параметры обфускации AmneziaWG 1.0 или 2.0 — всё считается локально в браузере, ничего никуда не отправляется.</p>
+    <h1 id="themeToggle" style="cursor:pointer">🛡 AmneziaWG Analyzer</h1>
+    <p>Определение версии · Анализ параметров · DPI защита · Рекомендации</p>
+    <div class="subline">Поддержка: WireGuard · AWG 1.0 · AWG 1.5 · AWG 2.0 (full CPS chain)</div>
   </header>
 
-  <!-- CARD 1: Input -->
-  <div class="card">
-    <h2>1 · Исходный конфиг</h2>
-    <div class="drop" id="drop">
-      <input type="file" id="fileInput" accept=".conf,.txt">
-      <span><strong>Перетащите файл</strong> сюда или нажмите, чтобы выбрать</span>
-      <div class="filename" id="fname"></div>
-    </div>
-    <textarea id="input" placeholder="[Interface]
-PrivateKey = ...
-Address = ...
-DNS = ...
+  <div class="drop-zone" id="dropZone">
+    <label>AWG / WireGuard .conf конфиг — или перетащите файл</label>
+    <textarea id="configInput" placeholder="[Interface]
+PrivateKey = <base64>
+Address = 10.45.12.2/32
+DNS = 1.1.1.1, 1.0.0.1
+MTU = 1320
+Jc = 5
+Jmin = 128
+Jmax = 768
+S1 = 20
+S2 = 70
+S3 = 32
+S4 = 8
+H1 = 1073741823-1073871823
+H2 = 2147483647-2147613647
+H3 = 3221225471-3221355471
+H4 = 4294967295-4294967295
+I1 = <b 0x1603030101210100011d0303...><r 999><rc 16><t>
 
 [Peer]
-PublicKey = ...
-Endpoint = ...
-AllowedIPs = 0.0.0.0/0
+PublicKey = <base64>
+PresharedKey = <base64>
+AllowedIPs = 0.0.0.0/0, ::/0
+Endpoint = 1.2.3.4:47300
 PersistentKeepalive = 25"></textarea>
-    <div class="row">
-      <button id="pasteBtn">📋 Вставить из буфера</button>
-      <button id="clearBtn">Очистить</button>
-    </div>
   </div>
+  <div class="controls">
+    <button class="btn btn-primary" onclick="analyze()">⚡ Анализировать</button>
+    <button class="btn btn-obf" onclick="obfToggle()">🔄 Обфускировать</button>
+    <button class="btn btn-clear" onclick="document.getElementById('fileInput').click()">📁 Файл</button>
+    <button class="btn btn-clear" onclick="clearAll()">✕ Очистить</button>
+  </div>
+  <input type="file" id="fileInput" accept=".conf,.txt" style="display:none" onchange="loadFile(event)">
+  <div class="hint">Ctrl+Enter · Перетащите .conf файл</div>
 
-  <!-- CARD 2: Mode -->
-  <div class="card">
-    <h2>2 · Режим обфускации</h2>
-    <div class="modesel">
-      <div class="mode-btn active" id="modeAwg1">
-        <h3>AmneziaWG 1.0</h3>
-        <p>Junk-пакеты + подмена magic-заголовков (Jc/Jmin/Jmax, S1/S2, H1–H4)</p>
+  <!-- Obfuscation panel -->
+  <div class="obf-panel" id="obfPanel">
+    <div class="obf-modes">
+      <div class="obf-mode sel" id="om1" onclick="obfSetMode('awg1')">
+        <div class="om-t">AWG 1.0</div>
+        <div class="om-s">Jc · Jmin/Jmax · S1/S2 · H1–H4</div>
       </div>
-      <div class="mode-btn" id="modeAwg2">
-        <h3>AmneziaWG 2.0</h3>
-        <p>Всё из 1.0 + S3/S4 и I-блобы для глубокой маскировки трафика</p>
+      <div class="obf-mode" id="om2" onclick="obfSetMode('awg2')">
+        <div class="om-t">AWG 2.0</div>
+        <div class="om-s">+ S3/S4 · H диапазоны · I1–I5 CPS</div>
       </div>
     </div>
-
-    <!-- Saved params banner -->
-    <div class="saved-banner" id="savedBanner">
-      <div style="flex:1;min-width:200px;">
-        <strong>🔒 Сохранённые параметры обфускации</strong>
-        <span id="savedSummary"></span>
+    <div class="obf-saved" id="obfSaved">
+      <div style="flex:1;min-width:160px;">
+        <strong>🔒 Сохранённые параметры</strong>
+        <span id="obfSavedSum"></span>
       </div>
-      <label class="saved-use">
-        <input type="checkbox" id="useSavedChk" checked>
-        Использовать при генерации
-      </label>
-      <button id="clearSavedBtn" style="font-size:0.75rem;padding:6px 10px;color:#ff8a8a;border-color:#4a1f1f;">
-        🗑 Сбросить
-      </button>
+      <label><input type="checkbox" id="obfUseSaved" checked> использовать</label>
+      <button class="obf-clr" onclick="obfClearSaved()">🗑</button>
     </div>
-
-    <div class="row">
-      <button class="primary" id="genBtn">⚙️ Сгенерировать конфиг</button>
-      <button id="regenBtn" style="display:none;">🎲 Новые случайные параметры</button>
+    <div class="obf-notice" id="obfNotice"></div>
+    <div class="obf-btns">
+      <button class="btn btn-primary" onclick="obfGenerate()">⚙️ Сгенерировать</button>
+      <button class="btn btn-clear" id="obfRegenBtn" style="display:none" onclick="obfRegen()">🎲 Новые параметры</button>
+      <button class="btn btn-clear" onclick="obfSave()" id="obfSaveBtn" style="display:none">🔒 Зафиксировать</button>
+      <button class="btn btn-clear" onclick="obfCopyConf()" id="obfCopyBtn" style="display:none">📋 Скопировать конфиг</button>
+      <button class="btn btn-clear" onclick="obfDownload()" id="obfDlBtn" style="display:none">⬇️ Скачать</button>
     </div>
-    <div class="status" id="status"></div>
-  </div>
-
-  <!-- CARD 3: Result -->
-  <div class="card">
-    <h2>3 · Результат</h2>
-    <div id="outWrap">
-      <div class="empty-out">Здесь появится готовый конфиг после генерации</div>
-    </div>
-    <div class="row" id="outActions" style="display:none;">
-      <button class="primary" id="copyBtn">📋 Скопировать конфиг</button>
-      <button id="downloadBtn">⬇️ Скачать .conf</button>
-      <button class="save-btn" id="saveParamsBtn">🔒 Зафиксировать параметры</button>
+    <div class="cli-block" id="obfCliBlock" style="display:none">
+      <div class="cli-lbl">CLI-команда для сервера</div>
+      <div class="cli-iface">
+        <label>Интерфейс:</label>
+        <select id="obfIface" onchange="obfRenderCli()"><option  selected>Wireguard0</option><option>Wireguard1</option><option>Wireguard2</option><option>Wireguard3</option><option>Wireguard4</option><option>Wireguard5</option><option>Wireguard6</option><option>Wireguard7</option><option>Wireguard8</option><option>Wireguard9</option><option>Wireguard10</option><option>Wireguard11</option><option>Wireguard12</option><option>Wireguard13</option><option>Wireguard14</option></select>
+        <button class="btn btn-clear" onclick="obfCopyCli()" style="padding:5px 11px;font-size:.78rem;">📋 Скопировать</button>
+      </div>
+      <div class="cli-cmd" id="obfCliCmd"></div>
     </div>
   </div>
 
-  <!-- CARD 4: CLI -->
-  <div class="card" id="cliCard" style="display:none;">
-    <h2>4 · CLI-команда для сервера</h2>
-    <p style="font-size:0.8rem;color:var(--muted);margin:0 0 12px;">
-      Вставьте эту команду на роутере/сервере с AmneziaWG, чтобы синхронизировать параметры с клиентским конфигом.
-    </p>
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
-      <label style="font-size:0.8rem;color:var(--muted);white-space:nowrap;">Имя интерфейса:</label>
-      <input id="ifaceName" type="text" value="Wireguard0" style="width:160px;">
-      <button id="rebuildCliBtn" style="font-size:0.78rem;padding:7px 12px;">Обновить</button>
-    </div>
-    <pre class="out" id="cliOut" style="min-height:unset;max-height:200px;"></pre>
-    <div class="row" style="margin-top:10px;">
-      <button class="primary" id="copyCliBtn">📋 Скопировать команду</button>
-    </div>
+  <div class="error-msg" id="errorMsg"></div>
+
+  <!-- Version banner -->
+  <div class="version-banner" id="versionBanner">
+    <div class="ver-badge" id="verBadge">—</div>
+    <div class="ver-desc" id="verDesc"></div>
   </div>
 
-  <footer>Параметры генерируются случайно в допустимых диапазонах AmneziaWG. Для нескольких клиентов одного сервера — зафиксируйте параметры кнопкой 🔒 и используйте их для каждого следующего конфига.</footer>
+  <!-- Summary — что это за конфиг простым языком -->
+  <div class="summary" id="summaryBox">
+    <div class="summary-title">📋 Что это за конфиг</div>
+    <div class="summary-text" id="summaryText"></div>
+  </div>
+
+  <!-- Score -->
+  <div class="score-section" id="scoreSection">
+    <div class="score-top">
+      <svg class="ring-svg" viewBox="0 0 120 120">
+        <circle class="ring-track" cx="60" cy="60" r="50"/>
+        <circle class="ring-fill" id="ringFill" cx="60" cy="60" r="50" stroke-dasharray="0 314" stroke="#8b5cf6"/>
+        <text x="60" y="53" text-anchor="middle" fill="#e2e8f0" font-size="20" font-weight="800" id="ringScore">0</text>
+        <text x="60" y="67" text-anchor="middle" fill="#475569" font-size="8" id="ringSub">AWG</text>
+      </svg>
+      <div class="verdict-area">
+        <div class="verdict-badge" id="verdictBadge">—</div>
+        <div class="verdict-text" id="verdictText"></div>
+      </div>
+    </div>
+    <div class="mini-scores" id="miniScores"></div>
+  </div>
+
+  <!-- Auto-fix — что срочно исправить -->
+  <div class="autofix" id="autofixBox">
+    <div class="autofix-title">🔧 Что срочно исправить</div>
+    <div id="autofixList"></div>
+  </div>
+
+  <!-- Upgrade path — как усилить -->
+  <div class="upgrade" id="upgradeBox">
+    <div class="upgrade-title">🚀 Как усилить защиту</div>
+    <div id="upgradeList"></div>
+  </div>
+
+  <div class="parsed-params" id="parsedParams"></div>
+  <div id="checksOutput"></div>
 </div>
 
 <script>
-(function(){
-  const LS_KEY = 'awg_saved_params';
+const CIRC = 2*Math.PI*50;
 
-  // DOM refs
-  const inputEl      = document.getElementById('input');
-  const fileInput    = document.getElementById('fileInput');
-  const drop         = document.getElementById('drop');
-  const fname        = document.getElementById('fname');
-  const pasteBtn     = document.getElementById('pasteBtn');
-  const clearBtn     = document.getElementById('clearBtn');
-  const genBtn       = document.getElementById('genBtn');
-  const regenBtn     = document.getElementById('regenBtn');
-  const statusEl     = document.getElementById('status');
-  const outWrap      = document.getElementById('outWrap');
-  const outActions   = document.getElementById('outActions');
-  const copyBtn      = document.getElementById('copyBtn');
-  const downloadBtn  = document.getElementById('downloadBtn');
-  const saveParamsBtn= document.getElementById('saveParamsBtn');
-  const modeAwg1     = document.getElementById('modeAwg1');
-  const modeAwg2     = document.getElementById('modeAwg2');
-  const cliCard      = document.getElementById('cliCard');
-  const cliOut       = document.getElementById('cliOut');
-  const copyCliBtn   = document.getElementById('copyCliBtn');
-  const rebuildCliBtn= document.getElementById('rebuildCliBtn');
-  const ifaceName    = document.getElementById('ifaceName');
-  const savedBanner  = document.getElementById('savedBanner');
-  const savedSummary = document.getElementById('savedSummary');
-  const useSavedChk  = document.getElementById('useSavedChk');
-  const clearSavedBtn= document.getElementById('clearSavedBtn');
+// ═══════════════════════════════════════════════════════════
+//  PARSER
+// ═══════════════════════════════════════════════════════════
+function parseAWG(raw) {
+  raw = raw.trim();
+  if (!raw) throw new Error('Пустой конфиг');
 
-  let mode = 'awg1';
-  let lastOutput = '';
-  let lastParams = null;
-  let parsedSections = null;
+  const cfg = { iface: {}, peer: {} };
+  let section = null;
 
-  // ── Mode switch ──────────────────────────────────────────────
-  modeAwg1.addEventListener('click', () => setMode('awg1'));
-  modeAwg2.addEventListener('click', () => setMode('awg2'));
-  function setMode(m){
-    mode = m;
-    modeAwg1.classList.toggle('active', m === 'awg1');
-    modeAwg2.classList.toggle('active', m === 'awg2');
-  }
-
-  // ── Saved params (localStorage) ──────────────────────────────
-  function loadSaved(){
-    try{ return JSON.parse(localStorage.getItem(LS_KEY)) || null; }
-    catch(e){ return null; }
-  }
-  function storeSaved(p){
-    localStorage.setItem(LS_KEY, JSON.stringify(p));
-  }
-  function clearSaved(){
-    localStorage.removeItem(LS_KEY);
-    savedBanner.classList.remove('visible');
-  }
-  function updateSavedBanner(){
-    const saved = loadSaved();
-    if(!saved){ savedBanner.classList.remove('visible'); return; }
-    savedBanner.classList.add('visible');
-    const modeLabel = saved.mode === 'awg2' ? 'AWG 2.0' : 'AWG 1.0';
-    savedSummary.textContent = `${modeLabel} · Jc=${saved.Jc} Jmin=${saved.Jmin} Jmax=${saved.Jmax} S1=${saved.S1} S2=${saved.S2}`;
-  }
-
-  saveParamsBtn.addEventListener('click', () => {
-    if(!lastParams) return;
-    storeSaved({ ...lastParams, mode });
-    updateSavedBanner();
-    useSavedChk.checked = true;
-    showStatus('🔒 Параметры зафиксированы — они будут применяться ко всем следующим конфигам этого сервера', 'info');
+  raw.split('\n').forEach(line => {
+    line = line.trim();
+    if (!line || line.startsWith('#')) return;
+    const sm = line.match(/^\[(\w+)\]$/);
+    if (sm) { section = sm[1].toLowerCase(); return; }
+    const em = line.match(/^([^=]+?)\s*=\s*(.*)$/);
+    if (!em || !section) return;
+    const k = em[1].trim(), v = em[2].trim();
+    if (section === 'interface') cfg.iface[k] = v;
+    else if (section === 'peer') cfg.peer[k] = v;
   });
 
-  clearSavedBtn.addEventListener('click', () => {
-    clearSaved();
-    showStatus('Сохранённые параметры удалены — следующая генерация создаст новые случайные', 'ok');
-  });
-
-  updateSavedBanner(); // show on load if exist
-
-  // ── File handling ─────────────────────────────────────────────
-  drop.addEventListener('click', () => fileInput.click());
-  fileInput.addEventListener('change', e => { if(e.target.files[0]) readFile(e.target.files[0]); });
-  ['dragover','dragenter'].forEach(ev => drop.addEventListener(ev, e => {
-    e.preventDefault(); drop.classList.add('drag');
-  }));
-  ['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => {
-    e.preventDefault(); drop.classList.remove('drag');
-  }));
-  drop.addEventListener('drop', e => { if(e.dataTransfer.files[0]) readFile(e.dataTransfer.files[0]); });
-  function readFile(file){
-    const reader = new FileReader();
-    reader.onload = ev => { inputEl.value = ev.target.result; fname.textContent = '✓ ' + file.name; };
-    reader.readAsText(file);
+  if (!cfg.iface.PrivateKey && !cfg.iface.privatekey && !raw.includes('[Interface]')) {
+    throw new Error('Не найдена секция [Interface]. Вставьте .conf файл AmneziaWG / WireGuard.');
   }
 
-  pasteBtn.addEventListener('click', async () => {
-    try{
-      const text = await navigator.clipboard.readText();
-      inputEl.value = text; fname.textContent = '';
-      showStatus('Вставлено из буфера обмена', 'ok');
-    }catch(e){ showStatus('Вставьте вручную (Ctrl/Cmd+V) в поле выше', 'err'); }
-  });
-  clearBtn.addEventListener('click', () => {
-    inputEl.value = ''; fname.textContent = '';
-    outWrap.innerHTML = '<div class="empty-out">Здесь появится готовый конфиг после генерации</div>';
-    outActions.style.display = 'none';
-    regenBtn.style.display = 'none';
-    cliCard.style.display = 'none';
-    statusEl.className = 'status';
-  });
+  // Normalize keys (case-insensitive)
+  const iface = {};
+  Object.keys(cfg.iface).forEach(k => { iface[k.toLowerCase()] = cfg.iface[k]; });
+  const peer = {};
+  Object.keys(cfg.peer).forEach(k => { peer[k.toLowerCase()] = cfg.peer[k]; });
 
-  function showStatus(msg, type){
-    statusEl.textContent = msg;
-    statusEl.className = 'status ' + type;
+  return { iface, peer };
+}
+
+function getInt(obj, key, def = null) {
+  const v = obj[key.toLowerCase()];
+  if (v === undefined || v === null || v === '') return def;
+  const n = parseInt(v, 10);
+  return isNaN(n) ? def : n;
+}
+function getStr(obj, key, def = '') {
+  return (obj[key.toLowerCase()] || def).toString().trim();
+}
+function hasKey(obj, key) {
+  return obj[key.toLowerCase()] !== undefined;
+}
+
+// Парсинг H1-H4: либо одиночное число, либо диапазон "start-end"
+function parseHRange(iface, key) {
+  const v = (iface[key.toLowerCase()] || '').toString().trim();
+  if (!v) return null;
+  const rm = v.match(/^(\d+)-(\d+)$/);
+  if (rm) {
+    return { start: parseInt(rm[1]), end: parseInt(rm[2]), isRange: true, width: parseInt(rm[2]) - parseInt(rm[1]), raw: v };
   }
+  const n = parseInt(v);
+  if (isNaN(n)) return null;
+  return { start: n, end: n, isRange: false, width: 0, raw: v };
+}
 
-  // ── Config parsing ────────────────────────────────────────────
-  function parseConfig(text){
-    const lines = text.split(/\r?\n/);
-    const sections = [];
-    let current = null;
-    for(const raw of lines){
-      const line = raw.trim();
-      if(!line) continue;
-      const sm = line.match(/^\[(\w+)\]$/i);
-      if(sm){ current = {name:sm[1], entries:[], comments:[]}; sections.push(current); continue; }
-      if(!current) continue;
-      if(line.startsWith('#') || line.startsWith(';')){ current.comments.push(line); continue; }
-      const kv = line.match(/^([^=]+?)\s*=\s*(.*)$/);
-      if(kv) current.entries.push({key:kv[1].trim(), val:kv[2].trim()});
+// ═══════════════════════════════════════════════════════════
+//  I1 DEEP PARSER — разбор CPS тегов
+// ═══════════════════════════════════════════════════════════
+function parseI1(i1) {
+  if (!i1) return null;
+  const result = {
+    tags: [],           // ['b', 'r', 'rc', 't', ...]
+    firstTag: null,
+    hexData: '',        // содержимое первого <b 0x...>
+    rTagSizes: [],
+    rcTagSizes: [],
+    totalRBytes: 0,
+    hasT: false,
+    hasC: false,
+    hasRc: false,
+    firstByteOk: false, // первый hex-байт валиден для протокола
+    startsWith_b: false,
+    maxRSize: 0,
+    errors: [],
+  };
+
+  // Разбираем все теги
+  const tagRegex = /<(\w+)(?:\s+([^>]*))?>/g;
+  let m;
+  while ((m = tagRegex.exec(i1)) !== null) {
+    const tag = m[1].toLowerCase();
+    const arg = (m[2] || '').trim();
+    result.tags.push({ tag, arg });
+
+    if (tag === 'b') {
+      const hexMatch = arg.match(/0x([0-9a-fA-F]+)/);
+      if (hexMatch) result.hexData = hexMatch[1].toLowerCase();
+    } else if (tag === 'r') {
+      const n = parseInt(arg);
+      if (!isNaN(n)) {
+        result.rTagSizes.push(n);
+        result.totalRBytes += n;
+        if (n > result.maxRSize) result.maxRSize = n;
+      }
+    } else if (tag === 'rc') {
+      result.hasRc = true;
+      const n = parseInt(arg);
+      if (!isNaN(n)) result.rcTagSizes.push(n);
+    } else if (tag === 't') {
+      result.hasT = true;
+    } else if (tag === 'c') {
+      result.hasC = true;
     }
-    return sections;
   }
 
-  // ── Random helpers ────────────────────────────────────────────
-  function randInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min; }
-
-  function genBaseParams(){
-    const Jc   = randInt(3, 10);
-    const Jmin = randInt(40, 70);
-    const Jmax = randInt(900, 1280);
-    let S1 = randInt(15, 100);
-    let S2 = randInt(15, 100);
-    while(S1+56 === S2){ S2 = randInt(15, 100); }
-    // H1-H4 single values, one per uint32 quadrant — no overlaps
-    const H1 = randInt(1,          1073741823);
-    const H2 = randInt(1073741824, 2147483647);
-    const H3 = randInt(2147483648, 3221225471);
-    const H4 = randInt(3221225472, 4294967290);
-    return {Jc, Jmin, Jmax, S1, S2, H1, H2, H3, H4};
+  if (result.tags.length === 0) {
+    result.errors.push('не найдено ни одного тега');
+    return result;
   }
 
-  function genAwg2Extra(){
-    const S3 = randInt(15, 60);
-    const S4 = randInt(10, 32);
-    // H1-H4 as RANGES — one per quadrant, guaranteed non-overlapping
-    const quadrants = [
-      [1, 1073741823],
-      [1073741824, 2147483647],
-      [2147483648, 3221225471],
-      [3221225472, 4294967290],
+  result.firstTag = result.tags[0].tag;
+  result.startsWith_b = result.firstTag === 'b';
+
+  // Валидно: <b ...> сразу, либо <r N><b ...> (рандомизация префикса).
+  // amneziawg-go нормально парсит <r N> пока N < 1000 (лимит проверяется
+  // отдельным правилом ниже). Невалидно: всё остальное (<t>, <c>, <rc> в начале).
+  const secondTag = result.tags[1] && result.tags[1].tag;
+  const isRThenB = result.firstTag === 'r' && secondTag === 'b';
+  if (!result.startsWith_b && !isRThenB) {
+    result.errors.push('первый тег должен быть <b 0x...> (или <r N><b ...> для рандомизации префикса) — иначе парсер amneziawg-go ломается');
+  }
+
+  // Лимит <r N> — должно быть < 1000
+  const tooLarge = result.rTagSizes.filter(n => n >= 1000);
+  if (tooLarge.length > 0) {
+    result.errors.push(`<r ${tooLarge[0]}> ≥ 1000 — парсер может сломаться, используй куски ≤999`);
+  }
+
+  // <c> — старый тег, вызывает ErrorCode 1000
+  if (result.hasC) {
+    result.errors.push('тег <c> устарел — вызывает ErrorCode 1000 на старых клиентах AmneziaVPN');
+  }
+
+  // Детект протокола по hex (с учётом <r N> префикса перед <b>)
+  // Если перед <b> были теги <r N> — hex в <b> начинается со смещения N байт
+  // в реальном пакете, поэтому надо проверять сигнатуры со сдвигом.
+  let rPrefixBytes = 0;
+  for (const t of result.tags) {
+    if (t.tag === 'b') break;
+    if (t.tag === 'r') {
+      const n = parseInt(t.arg);
+      if (!isNaN(n)) rPrefixBytes += n;
+    }
+  }
+  result.rPrefixBytes = rPrefixBytes;
+  result.protocol = detectI1Protocol(result.hexData, rPrefixBytes);
+
+  // Проверка первого байта под протокол
+  if (result.hexData.length >= 2) {
+    const firstByte = parseInt(result.hexData.substring(0, 2), 16);
+    result.firstByte = firstByte;
+
+    if (result.protocol === 'QUIC') {
+      // QUIC long header: form=1 fixed=1 => первый байт 0xc0-0xef
+      result.firstByteOk = firstByte >= 0xc0 && firstByte <= 0xef;
+      if (!result.firstByteOk) {
+        result.errors.push(`первый байт 0x${firstByte.toString(16)} — не валидный QUIC long-header (нужно 0xc0-0xef)`);
+      }
+    } else if (result.protocol === 'TLS' || result.protocol === 'DTLS') {
+      result.firstByteOk = firstByte === 0x16;
+    } else if (result.protocol === 'SIP') {
+      // SIP — ASCII текст, первый байт = буква
+      result.firstByteOk = (firstByte >= 0x41 && firstByte <= 0x5a) || (firstByte >= 0x61 && firstByte <= 0x7a);
+    } else {
+      result.firstByteOk = true;
+    }
+  }
+
+  return result;
+}
+
+function detectI1Protocol(hex, rPrefixBytes = 0) {
+  if (!hex) return 'Unknown';
+  const h = hex.toLowerCase();
+
+  // TLS 1.0-1.3 record: 16 0301/0302/0303 (без префикса — у TLS нет TXID-стиля)
+  if (rPrefixBytes === 0 && /^16030[0-3]/.test(h)) return 'TLS';
+  // DTLS 1.0/1.2: 16 feff / 16 fefd
+  if (rPrefixBytes === 0 && (/^16fefd/.test(h) || /^16feff/.test(h))) return 'DTLS';
+
+  // QUIC long header: первый байт 0xc0-0xef + известная version
+  // QUIC без <r> префикса — Initial пакет начинается с long header
+  if (rPrefixBytes === 0 && h.length >= 10) {
+    const fb = parseInt(h.substring(0,2), 16);
+    const ver = h.substring(2, 10);
+    const known_quic = ['00000001', '6b3343cf', 'ff00001d', 'ff00001e'];
+    if (fb >= 0xc0 && fb <= 0xef && (known_quic.includes(ver) || h.startsWith('c0000'))) return 'QUIC';
+  }
+
+  // SIP методы в ASCII hex (без префикса)
+  if (rPrefixBytes === 0) {
+    const sip_hex = [
+      '494e56495445',     // INVITE
+      '5245474953544552', // REGISTER
+      '4f5054494f4e53',   // OPTIONS
+      '4d455353414745',   // MESSAGE
+      '5355425343524942', // SUBSCRIB(E)
+      '4e4f54494659',     // NOTIFY
+      '535542',           // SUB
     ];
-    const [H1r, H2r, H3r, H4r] = quadrants.map(([qlo, qhi]) => {
-      const w = randInt(5000, 50000);
-      const lo = randInt(qlo, qhi - w);
-      return `${lo}-${lo+w}`;
+    if (sip_hex.some(s => h.startsWith(s))) return 'SIP';
+  }
+
+  // DNS — определяем по флагам и qdcount=0x0001
+  //   Без префикса: hex = txid(2) + flags(2) + qdcount(2) + ...
+  //   С <r 2> префиксом (awg2.sh / AmneziaVPN): hex = flags(2) + qdcount(2) + ...
+  //   Флаги DNS:
+  //     0x0100/0x0120 — standard query (RD=1)
+  //     0x8180        — standard response (QR=1, RD=1, RA=1)
+  //     0x8580        — AA response (QR=1, AA=1, RD=1, RA=1) — AmneziaVPN icloud
+  //     0x8000        — response без RD
+  const dnsFlagsPattern = '(01[02]0|8180|8580|8000)';
+  if (rPrefixBytes === 0 && new RegExp('^[0-9a-f]{4}' + dnsFlagsPattern + '0001').test(h)) return 'DNS';
+  if (rPrefixBytes === 2 && new RegExp('^' + dnsFlagsPattern + '0001').test(h)) return 'DNS';
+
+  // HTTP plaintext (GET/POST/HTTP)
+  if (rPrefixBytes === 0 && (h.startsWith('474554') || h.startsWith('504f5354') || h.startsWith('48545450'))) return 'HTTP';
+  // STUN binding request
+  if (rPrefixBytes === 0 && h.startsWith('0001') && h.includes('2112a442')) return 'STUN';
+  return 'Custom';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  TOOLZA / AMNEZIAVPN PROFILE DETECTION
+// ═══════════════════════════════════════════════════════════
+// Маркер `# AWG_PROFILE=` пишется awg2.sh только в серверный
+// конфиг (awg0.conf), в клиентском его нет — определяем
+// эвристически по сигнатурам.
+//
+// AmneziaVPN (официальный клиент/панель):
+//   В клиентском .conf пишет КЛЮЧИ I2-I5 с ПУСТЫМИ значениями
+//   (`I2 = `, `I3 = ` и т.д.) — это «зарезервированные слоты».
+//   awg2.sh так не делает: если CPS chain неполный, ключи
+//   просто отсутствуют в конфиге.
+//
+// Сигнатуры awg2.sh:
+//   Lite     : I1=DNS  (icloud.com),       I2-I5 нет,      MIMICRY=dns
+//   Standard : I1=QUIC,                    I2-I5 нет,      MIMICRY=quic
+//   Pro L1   : I1 нет,                     I2-I5 нет,      MIMICRY=none
+//   Pro L2   : I1 есть (любой),            I2-I5 нет
+//   Pro L3   : I1 есть,                    I2-I5 есть (хотя бы один)
+//
+// Внимание: Standard и Pro L2/quic в клиентском конфиге
+// неотличимы → помечаем "Standard / Pro L2". Аналогично
+// Lite vs Pro L2/dns.
+function detectToolzaProfile(iface, i1Proto, iCount) {
+  const hasI1 = hasKey(iface, 'i1');
+  const hasI2plus = iCount >= 2;
+
+  // AmneziaVPN — ключи I2-I5 есть, но значения пустые
+  const emptyI2plus = ['i2', 'i3', 'i4', 'i5']
+    .filter(k => Object.prototype.hasOwnProperty.call(iface, k) && iface[k] === '').length;
+  const isAmneziaVPN = emptyI2plus >= 2 && !hasI2plus;
+
+  // Pro L3 — есть непустые I2-I5
+  if (hasI2plus) {
+    return { name: 'Pro', detail: 'L3 (+I1-I5)', cls: 'pf-pro' };
+  }
+
+  // AmneziaVPN (официальный клиент) — приоритет над эвристикой awg2.sh
+  if (isAmneziaVPN) {
+    const protoLabel = hasI1 && i1Proto && i1Proto !== 'Custom' && i1Proto !== 'Unknown'
+      ? `I1=${i1Proto}` : (hasI1 ? 'I1=custom' : 'без I1');
+    return { name: 'AmneziaVPN', detail: protoLabel, cls: 'pf-amnezia' };
+  }
+
+  // Pro L1 — нет I1 (но это может быть и не Toolza-конфиг вовсе)
+  if (!hasI1) {
+    return { name: 'Pro', detail: 'L1 (без CPS)', cls: 'pf-pro', uncertain: true };
+  }
+
+  // Есть только I1, I2-I5 нет
+  if (i1Proto === 'DNS') {
+    return { name: 'Lite', detail: 'I1=DNS', cls: 'pf-lite' };
+  }
+  if (i1Proto === 'QUIC') {
+    return { name: 'Standard', detail: 'I1=QUIC', cls: 'pf-std', alt: 'или Pro L2/quic' };
+  }
+  // TLS/DTLS/SIP/STUN — у Lite/Standard такого не бывает
+  if (i1Proto === 'TLS' || i1Proto === 'DTLS' || i1Proto === 'SIP' || i1Proto === 'STUN') {
+    return { name: 'Pro', detail: `L2 (I1=${i1Proto})`, cls: 'pf-pro' };
+  }
+
+  // I1 кастомный/нераспознан
+  return { name: 'Pro', detail: 'L2 (custom I1)', cls: 'pf-pro', uncertain: true };
+}
+
+// ═══════════════════════════════════════════════════════════
+//  VERSION DETECTION
+// ═══════════════════════════════════════════════════════════
+// Уровни: WireGuard < AWG 1.0 < AWG 1.5 < AWG 2.0
+// AWG 2.0 признаки: S3/S4 И H1-H4 диапазоны (ranges)
+// AWG 1.5 признаки: I1 + полный Jc/S1/S2/H1-H4
+// AWG 1.0 признаки: Jc > 0
+function detectVersion(iface) {
+  const hasJc = hasKey(iface, 'jc');
+  const hasS1 = hasKey(iface, 's1');
+  const hasH1 = hasKey(iface, 'h1');
+  const hasI1 = hasKey(iface, 'i1');
+  const hasS3 = hasKey(iface, 's3');
+  const hasS4 = hasKey(iface, 's4');
+
+  const Jc = getInt(iface, 'jc', 0);
+  const S1 = getInt(iface, 's1', 0);
+  const S2 = getInt(iface, 's2', 0);
+
+  const h1 = parseHRange(iface, 'h1');
+  const h2 = parseHRange(iface, 'h2');
+  const h3 = parseHRange(iface, 'h3');
+  const h4 = parseHRange(iface, 'h4');
+  const allH = [h1, h2, h3, h4];
+  const headersHaveRanges = allH.some(h => h && h.isRange);
+  const hasAllH = allH.every(h => h !== null);
+  const noHatAll = allH.every(h => h === null);
+  const headersDefault = noHatAll || (hasAllH && !headersHaveRanges &&
+    h1.start === 1 && h2.start === 2 && h3.start === 3 && h4.start === 4);
+
+  // I1 разбор
+  const i1Parsed = hasI1 ? parseI1(getStr(iface, 'i1')) : null;
+  const protocolName = i1Parsed && i1Parsed.protocol !== 'Unknown' ? i1Parsed.protocol : 'Custom';
+
+  // Уровень обфускации (OBF_LEVEL)
+  const i2 = getStr(iface, 'i2');
+  const i3 = getStr(iface, 'i3');
+  const i4 = getStr(iface, 'i4');
+  const i5 = getStr(iface, 'i5');
+  const iCount = [getStr(iface,'i1'), i2, i3, i4, i5].filter(x => x).length;
+
+  let obfLevel = null;
+  if (!hasI1) obfLevel = 'Базовый (без CPS)';
+  else if (iCount === 1) obfLevel = '+I1 (одиночная мимикрия)';
+  else if (iCount >= 2) obfLevel = `+I1-I${iCount} (полный CPS chain)`;
+
+  // Профиль Toolza (Lite/Standard/Pro) — эвристика
+  const toolzaProfile = detectToolzaProfile(iface, protocolName, iCount);
+
+  // Чистый WireGuard
+  const noObfuscation = (!hasJc || Jc === 0) && (!hasS1 || (S1 === 0 && S2 === 0)) && headersDefault && !hasI1;
+  if (noObfuscation) {
+    return {
+      ver: 'WireGuard', cls: 'ver-wg',
+      desc: 'Стандартный WireGuard без обфускации. DPI легко обнаружит трафик по сигнатуре handshake.',
+      obfLevel: null, protocol: null, toolzaProfile: null,
+    };
+  }
+
+  // AWG 2.0 — S3/S4 + H диапазоны (CPS опционален)
+  if ((hasS3 || hasS4) && headersHaveRanges) {
+    const desc = hasI1
+      ? `AmneziaWG 2.0 — полная обфускация. H1-H4 диапазоны + S3/S4 рандомизируют все типы пакетов + CPS (I1 имитирует ${protocolName}).`
+      : `AmneziaWG 2.0 базовый — H1-H4 диапазоны + S3/S4, но без CPS мимикрии (I1 отсутствует).`;
+    return { ver: 'AWG 2.0', cls: 'ver-20', desc, obfLevel, protocol: protocolName, toolzaProfile };
+  }
+
+  // AWG 1.5 — есть I1
+  if (hasI1) {
+    return {
+      ver: 'AWG 1.5', cls: 'ver-15',
+      desc: `AmneziaWG 1.5 — Jc/S1/S2/H1-H4 + CPS (I1 имитирует ${protocolName}). Для AWG 2.0 нужны S3/S4 и H1-H4 в виде диапазонов.`,
+      obfLevel, protocol: protocolName, toolzaProfile: null,
+    };
+  }
+
+  // AWG 1.0 — Jc + S1/S2 + H1-H4
+  if (hasJc && Jc > 0) {
+    return {
+      ver: 'AWG 1.0', cls: 'ver-10',
+      desc: 'AmneziaWG 1.0 — junk-пакеты (Jc/Jmin/Jmax) + S1/S2 рандомизируют handshake + кастомные H1-H4 скрывают сигнатуру WireGuard. Нет CPS.',
+      obfLevel: 'Базовый', protocol: null, toolzaProfile: null,
+    };
+  }
+
+  return {
+    ver: 'AWG 1.0', cls: 'ver-10',
+    desc: 'AmneziaWG минимальный — обфускация неполная.',
+    obfLevel: 'Минимум', protocol: null, toolzaProfile: null,
+  };
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SUMMARY — что это за конфиг простым языком
+// ═══════════════════════════════════════════════════════════
+function buildSummary(iface, peer, version) {
+  const parts = [];
+
+  // Что за версия
+  parts.push(`Это конфиг <strong>${version.ver}</strong>.`);
+
+  // Профиль (Toolza Lite/Standard/Pro или AmneziaVPN) — эвристика
+  if (version.toolzaProfile) {
+    const tp = version.toolzaProfile;
+    const hintStyle = 'color:#64748b;font-size:.85em;';
+    const profileLabel = tp.name === 'AmneziaVPN' ? 'Источник' : 'Профиль Toolza';
+    let line = `${profileLabel}: <strong>${tp.name}</strong> <span class="pill">${tp.detail}</span>`;
+    if (tp.alt) line += ` <span style="${hintStyle}">(${tp.alt})</span>`;
+    if (tp.uncertain) line += ` <span style="${hintStyle}">(определено эвристикой)</span>`;
+    parts.push(line + '.');
+  }
+
+  // Кратко по функциональности
+  if (version.ver === 'WireGuard') {
+    parts.push('Обычный WireGuard без обфускации — все пакеты видны как WireGuard, DPI может заблокировать.');
+  } else if (version.ver === 'AWG 2.0') {
+    parts.push(`Уровень обфускации: <span class="pill">${version.obfLevel}</span>.`);
+    if (version.protocol && version.protocol !== 'Custom') {
+      parts.push(`CPS имитирует <strong>${version.protocol}</strong> — трафик выглядит как реальный ${version.protocol} handshake.`);
+    }
+  } else if (version.ver === 'AWG 1.5') {
+    parts.push(`Обфускация AWG 1.5 с CPS. Имитация: <strong>${version.protocol}</strong>.`);
+  } else {
+    parts.push('Базовая обфускация без CPS мимикрии.');
+  }
+
+  // Какой у нас сервер
+  const endpoint = getStr(peer, 'endpoint');
+  if (endpoint) {
+    const epParts = endpoint.split(':');
+    const port = epParts[epParts.length - 1];
+    const host = epParts.slice(0, -1).join(':').replace(/^\[|\]$/g, '');
+    const isIP = /^\d{1,3}(\.\d{1,3}){3}$/.test(host) || host.includes(':');
+    parts.push(`Сервер: <span class="pill">${host}:${port}</span> (${isIP ? 'IP' : 'домен'}).`);
+  }
+
+  // Маршрутизация
+  const allowed = getStr(peer, 'allowedips');
+  const fullTunnel = allowed.includes('0.0.0.0/0');
+  const ipv6Tunnel = allowed.includes('::/0');
+  if (fullTunnel && ipv6Tunnel) {
+    parts.push('Режим: <strong>полный туннель</strong> — весь трафик (IPv4+IPv6) через VPN.');
+  } else if (fullTunnel) {
+    parts.push('Режим: <strong>IPv4 туннель</strong> — только IPv4 через VPN, <span class="pill">возможна утечка IPv6</span>.');
+  } else if (allowed) {
+    parts.push(`Режим: <strong>split-tunnel</strong> — только <span class="pill">${allowed}</span> через VPN.`);
+  }
+
+  // DNS
+  const dns = getStr(iface, 'dns');
+  if (dns) {
+    parts.push(`DNS: <span class="pill">${dns}</span>.`);
+  } else {
+    parts.push('<strong>DNS не задан</strong> — риск DNS leak.');
+  }
+
+  // MTU
+  const mtu = getInt(iface, 'mtu', null);
+  if (mtu) {
+    parts.push(`MTU: <span class="pill">${mtu}</span>.`);
+  }
+
+  return parts.map(p => `<div class="summary-line">${p}</div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CHECKS
+// ═══════════════════════════════════════════════════════════
+function runChecks(iface, peer, version) {
+  const R = [];
+  const push = (cat, title, status, value, detail, pts, max) =>
+    R.push({ cat, title, status, value: String(value), detail, pts, max });
+
+  const Jc = getInt(iface, 'jc', null);
+  const Jmin = getInt(iface, 'jmin', null);
+  const Jmax = getInt(iface, 'jmax', null);
+  const S1 = getInt(iface, 's1', null);
+  const S2 = getInt(iface, 's2', null);
+  const S3 = getInt(iface, 's3', null);
+  const S4 = getInt(iface, 's4', null);
+  const I1 = getStr(iface, 'i1');
+  const I2 = getStr(iface, 'i2');
+  const I3 = getStr(iface, 'i3');
+  const I4 = getStr(iface, 'i4');
+  const I5 = getStr(iface, 'i5');
+
+  // ── KEYS ────────────────────────────────────────────────
+  const privkey = getStr(iface, 'privatekey');
+  const isBase64 = s => /^[A-Za-z0-9+/]{43}=?$/.test(s);
+  const pkOk = privkey && isBase64(privkey);
+  push('Ключи', 'PrivateKey', pkOk ? 'pass' : 'fail', pkOk ? privkey.slice(0, 12) + '…' : '(отсутствует)',
+    pkOk ? 'Корректный base64 Curve25519 ключ' : 'Приватный ключ отсутствует или невалиден', pkOk ? 10 : 0, 10);
+
+  const pubkey = getStr(peer, 'publickey');
+  const pubOk = pubkey && isBase64(pubkey);
+  push('Ключи', 'PublicKey (Peer)', pubOk ? 'pass' : 'fail', pubOk ? pubkey.slice(0, 12) + '…' : '(отсутствует)',
+    pubOk ? 'Публичный ключ сервера присутствует' : 'Публичный ключ сервера отсутствует', pubOk ? 8 : 0, 8);
+
+  const psk = getStr(peer, 'presharedkey');
+  const pskOk = psk && isBase64(psk);
+  push('Ключи', 'PresharedKey', pskOk ? 'pass' : 'warn', pskOk ? psk.slice(0, 12) + '…' : '(отсутствует)',
+    pskOk ? 'PresharedKey задан — дополнительный слой симметричного шифрования (post-quantum устойчивость)' :
+      'PresharedKey отсутствует — дополнительная защита от будущих квантовых атак не активна',
+    pskOk ? 6 : 2, 6);
+
+  // ── JUNK PACKETS ────────────────────────────────────────
+  const hasJc = Jc !== null;
+  push('Junk-пакеты', 'Jc (количество)', !hasJc ? 'fail' : Jc === 0 ? 'warn' : Jc >= 3 && Jc <= 17 ? 'pass' : 'warn',
+    hasJc ? String(Jc) : '(не задан)',
+    !hasJc ? 'Jc не задан — нет junk-пакетов, handshake детектируется по размеру' :
+      Jc === 0 ? 'Jc=0 — junk-пакеты отключены' :
+      Jc >= 3 && Jc <= 17 ? `Jc=${Jc} — в рекомендуемом диапазоне 3-17 ✓` :
+      Jc > 17 ? `Jc=${Jc} — слишком много, создаёт ненужный трафик (рекомендуется 3-17)` :
+      `Jc=${Jc} — мало (рекомендуется 3-17)`,
+    !hasJc ? 0 : Jc === 0 ? 0 : Jc >= 3 && Jc <= 17 ? 8 : 4, 8);
+
+  if (hasJc && Jc > 0) {
+    const jminOk = Jmin !== null && Jmin >= 5 && Jmin <= 1024;
+    const jmaxOk = Jmax !== null && Jmax >= Jmin && Jmax <= 1280;
+    // Узкий диапазон — норма для DNS-мимикрии (Lite и AmneziaVPN)
+    const pname = version && version.toolzaProfile && version.toolzaProfile.name;
+    const narrowOk = pname === 'Lite' || pname === 'AmneziaVPN';
+    const rangeWide = jminOk && jmaxOk && (Jmax - Jmin) >= 50;
+    const jrangeOk = jminOk && jmaxOk && (rangeWide || narrowOk);
+
+    push('Junk-пакеты', 'Jmin/Jmax (диапазон размеров)', jrangeOk ? 'pass' : jminOk && jmaxOk ? 'warn' : 'fail',
+      Jmin !== null && Jmax !== null ? `${Jmin}–${Jmax}` : '(не задан)',
+      Jmin === null || Jmax === null ? 'Jmin/Jmax не заданы — нужны при Jc>0' :
+      !jmaxOk ? `Jmax=${Jmax} должен быть ≤ 1280 (MTU)` :
+      !jminOk ? `Jmin=${Jmin} вне диапазона 5-1024` :
+      (Jmax - Jmin) < 50 && narrowOk ? `Jmin=${Jmin} Jmax=${Jmax} — для профиля ${pname} это норма (DNS-пакеты маленькие)` :
+      (Jmax - Jmin) < 50 ? `Диапазон ${Jmin}-${Jmax} слишком узкий — рекомендуется ≥50 (размеры предсказуемы)` :
+      `Jmin=${Jmin} Jmax=${Jmax} — хороший диапазон, размеры непредсказуемы`,
+      jrangeOk ? 6 : jminOk && jmaxOk ? 3 : 0, 6);
+  }
+
+  // ── S1/S2 — AWG 1.5+ ─────────────────────────────────────
+  const hasS1 = S1 !== null, hasS2 = S2 !== null;
+  const s1Ok = hasS1 && S1 >= 0 && S1 <= 150;
+  const s2Ok = hasS2 && S2 >= 0 && S2 <= 1188; // AWG 2.0 protocol limit
+  const s1s2Conflict = hasS1 && hasS2 && (S1 + 56 === S2);
+
+  push('Handshake Padding (S1/S2)', 'S1 — Init prefix', !hasS1 ? 'info' : S1 === 0 ? 'warn' : s1Ok ? 'pass' : 'warn',
+    hasS1 ? String(S1) : '(не задан)',
+    !hasS1 ? 'S1 не задан — доступен в AWG 1.5 / 2.0' :
+    S1 === 0 ? 'S1=0 — рандомный префикс Init-пакета отключён' :
+    s1Ok ? `S1=${S1} — корректно ✓` :
+    `S1=${S1} — вне диапазона 0-150`,
+    !hasS1 ? 1 : S1 === 0 ? 0 : s1Ok ? 6 : 3, 6);
+
+  push('Handshake Padding (S1/S2)', 'S2 — Response prefix', !hasS2 ? 'info' : S2 === 0 ? 'warn' : s2Ok ? 'pass' : 'warn',
+    hasS2 ? String(S2) : '(не задан)',
+    !hasS2 ? 'S2 не задан — доступен в AWG 1.5 / 2.0' :
+    S2 === 0 ? 'S2=0 — рандомный префикс Response-пакета отключён' :
+    s2Ok ? `S2=${S2} — корректно (AWG 2.0 лимит 1188 байт) ✓` :
+    `S2=${S2} — превышает protocol limit 1188`,
+    !hasS2 ? 1 : S2 === 0 ? 0 : s2Ok ? 6 : 3, 6);
+
+  if (s1s2Conflict) {
+    push('Handshake Padding (S1/S2)', '⚠️ S1+56 = S2 конфликт', 'fail', `S1=${S1} S2=${S2}`,
+      `S1+56=${S1 + 56} совпадает с S2=${S2} — правило AWG: S1+56 ≠ S2. Это делает пакеты предсказуемыми!`, 0, 0);
+  }
+
+  // S3/S4 — только AWG 2.0
+  if (S3 !== null || S4 !== null) {
+    const s3Ok = S3 !== null && S3 >= 0 && S3 <= 64;
+    const s4Ok = S4 !== null && S4 >= 0 && S4 <= 32; // AWG 2.0: S4 max 32
+    let detail;
+    if (S4 !== null && S4 > 32) {
+      detail = `S4=${S4} — превышает лимит AWG 2.0 (максимум 32)`;
+    } else if (!s3Ok) {
+      detail = `S3=${S3} — вне диапазона 0-64`;
+    } else {
+      detail = 'S3/S4 — расширенные префиксы AWG 2.0 для Cookie и Data пакетов. Максимальная непредсказуемость размеров.';
+    }
+    push('Handshake Padding (S3/S4)', 'S3/S4 (AWG 2.0 extended)', s3Ok && s4Ok ? 'pass' : 'warn',
+      `S3=${S3 ?? '—'} S4=${S4 ?? '—'}`, detail, s3Ok && s4Ok ? 4 : 2, 4);
+  } else if (version.ver === 'AWG 2.0') {
+    push('Handshake Padding (S3/S4)', 'S3/S4', 'warn', '(не заданы)',
+      'S3/S4 отсутствуют в AWG 2.0 конфиге — handshake пакеты не рандомизированы по размеру', 0, 4);
+  }
+
+  // ── H1-H4 MAGIC HEADERS ──────────────────────────────────
+  const h1 = parseHRange(iface, 'h1');
+  const h2 = parseHRange(iface, 'h2');
+  const h3 = parseHRange(iface, 'h3');
+  const h4 = parseHRange(iface, 'h4');
+  const allHraw = [h1, h2, h3, h4];
+  const hasAllH = allHraw.every(h => h !== null);
+  const hHaveRanges = allHraw.some(h => h && h.isRange);
+  const startVals = hasAllH ? allHraw.map(h => h.start) : [];
+  const defaultH = hasAllH && !hHaveRanges && startVals[0] === 1 && startVals[1] === 2 && startVals[2] === 3 && startVals[3] === 4;
+  const uniqueH = hasAllH && new Set(startVals).size === 4;
+  const hDisplayVal = hasAllH ? allHraw.map(h => h.raw).join(' / ') : '(не заданы)';
+
+  // Проверки для диапазонов (AWG 2.0):
+  //   1. Непересечение — КРИТИЧНО (иначе сервер/клиент рассинхронизируются)
+  //   2. Распределение по квадрантам uint32 — БОНУС (идеальное, но не обязательное)
+  //   3. Ширина диапазонов — warning если узкие
+  let rangesOverlap = false;
+  let rangesSorted = true;      // Все H идут по возрастанию?
+  let quadrantPerfect = true;   // Каждый H в своём квадранте?
+  let rangesSpread = 0;         // Сколько квадрантов покрыто (1-4)
+
+  if (hasAllH && hHaveRanges) {
+    const Q = 1073741823;
+    const quadrantBounds = [[0, Q], [Q + 1, 2*Q], [2*Q + 1, 3*Q], [3*Q + 1, 4*Q + 3]];
+
+    // Сортированы ли диапазоны по возрастанию? (необходимое условие непересечения)
+    const sortedRaw = [...allHraw].sort((a, b) => a.start - b.start);
+    rangesSorted = allHraw.every((h, i) => h.start === sortedRaw[i].start);
+
+    // Пересечения
+    for (let i = 0; i < 3; i++) {
+      if (allHraw[i].end >= allHraw[i+1].start) { rangesOverlap = true; break; }
+    }
+
+    // Идеальное квадрантное распределение (каждый H в своём квадранте по порядку)
+    for (let i = 0; i < 4; i++) {
+      const h = allHraw[i];
+      const [qMin, qMax] = quadrantBounds[i];
+      if (h.start < qMin || h.end > qMax) { quadrantPerfect = false; break; }
+    }
+
+    // Сколько уникальных квадрантов реально покрыто всеми диапазонами
+    const coveredQuadrants = new Set();
+    for (const h of allHraw) {
+      for (let q = 0; q < 4; q++) {
+        const [qMin, qMax] = quadrantBounds[q];
+        if (h.start >= qMin && h.start <= qMax) { coveredQuadrants.add(q); break; }
+      }
+    }
+    rangesSpread = coveredQuadrants.size;
+  }
+
+  let hStatus, hPts, hDetail;
+  if (!hasAllH) {
+    hStatus = 'warn'; hPts = 0;
+    hDetail = 'H1-H4 не заданы или неполные — WireGuard сигнатура handshake не скрыта';
+  } else if (defaultH) {
+    hStatus = 'fail'; hPts = 0;
+    hDetail = 'H1=1 H2=2 H3=3 H4=4 — ДЕФОЛТНЫЕ значения WireGuard! Handshake легко идентифицируется DPI.';
+  } else if (!uniqueH) {
+    hStatus = 'fail'; hPts = 0;
+    hDetail = 'H1-H4 содержат повторяющиеся значения — конфигурация невалидна';
+  } else if (hHaveRanges && rangesOverlap) {
+    hStatus = 'fail'; hPts = 0;
+    hDetail = 'H1-H4 диапазоны пересекаются — сервер и клиент могут рассинхронизироваться!';
+  } else if (hHaveRanges && quadrantPerfect) {
+    hStatus = 'pass'; hPts = 12;
+    hDetail = 'H1-H4 заданы диапазонами строго по квадрантам uint32 (Q=2^30) — идеальное распределение AWG 2.0 ✓';
+  } else if (hHaveRanges && rangesSpread === 4) {
+    hStatus = 'pass'; hPts = 11;
+    hDetail = `H1-H4 диапазоны валидны, непересекающиеся, покрывают все 4 квадранта uint32 (но не строго по порядку). Это корректно для AWG 2.0 ✓`;
+  } else if (hHaveRanges) {
+    hStatus = 'pass'; hPts = 10;
+    hDetail = `H1-H4 диапазоны валидны и не пересекаются, но распределены только по ${rangesSpread} из 4 квадрантов uint32. Работает, но для лучшего распределения энтропии используй строгие квадранты.`;
+  } else {
+    hStatus = 'pass'; hPts = 10;
+    hDetail = 'H1-H4 уникальны — сигнатура handshake скрыта ✓';
+  }
+
+  push('Magic Headers (H1-H4)', 'H1-H4', hStatus, hDisplayVal, hDetail, hPts, 12);
+
+  // Ширина диапазонов
+  if (hHaveRanges) {
+    const narrowRanges = allHraw.filter(h => h.isRange && h.width < 1000);
+    if (narrowRanges.length) {
+      push('Magic Headers (H1-H4)', 'Ширина диапазонов H', 'warn',
+        narrowRanges.map(h => `${h.raw} (ширина ${h.width})`).join(', '),
+        'Узкие диапазоны H (<1000) уменьшают энтропию. Рекомендуется ширина ≥30000 для AWG 2.0.', 0, 0);
+    }
+  }
+
+  // ── CPS / I1-I5 ──────────────────────────────────────────
+  const i1Parsed = I1 ? parseI1(I1) : null;
+  const hasI1 = !!I1;
+  // Валидный паттерн начала I1: <b 0x...> сразу ИЛИ <r N><b 0x...>
+  // для DNS-мимикрии (TXID-рандомизация). parseI1 уже проверил это и положил
+  // в errors сообщение про «первый тег», если структура невалидная.
+  const i1StructErr = hasI1 && i1Parsed.errors.find(e => e.includes('первый тег'));
+  const i1RPrefixOk = hasI1 && !i1Parsed.startsWith_b && !i1StructErr;
+
+  if (!hasI1) {
+    push('CPS Мимикрия (I1-I5)', 'I1 — Protocol Signature', 'info', '(не задан)',
+      'I1 отсутствует — CPS мимикрия отключена. Это базовый уровень AWG 2.0. Для максимальной защиты добавьте I1 с TLS/QUIC/DTLS handshake.',
+      0, 15);
+  } else {
+    // Критичные проверки I1
+    if (i1StructErr) {
+      push('CPS Мимикрия (I1-I5)', '🔴 I1 структура', 'fail', `первый тег: <${i1Parsed.firstTag}>`,
+        'I1 должен начинаться с <b 0x...> или с <r N><b 0x...> — иначе парсер amneziawg-go на клиенте ломает handshake.',
+        0, 15);
+    } else if (i1RPrefixOk) {
+      const protoLabel = i1Parsed.protocol && i1Parsed.protocol !== 'Custom' && i1Parsed.protocol !== 'Unknown'
+        ? i1Parsed.protocol : 'сигнатурный пакет';
+      push('CPS Мимикрия (I1-I5)', 'I1 — Protocol Signature', 'pass',
+        I1.slice(0, 50) + (I1.length > 50 ? '…' : ''),
+        `<r ${i1Parsed.rTagSizes[0]}> + <b 0x...> — ${protoLabel} с рандомизацией первых ${i1Parsed.rTagSizes[0]} байт (например TXID для DNS). Структура корректна. ✓`,
+        15, 15);
+    } else if (i1Parsed.hasC) {
+      push('CPS Мимикрия (I1-I5)', '⚠️ Устаревший тег <c>', 'fail', 'обнаружен',
+        'Тег <c> вызывает ErrorCode 1000 на старых клиентах AmneziaVPN. Убери его.',
+        5, 15);
+    } else if (i1Parsed.maxRSize >= 1000) {
+      push('CPS Мимикрия (I1-I5)', '⚠️ Большой <r>', 'warn',
+        `max <r ${i1Parsed.maxRSize}>`,
+        `Тег <r ${i1Parsed.maxRSize}> ≥ 1000 — на границе лимита парсера. Разбей на куски ≤999.`,
+        10, 15);
+    } else if (!i1Parsed.firstByteOk && i1Parsed.protocol !== 'Unknown' && i1Parsed.protocol !== 'Custom') {
+      push('CPS Мимикрия (I1-I5)', '⚠️ Первый байт I1', 'warn',
+        `0x${(i1Parsed.firstByte || 0).toString(16)}`,
+        `Первый байт hex не соответствует протоколу ${i1Parsed.protocol}.`,
+        10, 15);
+    } else {
+      push('CPS Мимикрия (I1-I5)', 'I1 — Protocol Signature', 'pass',
+        I1.slice(0, 40) + (I1.length > 40 ? '…' : ''),
+        `I1 валидный, начинается с <b 0x...>, max <r>=${i1Parsed.maxRSize}. Трафик имитирует реальный протокол.`,
+        15, 15);
+    }
+
+    // Протокол
+    const protoDesc = {
+      'TLS': 'TLS 1.x ClientHello — отлично маскируется под HTTPS трафик, совместим с большинством DPI-систем.',
+      'DTLS': 'DTLS 1.0/1.2 record — имитация WebRTC/STUN, хорошо для видеозвонков.',
+      'QUIC': 'QUIC Initial handshake — идеальный выбор. QUIC популярен (YouTube, Google). DPI трудно отличить от легитимного HTTP/3.',
+      'SIP': 'SIP (VoIP) — телефонные сессии. Трудно блокировать из-за легитимного использования.',
+      'DNS': 'DNS query — имитация DNS запроса. Проходит через порт 53, почти не блокируется.',
+      'HTTP': 'HTTP request — маскировка под plaintext веб-запрос.',
+      'STUN': 'STUN binding request — WebRTC ICE.',
+      'Custom': 'Кастомный протокол. Убедись что hex реалистичен.',
+      'Unknown': 'Протокол не распознан.',
+    };
+    const protoPts = { 'QUIC': 5, 'TLS': 5, 'DTLS': 4, 'SIP': 4, 'DNS': 4, 'STUN': 3, 'HTTP': 2, 'Custom': 2, 'Unknown': 1 }[i1Parsed.protocol] || 1;
+    push('CPS Мимикрия (I1-I5)', 'Протокол имитации', protoPts >= 4 ? 'pass' : 'info',
+      i1Parsed.protocol, protoDesc[i1Parsed.protocol] || '(неизвестно)', protoPts, 5);
+
+    // Цепочка I2-I5
+    const iList = [I1, I2, I3, I4, I5].filter(x => x);
+    if (iList.length > 1) {
+      push('CPS Мимикрия (I1-I5)', `Цепочка I1-I${iList.length}`, 'pass', `${iList.length} пакетов`,
+        `Задано ${iList.length} сигнатурных пакетов — высокая энтропия сессии (полный CPS chain). Counter-measures DPI затруднены.`,
+        3, 3);
+    }
+  }
+
+  // ── ENDPOINT & ROUTING ───────────────────────────────────
+  const endpoint = getStr(peer, 'endpoint');
+  if (endpoint) {
+    const ep = endpoint.split(':');
+    const epPort = parseInt(ep[ep.length - 1]);
+    const epHost = ep.slice(0, -1).join(':').replace(/^\[|\]$/g, '');
+    const portStdWG = epPort === 51820 || epPort === 51821;
+
+    push('Сервер', 'Endpoint порт', portStdWG ? 'warn' : epPort < 1024 ? 'warn' : 'pass',
+      String(epPort),
+      portStdWG ? `${epPort} — стандартный WireGuard порт, легко идентифицируется DPI. Смени на любой выше 1024.` :
+      epPort === 443 ? '443 (HTTPS) — отлично маскируется под TLS трафик' :
+      epPort === 53 ? '53 (DNS) — почти не блокируется' :
+      epPort < 1024 ? `${epPort} — системный порт (<1024), могут быть проблемы` :
+      `${epPort} — нормально`,
+      portStdWG ? 2 : epPort < 1024 ? 2 : 5, 5);
+
+    const isIPv4 = /^\d{1,3}(\.\d{1,3}){3}$/.test(epHost);
+    const isIPv6 = epHost.includes(':');
+    const isDomain = !isIPv4 && !isIPv6 && epHost.includes('.');
+    push('Сервер', 'Endpoint адрес', isIPv4 || isIPv6 ? 'pass' : isDomain ? 'warn' : 'fail',
+      epHost || '?',
+      isIPv4 ? 'IPv4 адрес — рекомендуется для AWG (домен вызывает deadlock переподключения на Keenetic и некоторых Android-клиентах)' :
+      isIPv6 ? 'IPv6 адрес — работает, но помни про deadlock у домена' :
+      isDomain ? '⚠️ Домен в Endpoint — может вызвать deadlock переподключения на Keenetic и старых AmneziaVPN. Рекомендуется IP.' :
+      'Неверный формат endpoint',
+      isIPv4 || isIPv6 ? 4 : isDomain ? 1 : 0, 4);
+  }
+
+  // AllowedIPs — DNS leak
+  const allowedIPs = getStr(peer, 'allowedips');
+  const fullTunnel = allowedIPs.includes('0.0.0.0/0');
+  const hasIPv6Tunnel = allowedIPs.includes('::/0');
+  const splitTunnel = allowedIPs && !fullTunnel;
+
+  push('Маршрутизация', 'AllowedIPs', fullTunnel && hasIPv6Tunnel ? 'pass' : fullTunnel ? 'warn' : splitTunnel ? 'info' : 'fail',
+    allowedIPs || '(не задан)',
+    fullTunnel && hasIPv6Tunnel ? '0.0.0.0/0 + ::/0 — весь трафик (IPv4+IPv6) через VPN, минимальный DNS leak' :
+    fullTunnel ? '0.0.0.0/0 без ::/0 — IPv4 через VPN, IPv6 может утечь (DNS/WebRTC leak)' :
+    splitTunnel ? 'Split-tunneling — часть трафика мимо VPN' :
+    'AllowedIPs не задан',
+    fullTunnel && hasIPv6Tunnel ? 6 : fullTunnel ? 3 : splitTunnel ? 2 : 0, 6);
+
+  // DNS
+  const dns = getStr(iface, 'dns');
+  const dnsOk = !!dns;
+  const dnsPrivate = /10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\./.test(dns);
+  const dnsPublicGood = ['1.1.1.1', '8.8.8.8', '9.9.9.9', '208.67.222.222', '94.140.14.14', '77.88.8.8'].some(d => dns.includes(d));
+  push('Маршрутизация', 'DNS', dnsOk ? (dnsPrivate || dnsPublicGood ? 'pass' : 'warn') : 'fail',
+    dns || '(не задан)',
+    !dnsOk ? 'DNS не задан — запросы идут мимо VPN, полный DNS leak' :
+    dnsPrivate ? `Приватный DNS (${dns}) — запросы через туннель, нет утечки` :
+    dnsPublicGood ? `${dns} — публичный DNS, работает через туннель` :
+    `${dns} — нестандартный DNS, проверь что запросы идут через туннель`,
+    dnsOk ? (dnsPrivate ? 6 : dnsPublicGood ? 4 : 3) : 0, 6);
+
+  // ── MTU ─────────────────────────────────────────────────
+  const mtu = getInt(iface, 'mtu', null);
+  if (mtu !== null) {
+    const isAwg2 = version.ver === 'AWG 2.0';
+    const mtuOk = mtu >= 1280 && mtu <= 1420;
+    const mtuOptimal = isAwg2 ? (mtu >= 1280 && mtu <= 1340) : (mtu >= 1320 && mtu <= 1420);
+    const mtuConflict = Jmax !== null && Jmax >= mtu;
+
+    let detail;
+    if (mtuConflict) detail = `MTU=${mtu} но Jmax=${Jmax} ≥ MTU — junk-пакеты будут фрагментироваться, DPI заметит!`;
+    else if (!mtuOk) detail = `MTU=${mtu} — вне рекомендуемого диапазона 1280-1420`;
+    else if (isAwg2 && !mtuOptimal) detail = `MTU=${mtu} — работает, но для AWG 2.0+CPS оптимум 1280-1340 (CPS пакеты могут быть большими)`;
+    else detail = `MTU=${mtu} — оптимальное значение`;
+
+    push('Сеть', 'MTU', mtuConflict ? 'fail' : mtuOk && (!isAwg2 || mtuOptimal) ? 'pass' : 'warn',
+      String(mtu), detail, mtuConflict ? 0 : mtuOk && (!isAwg2 || mtuOptimal) ? 4 : 2, 4);
+  } else {
+    push('Сеть', 'MTU', 'warn', '(не задан)',
+      'MTU не задан — будет использован дефолт 1420, но для AWG 2.0 лучше указать 1320', 1, 4);
+  }
+
+  // Keepalive
+  const ka = getInt(peer, 'persistentkeepalive', null);
+  if (ka !== null) {
+    const kaOk = ka >= 15 && ka <= 60;
+    push('Сеть', 'PersistentKeepalive', ka === 0 ? 'info' : kaOk ? 'pass' : 'warn',
+      String(ka),
+      ka === 0 ? 'Отключён — соединение может разорваться за NAT. Рекомендуется 20-35 секунд.' :
+      kaOk ? `${ka}s — хорошо, поддерживает NAT-соединение` :
+      ka < 15 ? `${ka}s — слишком часто (рекомендуется 15-60)` :
+      `${ka}s — редко, NAT может закрыть соединение (рекомендуется 15-60)`,
+      ka === 0 ? 3 : kaOk ? 3 : 1, 3);
+  }
+
+  return R;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SCORING
+// ═══════════════════════════════════════════════════════════
+function calcScores(checks, iface, version) {
+  const tp = checks.reduce((a, c) => a + c.pts, 0);
+  const mp = checks.reduce((a, c) => a + c.max, 0);
+  const total = Math.round((tp / mp) * 100);
+
+  // DPI risk — чем выше тем хуже
+  let dpi = 95;
+  if (version.ver === 'AWG 2.0') dpi -= 55;
+  else if (version.ver === 'AWG 1.5') dpi -= 40;
+  else if (version.ver === 'AWG 1.0') dpi -= 25;
+
+  const Jc = getInt(iface, 'jc', 0);
+  if (Jc >= 3) dpi -= 10;
+
+  const h1 = parseHRange(iface, 'h1');
+  if (h1 && h1.isRange) dpi -= 8;
+
+  const _i1raw = iface.i1 || '';
+  const _i1p = _i1raw ? parseI1(_i1raw) : null;
+  // I1 валиден если parseI1 не пожаловался на структуру первого тега
+  const hasValidI1 = _i1p && !_i1p.errors.some(e => e.includes('первый тег'));
+  if (hasValidI1) dpi -= 12;
+
+  const iCount = ['i1','i2','i3','i4','i5'].filter(k => iface[k]).length;
+  if (iCount >= 3) dpi -= 5;
+
+  dpi = Math.max(3, Math.min(92, dpi));
+  const stealth = Math.round(100 - dpi * 0.82);
+
+  return { total, dpi, stealth };
+}
+
+// ═══════════════════════════════════════════════════════════
+//  FIXES — что срочно исправить (с severity)
+// ═══════════════════════════════════════════════════════════
+function buildFixes(checks, iface, peer, version) {
+  const fixes = [];
+  const add = (severity, text) => fixes.push({ severity, text });
+
+  const Jc = getInt(iface, 'jc', null);
+  const Jmin = getInt(iface, 'jmin', null);
+  const Jmax = getInt(iface, 'jmax', null);
+  const S1 = getInt(iface, 's1', null);
+  const S2 = getInt(iface, 's2', null);
+  const S4 = getInt(iface, 's4', null);
+  const mtu = getInt(iface, 'mtu', null);
+
+  // === CRIT (ломает работу) ===
+  if (iface.i1) {
+    const i1p = parseI1(iface.i1);
+    // parseI1 уже знает что <r N><b ...> — валидный паттерн для DNS-мимикрии
+    if (i1p.errors.some(e => e.includes('первый тег'))) {
+      add('crit', 'I1 должен начинаться с <code class="fix-code">&lt;b 0x...&gt;</code> (или <code class="fix-code">&lt;r N&gt;&lt;b 0x...&gt;</code> для DNS-мимикрии) — иначе handshake ломается на Android/Keenetic.');
+    }
+    if (i1p.hasC) {
+      add('crit', 'Убери тег <code class="fix-code">&lt;c&gt;</code> из I1 — вызывает ErrorCode 1000.');
+    }
+    if (i1p.maxRSize >= 1000) {
+      add('high', `Тег <code class="fix-code">&lt;r ${i1p.maxRSize}&gt;</code> ≥ 1000 — разбей на куски ≤999.`);
+    }
+  }
+
+  // H1-H4 default
+  const h1 = parseHRange(iface, 'h1');
+  const h2 = parseHRange(iface, 'h2');
+  const h3 = parseHRange(iface, 'h3');
+  const h4 = parseHRange(iface, 'h4');
+  if (h1 && h2 && h3 && h4 && !h1.isRange && h1.start === 1 && h2.start === 2 && h3.start === 3 && h4.start === 4) {
+    add('crit', 'H1=1 H2=2 H3=3 H4=4 — дефолтные значения WireGuard. DPI сразу видит сигнатуру. Используй случайные числа ≥5.');
+  }
+
+  // S1+56=S2
+  if (S1 !== null && S2 !== null && S1 + 56 === S2) {
+    add('high', `S1+56=${S1+56} совпадает с S2=${S2}. Измени S1 или S2 — правило AWG: S1+56 ≠ S2.`);
+  }
+
+  // S4 > 32
+  if (S4 !== null && S4 > 32) {
+    add('high', `S4=${S4} превышает лимит AWG 2.0 (максимум 32).`);
+  }
+
+  // Endpoint=домен
+  const endpoint = getStr(peer, 'endpoint');
+  if (endpoint) {
+    const ep = endpoint.split(':');
+    const epHost = ep.slice(0, -1).join(':').replace(/^\[|\]$/g, '');
+    const isIP = /^\d{1,3}(\.\d{1,3}){3}$/.test(epHost) || epHost.includes(':');
+    if (!isIP && epHost) {
+      add('high', 'Endpoint содержит домен — это вызывает deadlock переподключения на Keenetic и старых AmneziaVPN. Замени на IP.');
+    }
+  }
+
+  // Jmax ≥ MTU
+  if (mtu !== null && Jmax !== null && Jmax >= mtu) {
+    add('high', `Jmax=${Jmax} ≥ MTU=${mtu}. Junk-пакеты будут фрагментироваться. Сделай Jmax ≤ ${mtu - 50}.`);
+  }
+
+  // === MEDIUM (снижает скрытность) ===
+  if (!iface.dns) {
+    add('med', 'Добавь <code class="fix-code">DNS = 1.1.1.1, 1.0.0.1</code> в [Interface] — иначе DNS leak.');
+  }
+
+  const allowed = getStr(peer, 'allowedips');
+  if (allowed.includes('0.0.0.0/0') && !allowed.includes('::/0')) {
+    add('med', 'Добавь <code class="fix-code">::/0</code> в AllowedIPs чтобы закрыть IPv6 leak.');
+  }
+
+  if (Jc !== null && Jc < 3 && Jc > 0) {
+    add('med', `Jc=${Jc} — мало. Увеличь до 3-15 для лучшей обфускации.`);
+  }
+  if (Jc === 0 || Jc === null) {
+    add('med', 'Jc = 0 или не задан — junk-пакеты отключены. Рекомендуется Jc = 5-12.');
+  }
+
+  if (Jmin !== null && Jmax !== null && (Jmax - Jmin) < 50) {
+    // Узкий диапазон — норма для DNS-мимикрии (Lite и AmneziaVPN):
+    // DNS-пакеты маленькие и предсказуемого размера
+    const pname = version && version.toolzaProfile && version.toolzaProfile.name;
+    const narrowOk = pname === 'Lite' || pname === 'AmneziaVPN';
+    if (!narrowOk) {
+      add('med', `Jmin-Jmax диапазон слишком узкий (${Jmin}-${Jmax}). Расширь до ≥50 байт разницы.`);
+    }
+  }
+
+  // === LOW (оптимизация) ===
+  if (version.ver === 'WireGuard') {
+    add('high', 'Это чистый WireGuard без обфускации. Используй AmneziaWG — добавит Jc/S/H/I параметры.');
+  }
+
+  if (version.ver === 'AWG 1.0' || version.ver === 'AWG 1.5') {
+    add('low', 'Обнови до AWG 2.0: добавь S3/S4 и переделай H1-H4 в диапазоны.');
+  }
+
+  const pubEndpoint = getStr(peer, 'endpoint');
+  if (pubEndpoint) {
+    const ep = pubEndpoint.split(':');
+    const epPort = parseInt(ep[ep.length - 1]);
+    if (epPort === 51820 || epPort === 51821) {
+      add('low', `Порт ${epPort} — стандартный WireGuard. Смени на случайный выше 1024 (например, 47300).`);
+    }
+  }
+
+  if (mtu === null) {
+    add('low', 'Задай <code class="fix-code">MTU = 1320</code> — оптимум для AWG 2.0 + CPS.');
+  }
+
+  if (!getStr(peer, 'presharedkey')) {
+    add('low', 'Добавь PresharedKey — дополнительный слой симметричного шифрования (post-quantum устойчивость).');
+  }
+
+  return fixes;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  UPGRADE PATH — как усилить защиту
+// ═══════════════════════════════════════════════════════════
+function buildUpgradePath(iface, version) {
+  const steps = [];
+  const hasI1 = !!getStr(iface, 'i1');
+  const S3 = getInt(iface, 's3', null);
+  const S4 = getInt(iface, 's4', null);
+  const h1 = parseHRange(iface, 'h1');
+
+  if (version.ver === 'WireGuard') {
+    steps.push({
+      title: 'Шаг 1: Перейди на AmneziaWG',
+      text: 'Установи amneziawg-tools и пересоздай сервер с Jc/Jmin/Jmax/S1/S2/H1-H4 параметрами. Это добавит базовую обфускацию.',
+      cmd: '# На сервере:\nsudo add-apt-repository ppa:amnezia/ppa\nsudo apt install amneziawg amneziawg-tools',
     });
-    // I1-I5: fixed protocol blobs from reference AWG 2.0 config
-    const Ipackets = [
-      '<b 0xc30000000113c686df214ce1329f3a4fd3ab6655ef2d16abed0f24a0a746d372332c448cd8a9c78cd000f373105b><rc 24><t><r 999><r 176>',
-      '<b 0xc30000000110f3e344a64f0267a642da07f50832a44a0ac0c863b3b5a17e7a900b1eb8de3cee55ea17349294b39b596d968433ae47bdd61ac2ea04b1c738eb387b3a6616><rc 12><t><r 999><r 166>',
-      '<b 0xc0000000010e789432e8be5bd105687273324cc00883a4faf3c48c624f0980d1749cb5c093052d13758e8e><rc 11><t><r 999><r 192>',
-      '<b 0xc3000000010dca9764592f7ca1044831adb1ff14be66b98d566c9276ccf52700b1a1671eec304c261e5a384d27b30d9d58afc7004edd812b411398983ee9536c7bf903318e2b5eea7efdad><rc 33><t><r 999><r 138>',
-      '<b 0xc00000000109eaacd959afae06ebfa05e095f02d281ec7829bd6bbe9db56c3b9e77bbd8e9e368e1c8a2834f89221e589eced632775c9a33b><rc 13><t><r 999><r 177>',
-    ];
-    return {S3, S4, H1r, H2r, H3r, H4r, Ipackets};
   }
 
-  // ── Build config text ─────────────────────────────────────────
-  const AWG_KEYS = new Set(['Jc','Jmin','Jmax','S1','S2','S3','S4',
-    'H1','H2','H3','H4','I1','I2','I3','I4','I5']);
+  if (version.ver === 'AWG 1.0' || version.ver === 'AWG 1.5') {
+    steps.push({
+      title: 'Шаг 1: Обнови до AWG 2.0',
+      text: 'AWG 2.0 добавляет S3/S4 (дополнительная рандомизация) и H1-H4 как диапазоны (случайное значение каждый handshake). Пропиши в [Interface]:',
+      cmd: 'S3 = 32\nS4 = 8\nH1 = 100000000-100100000\nH2 = 1200000000-1200100000\nH3 = 2300000000-2300100000\nH4 = 3400000000-3400100000',
+    });
+  }
 
-  function buildConfig(sections, p){
-    let out = '';
-    sections.forEach((section, idx) => {
-      out += `[${section.name}]\n`;
-      section.comments.forEach(c => out += c+'\n');
-      const entries = section.name.toLowerCase() === 'interface'
-        ? section.entries.filter(e => !AWG_KEYS.has(e.key))
-        : section.entries;
-      entries.forEach(e => out += `${e.key} = ${e.val}\n`);
-      if(section.name.toLowerCase() === 'interface'){
-        out += `Jc = ${p.Jc}\n`;
-        out += `Jmin = ${p.Jmin}\n`;
-        out += `Jmax = ${p.Jmax}\n`;
-        out += `S1 = ${p.S1}\n`;
-        out += `S2 = ${p.S2}\n`;
-        if(p.extra){
-          out += `S3 = ${p.extra.S3}\n`;
-          out += `S4 = ${p.extra.S4}\n`;
-          out += `H1 = ${p.extra.H1r}\n`;
-          out += `H2 = ${p.extra.H2r}\n`;
-          out += `H3 = ${p.extra.H3r}\n`;
-          out += `H4 = ${p.extra.H4r}\n`;
-          p.extra.Ipackets.forEach((blob, i) => out += `I${i+1} = ${blob}\n`);
+  if (version.ver.includes('AWG') && !hasI1) {
+    steps.push({
+      title: `Шаг ${steps.length + 1}: Добавь CPS мимикрию (I1)`,
+      text: 'I1 — сигнатурный пакет который имитирует реальный протокол (TLS/QUIC/DTLS/SIP). Без него DPI видит "странный UDP". Сгенерируй через awg2-toolza:',
+      cmd: 'sudo awg2\n# Пункт 2 → создать сервер → Уровень 2 (+I1) → TLS профиль',
+    });
+  }
+
+  if (version.ver === 'AWG 2.0' && hasI1) {
+    const iCount = ['i2', 'i3', 'i4', 'i5'].filter(k => iface[k]).length;
+    if (iCount === 0) {
+      steps.push({
+        title: `Шаг ${steps.length + 1}: Добавь полный CPS chain (I2-I5)`,
+        text: 'I1-I5 это сигнатурные пакеты которые клиент отправляет перед WireGuard handshake — DPI на пути видит «реальный» TLS/QUIC/DNS-трафик и пропускает соединение. Сервер их не использует и не обязан ничего менять. Чем больше пакетов (I1-I5 вместо одного I1) — тем сложнее DPI построить сигнатуру. Сгенерируй I2-I5 любым CPS-генератором и допиши в [Interface]. Работает на AmneziaVPN 4.8.12+ и amneziawg-go.',
+        cmd: '# В [Interface] добавь после I1:\nI2 = <b 0x...>  # например QUIC short header\nI3 = <b 0x...>  # TLS record\nI4 = <b 0x...>  # DTLS\nI5 = <b 0x...>  # DNS / SIP / etc.\n# Каждый I — отдельный сигнатурный пакет другого протокола',
+      });
+    }
+  }
+
+  // Порт и endpoint
+  const endpointPort = (() => {
+    const ep = (iface.endpoint || '').split(':');
+    return parseInt(ep[ep.length - 1]);
+  })();
+
+  if (endpointPort === 51820 || endpointPort === 51821) {
+    steps.push({
+      title: `Шаг ${steps.length + 1}: Смени порт сервера`,
+      text: 'Порт 51820/51821 — стандарт WireGuard. DPI может фильтровать по порту. Используй случайный 30000-65000.',
+      cmd: '# При пересоздании сервера укажи:\nПорт: r  # случайный',
+    });
+  }
+
+  // H1-H4 диапазоны
+  if (h1 && !h1.isRange && version.ver.includes('AWG')) {
+    steps.push({
+      title: `Шаг ${steps.length + 1}: Переделай H1-H4 в диапазоны`,
+      text: 'H1-H4 как одиночные числа работают, но каждое соединение использует одно и то же значение. DPI может их запомнить. Диапазоны дают уникальный magic каждый handshake.',
+      cmd: '# Распредели по квадрантам uint32:\nH1 = 100000000-100100000    # 0..Q\nH2 = 1200000000-1200100000  # Q..2Q\nH3 = 2300000000-2300100000  # 2Q..3Q\nH4 = 3400000000-3400100000  # 3Q..4Q',
+    });
+  }
+
+  // MTU оптимизация
+  const mtu = getInt(iface, 'mtu', null);
+  if (mtu !== null && mtu > 1340 && version.ver === 'AWG 2.0' && hasI1) {
+    steps.push({
+      title: `Шаг ${steps.length + 1}: Оптимизируй MTU под AWG 2.0`,
+      text: `MTU=${mtu} работает нормально. Для AWG 2.0 + CPS рекомендуется 1280-1340 — это снижает вероятность фрагментации UDP пакетов на некоторых провайдерах.`,
+      cmd: 'MTU = 1320',
+    });
+  }
+
+  return steps;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  VERDICT
+// ═══════════════════════════════════════════════════════════
+function getVerdict(s) {
+  if (s >= 88) return { l: '🛡 Максимальная защита', c: '#a855f7', bg: '#2e1a4e22', t: 'AWG 2.0 с полноценным CPS. Трафик неотличим от реального протокола. Высочайшая устойчивость к DPI.' };
+  if (s >= 70) return { l: '✅ Хорошая защита', c: '#4ade80', bg: '#14532d11', t: 'Надёжная конфигурация AWG. Есть параметры для улучшения — проверьте рекомендации ниже.' };
+  if (s >= 50) return { l: '⚠️ Средняя защита', c: '#f59e0b', bg: '#78350f11', t: 'Базовая обфускация. Продвинутые DPI могут идентифицировать как AWG/WireGuard.' };
+  if (s >= 30) return { l: '🔶 Слабая защита', c: '#f97316', bg: '#431a0311', t: 'Минимальная обфускация. Трафик легко идентифицируется.' };
+  return { l: '🔴 Стандартный WireGuard', c: '#ef4444', bg: '#450a0a22', t: 'Нет обфускации. DPI немедленно блокирует трафик.' };
+}
+
+function dpiLabel(d) {
+  if (d <= 20) return { t: 'LOW', c: '#22c55e' };
+  if (d <= 45) return { t: 'MEDIUM', c: '#f59e0b' };
+  return { t: 'HIGH', c: '#ef4444' };
+}
+
+function profileColor(name) {
+  if (name === 'Lite') return '#fbbf24';        // amber
+  if (name === 'Standard') return '#60a5fa';    // blue
+  if (name === 'Pro') return '#34d399';         // emerald
+  if (name === 'AmneziaVPN') return '#f472b6';  // pink (бренд Amnezia)
+  return '#94a3b8';
+}
+
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+const icons = { pass: '✓', warn: '!', fail: '✗', info: 'i' };
+
+function renderMini(label, val, color, suffix = '') {
+  return `<div class="mini-card"><div class="mini-label">${label}</div><div class="mini-val" style="color:${color}">${esc(String(val))}${suffix}</div></div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MAIN
+// ═══════════════════════════════════════════════════════════
+function analyze() {
+  const raw = document.getElementById('configInput').value.trim();
+  const errEl = document.getElementById('errorMsg');
+  const scoreEl = document.getElementById('scoreSection');
+  const parsedEl = document.getElementById('parsedParams');
+  const checksEl = document.getElementById('checksOutput');
+  const autofixEl = document.getElementById('autofixBox');
+  const fixList = document.getElementById('autofixList');
+  const miniEl = document.getElementById('miniScores');
+  const verBanner = document.getElementById('versionBanner');
+  const verBadge = document.getElementById('verBadge');
+  const verDesc = document.getElementById('verDesc');
+  const summaryEl = document.getElementById('summaryBox');
+  const summaryText = document.getElementById('summaryText');
+  const upgradeEl = document.getElementById('upgradeBox');
+  const upgradeList = document.getElementById('upgradeList');
+
+  // Reset
+  errEl.style.display = 'none';
+  scoreEl.style.display = 'none';
+  parsedEl.style.display = 'none';
+  checksEl.innerHTML = '';
+  autofixEl.style.display = 'none';
+  fixList.innerHTML = '';
+  miniEl.innerHTML = '';
+  verBanner.style.display = 'none';
+  summaryEl.style.display = 'none';
+  upgradeEl.style.display = 'none';
+  upgradeList.innerHTML = '';
+
+  if (!raw) {
+    errEl.textContent = 'Вставьте содержимое .conf файла AmneziaWG / WireGuard';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  let parsed;
+  try { parsed = parseAWG(raw); }
+  catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; return; }
+
+  const { iface, peer } = parsed;
+  const version = detectVersion(iface);
+  const checks = runChecks(iface, peer, version);
+  const scores = calcScores(checks, iface, version);
+  const fixes = buildFixes(checks, iface, peer, version);
+  const upgrades = buildUpgradePath(iface, version);
+
+  // Camouflage
+  let camouflage = 'LOW';
+  if (version.protocol === 'QUIC' || version.protocol === 'TLS') camouflage = 'HIGH';
+  else if (version.protocol === 'DTLS' || version.protocol === 'SIP' || version.protocol === 'DNS') camouflage = 'MEDIUM';
+
+  const verdict = getVerdict(scores.total);
+  const dpiL = dpiLabel(scores.dpi);
+
+  // Version banner
+  verBanner.style.display = 'flex';
+  verBadge.textContent = version.ver;
+  verBadge.className = 'ver-badge ' + version.cls;
+  let descHtml = esc(version.desc);
+  if (version.obfLevel) {
+    descHtml += ` <span class="ver-level">${esc(version.obfLevel)}</span>`;
+  }
+  verDesc.innerHTML = descHtml;
+
+  // Summary
+  summaryEl.style.display = 'block';
+  summaryText.innerHTML = buildSummary(iface, peer, version);
+
+  // Score ring
+  scoreEl.style.display = 'block';
+  const rf = document.getElementById('ringFill');
+  document.getElementById('ringScore').textContent = scores.total;
+  document.getElementById('ringSub').textContent = version.ver;
+  rf.setAttribute('stroke-dasharray', `${(scores.total / 100) * CIRC} ${CIRC}`);
+  rf.setAttribute('stroke', verdict.c);
+  const b = document.getElementById('verdictBadge');
+  b.textContent = verdict.l;
+  b.style.cssText = `background:${verdict.bg};color:${verdict.c};border:1px solid ${verdict.c}44`;
+  document.getElementById('verdictText').textContent = verdict.t;
+
+  // Mini
+  const profileTile = version.toolzaProfile
+    ? renderMini(version.toolzaProfile.name === 'AmneziaVPN' ? 'Source' : 'Toolza Profile', version.toolzaProfile.name, profileColor(version.toolzaProfile.name))
+    : '';
+  miniEl.innerHTML =
+    renderMini('AWG Version', version.ver, '#a78bfa') +
+    renderMini('DPI Risk', dpiL.t, dpiL.c) +
+    renderMini('Stealth', scores.stealth, '#818cf8', '%') +
+    renderMini('Security', scores.total, '#e2e8f0', '%') +
+    renderMini('Camouflage', camouflage, '#60a5fa') +
+    profileTile;
+
+  // Fixes — сортируем по severity
+  if (fixes.length) {
+    autofixEl.style.display = 'block';
+    const sevOrder = { crit: 0, high: 1, med: 2, low: 3 };
+    fixes.sort((a, b) => sevOrder[a.severity] - sevOrder[b.severity]);
+    const sevLabel = { crit: 'CRIT', high: 'HIGH', med: 'MED', low: 'LOW' };
+    fixList.innerHTML = fixes.map(f =>
+      `<div class="fix-item"><div><span class="fix-severity ${f.severity}">${sevLabel[f.severity]}</span>${f.text}</div></div>`
+    ).join('');
+  }
+
+  // Upgrade path
+  if (upgrades.length) {
+    upgradeEl.style.display = 'block';
+    upgradeList.innerHTML = upgrades.map(u =>
+      `<div class="upgrade-step"><strong>${esc(u.title)}</strong><br>${esc(u.text)}${u.cmd ? `<div class="cmd">${esc(u.cmd)}</div>` : ''}</div>`
+    ).join('');
+  }
+
+  // Parsed params
+  parsedEl.style.display = 'block';
+  const prows = [
+    ['privatekey', iface.privatekey ? iface.privatekey.slice(0, 16) + '…' : '—'],
+    ['address', iface.address || '—'],
+    ['dns', iface.dns || '—'],
+    ['mtu', iface.mtu || '—'],
+    ['jc/jmin/jmax', [iface.jc, iface.jmin, iface.jmax].map(v => v ?? '—').join(' / ')],
+    ['s1/s2', [iface.s1, iface.s2].map(v => v ?? '—').join(' / ')],
+    ['s3/s4', iface.s3 || iface.s4 ? [iface.s3, iface.s4].map(v => v ?? '—').join(' / ') : '—'],
+    ['h1/h2/h3/h4', [iface.h1, iface.h2, iface.h3, iface.h4].map(v => v ?? '—').join(' / ')],
+    ['i1', iface.i1 ? iface.i1.slice(0, 40) + (iface.i1.length > 40 ? '…' : '') : '—'],
+    ['i2-i5', ['i2','i3','i4','i5'].filter(k => iface[k]).length + ' шт' || '—'],
+    ['endpoint', peer.endpoint || '—'],
+    ['publickey', peer.publickey ? peer.publickey.slice(0, 16) + '…' : '—'],
+    ['allowedips', peer.allowedips || '—'],
+    ['keepalive', peer.persistentkeepalive || '—'],
+  ].filter(([, v]) => v && v !== '—');
+  parsedEl.innerHTML = prows.map(([k, v]) => `<span>${k.padEnd(14)}</span>= ${esc(v)}`).join('\n');
+
+  // Checks
+  const cats = [...new Set(checks.map(c => c.cat))];
+  cats.forEach(cat => {
+    checksEl.innerHTML += `<div class="section-title">${cat}</div><div class="checks-grid">`;
+    checks.filter(c => c.cat === cat && c.max >= 0).forEach(c => {
+      checksEl.innerHTML += `
+        <div class="check-item ${c.status}">
+          <div class="check-icon">${icons[c.status] || 'i'}</div>
+          <div class="check-body">
+            <div class="check-title">${c.title}</div>
+            <div class="check-value">${esc(c.value)}</div>
+            <div class="check-detail">${c.detail}</div>
+          </div>
+          <div class="check-weight">${c.pts}/${c.max}</div>
+        </div>`;
+    });
+    checksEl.innerHTML += '</div>';
+  });
+}
+
+function loadFile(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = ev => { document.getElementById('configInput').value = ev.target.result.trim(); analyze(); };
+  r.readAsText(file);
+  e.target.value = '';
+}
+function clearAll() {
+  document.getElementById('configInput').value = '';
+  ['errorMsg','scoreSection','parsedParams','autofixBox','versionBanner','summaryBox','upgradeBox'].forEach(id=>{
+    document.getElementById(id).style.display='none';
+  });
+  document.getElementById('checksOutput').innerHTML='';
+  // reset obf panel results but keep it open if was open
+  ['obfCliBlock','obfNotice'].forEach(id=>{const e=document.getElementById(id);if(e){e.style.display='none';e.className=(e.className||'').replace(/ ?(ok|er|inf)/g,'');}});
+  ['obfRegenBtn','obfCopyBtn','obfSaveBtn','obfDlBtn'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
+}
+
+// Drag & drop
+const dz = document.getElementById('dropZone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('dragover');
+  const file = e.dataTransfer.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = ev => { document.getElementById('configInput').value = ev.target.result.trim(); analyze(); };
+  r.readAsText(file);
+});
+
+document.addEventListener('keydown', e => { if (e.ctrlKey && e.key === 'Enter') analyze(); });
+// ═══════════════════════════════════════════════════════════════════
+//  WG → AWG  (integrated obfuscation)
+// ═══════════════════════════════════════════════════════════════════
+(function () {
+  const LS_KEY = 'awg_saved_params';
+  let obfMode = 'awg1', obfParams = null, obfSections = null, obfOutput = '';
+
+  window.obfToggle = function () {
+    document.getElementById('obfPanel').classList.toggle('open');
+  };
+  window.obfSetMode = function (m) {
+    obfMode = m;
+    document.getElementById('om1').classList.toggle('sel', m === 'awg1');
+    document.getElementById('om2').classList.toggle('sel', m === 'awg2');
+  };
+
+  // ── random ──────────────────────────────────────────────────────
+  function ri(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+  function genBase() {
+    let S1 = ri(15,100), S2 = ri(15,100);
+    while (S1 + 56 === S2) S2 = ri(15,100);
+    return { Jc:ri(3,10), Jmin:ri(40,70), Jmax:ri(900,1280), S1, S2,
+      H1:ri(1,1073741823), H2:ri(1073741824,2147483647),
+      H3:ri(2147483648,3221225471), H4:ri(3221225472,4294967290) };
+  }
+  function genExtra() {
+    const q=[[1,1073741823],[1073741824,2147483647],[2147483648,3221225471],[3221225472,4294967290]];
+    const [H1r,H2r,H3r,H4r]=q.map(([lo,hi])=>{const w=ri(15000,50000),s=ri(lo,hi-w);return `${s}-${s+w}`;});
+    return { S3:ri(15,60), S4:ri(5,32), H1r, H2r, H3r, H4r,
+      Ip:[
+        '<b 0xc30000000113c686df214ce1329f3a4fd3ab6655ef2d16abed0f24a0a746d372332c448cd8a9c78cd000f373105b><rc 24><t><r 1000><r 176>',
+        '<b 0xc30000000110f3e344a64f0267a642da07f50832a44a0ac0c863b3b5a17e7a900b1eb8de3cee55ea17349294b39b596d968433ae47bdd61ac2ea04b1c738eb387b3a6616><rc 12><t><r 1000><r 166>',
+        '<b 0xc0000000010e789432e8be5bd105687273324cc00883a4faf3c48c624f0980d1749cb5c093052d13758e8e><rc 11><t><r 1000><r 192>',
+        '<b 0xc3000000010dca9764592f7ca1044831adb1ff14be66b98d566c9276ccf52700b1a1671eec304c261e5a384d27b30d9d58afc7004edd812b411398983ee9536c7bf903318e2b5eea7efdad><rc 33><t><r 1000><r 138>',
+        '<b 0xc00000000109eaacd959afae06ebfa05e095f02d281ec7829bd6bbe9db56c3b9e77bbd8e9e368e1c8a2834f89221e589eced632775c9a33b><rc 13><t><r 1000><r 177>',
+      ] };
+  }
+
+  // ── parse / build ────────────────────────────────────────────────
+  function parseSections(text) {
+    const secs=[]; let cur=null;
+    for (const raw of text.split(/\r?\n/)) {
+      const l=raw.trim(); if(!l) continue;
+      const sm=l.match(/^\[(\w+)\]$/i);
+      if(sm){cur={name:sm[1],entries:[],comments:[]};secs.push(cur);continue;}
+      if(!cur) continue;
+      if(l[0]==='#'||l[0]===';'){cur.comments.push(l);continue;}
+      const kv=l.match(/^([^=]+?)\s*=\s*(.*)$/);
+      if(kv) cur.entries.push({key:kv[1].trim(),val:kv[2].trim()});
+    }
+    return secs;
+  }
+  const AWG_KEYS=new Set(['Jc','Jmin','Jmax','S1','S2','S3','S4','H1','H2','H3','H4','I1','I2','I3','I4','I5']);
+  function buildConf(secs, p) {
+    let out='';
+    secs.forEach((sec,idx)=>{
+      out+=`[${sec.name}]\n`;
+      sec.comments.forEach(c=>out+=c+'\n');
+      const ents=sec.name.toLowerCase()==='interface'?sec.entries.filter(e=>!AWG_KEYS.has(e.key)):sec.entries;
+      ents.forEach(e=>out+=`${e.key} = ${e.val}\n`);
+      if(sec.name.toLowerCase()==='interface'){
+        out+=`Jc = ${p.Jc}\nJmin = ${p.Jmin}\nJmax = ${p.Jmax}\nS1 = ${p.S1}\nS2 = ${p.S2}\n`;
+        if(p.ex){const x=p.ex;
+          out+=`S3 = ${x.S3}\nS4 = ${x.S4}\nH1 = ${x.H1r}\nH2 = ${x.H2r}\nH3 = ${x.H3r}\nH4 = ${x.H4r}\n`;
+          x.Ip.forEach((b,i)=>out+=`I${i+1} = ${b}\n`);
         } else {
-          out += `H1 = ${p.H1}\n`;
-          out += `H2 = ${p.H2}\n`;
-          out += `H3 = ${p.H3}\n`;
-          out += `H4 = ${p.H4}\n`;
+          out+=`H1 = ${p.H1}\nH2 = ${p.H2}\nH3 = ${p.H3}\nH4 = ${p.H4}\n`;
         }
       }
-      if(idx < sections.length-1) out += '\n';
+      if(idx<secs.length-1) out+='\n';
     });
     return out.trim()+'\n';
   }
 
-  // ── CLI command ───────────────────────────────────────────────
-  function buildCliCmd(){
-    if(!lastParams) return '';
-    const p = lastParams;
-    const iface = ifaceName.value.trim() || 'Wireguard0';
-    if(mode === 'awg2' && p.extra){
-      const ex = p.extra;
-      const blobs = ex.Ipackets.map(b => `"${b}"`).join(' ');
-      return `interface ${iface} wireguard asc ${p.Jc} ${p.Jmin} ${p.Jmax} ${p.S1} ${p.S2} ${ex.H1r} ${ex.H2r} ${ex.H3r} ${ex.H4r} ${ex.S3} ${ex.S4} ${blobs}`;
+  // ── CLI ──────────────────────────────────────────────────────────
+  function cliCmd() {
+    if(!obfParams) return '';
+    const p=obfParams, iface=(document.getElementById('obfIface').value||'Wireguard0').trim();
+    if(obfMode==='awg2'&&p.ex){
+      const x=p.ex,blobs=x.Ip.map(b=>`"${b}"`).join(' ');
+      return `interface ${iface} wireguard asc ${p.Jc} ${p.Jmin} ${p.Jmax} ${p.S1} ${p.S2} ${x.H1r} ${x.H2r} ${x.H3r} ${x.H4r} ${x.S3} ${x.S4} ${blobs}`;
     }
     return `interface ${iface} wireguard asc ${p.Jc} ${p.Jmin} ${p.Jmax} ${p.S1} ${p.S2} ${p.H1} ${p.H2} ${p.H3} ${p.H4}`;
   }
+  window.obfRenderCli = function() { document.getElementById('obfCliCmd').textContent=cliCmd(); };
+  window.obfCopyCli = async function(){
+    const cmd=cliCmd(); if(!cmd) return;
+    try{ await navigator.clipboard.writeText(cmd); notice('✓ Команда скопирована','ok'); }
+    catch(e){ notice('Выделите текст вручную','er'); }
+  };
 
-  function renderCli(){
-    cliOut.textContent = buildCliCmd();
-    cliCard.style.display = 'block';
+  // ── saved ────────────────────────────────────────────────────────
+  function lsLoad(){try{return JSON.parse(localStorage.getItem(LS_KEY))||null;}catch(e){return null;}}
+  function updateSavedBar(){
+    const s=lsLoad(),bar=document.getElementById('obfSaved');
+    if(!s){bar.classList.remove('vis');return;}
+    bar.classList.add('vis');
+    document.getElementById('obfSavedSum').textContent=
+      `${s.mode==='awg2'?'AWG 2.0':'AWG 1.0'} · Jc=${s.Jc} S1=${s.S1} S2=${s.S2}`;
+  }
+  updateSavedBar();
+
+  window.obfClearSaved=function(){localStorage.removeItem(LS_KEY);updateSavedBar();notice('Параметры сброшены','ok');};
+  window.obfSave=function(){
+    if(!obfParams) return;
+    localStorage.setItem(LS_KEY,JSON.stringify({...obfParams,mode:obfMode}));
+    updateSavedBar(); document.getElementById('obfUseSaved').checked=true;
+    notice('🔒 Параметры зафиксированы — применяются ко всем конфигам этого сервера','inf');
+  };
+
+  // ── notice ───────────────────────────────────────────────────────
+  function notice(msg,t){const el=document.getElementById('obfNotice');el.textContent=msg;el.className='obf-notice '+t;}
+
+  // ── render result ────────────────────────────────────────────────
+  function applyResult() {
+    obfOutput=buildConf(obfSections,obfParams);
+    // Put result into the textarea and analyze immediately
+    document.getElementById('configInput').value=obfOutput;
+    analyze();
+    // Show CLI block
+    document.getElementById('obfCliBlock').style.display='block';
+    obfRenderCli();
+    // Show action buttons
+    document.getElementById('obfCopyBtn').style.display='inline-block';
+    document.getElementById('obfSaveBtn').style.display='inline-block';
+    document.getElementById('obfDlBtn').style.display='inline-block';
   }
 
-  rebuildCliBtn.addEventListener('click', renderCli);
-  ifaceName.addEventListener('keydown', e => { if(e.key==='Enter') renderCli(); });
-
-  // ── Main generate ─────────────────────────────────────────────
-  function generate(){
-    const raw = inputEl.value;
-    if(!raw || !raw.trim()){ showStatus('Сначала вставьте или загрузите конфиг', 'err'); return; }
-    const sections = parseConfig(raw);
-    if(!sections.some(s => s.name.toLowerCase()==='interface')){
-      showStatus('Не найдена секция [Interface] — проверьте формат конфига', 'err'); return;
-    }
-
-    // Use saved params or generate new
-    const saved = loadSaved();
+  // ── generate ─────────────────────────────────────────────────────
+  window.obfGenerate=function(){
+    const raw=document.getElementById('configInput').value.trim();
+    if(!raw){notice('Вставьте WireGuard конфиг в поле выше','er');return;}
+    const secs=parseSections(raw);
+    if(!secs.some(s=>s.name.toLowerCase()==='interface')){notice('Не найдена секция [Interface]','er');return;}
+    const saved=lsLoad(), use=document.getElementById('obfUseSaved').checked;
     let p;
-    if(saved && useSavedChk.checked && saved.mode === mode){
-      p = saved;
-      showStatus(`🔒 Использованы сохранённые параметры (${mode==='awg1'?'AWG 1.0':'AWG 2.0'})`, 'info');
+    if(saved&&use&&saved.mode===obfMode){
+      p=saved; notice(`🔒 Использованы сохранённые параметры (${obfMode==='awg1'?'AWG 1.0':'AWG 2.0'})`,'inf');
     } else {
-      if(saved && useSavedChk.checked && saved.mode !== mode){
-        showStatus(`Сохранённые параметры для ${saved.mode==='awg2'?'AWG 2.0':'AWG 1.0'}, но выбран ${mode==='awg1'?'AWG 1.0':'AWG 2.0'} — сгенерированы новые`, 'err');
-      } else {
-        showStatus(`Готово: ${mode==='awg1'?'AWG 1.0':'AWG 2.0'} — параметры обфускации сгенерированы случайно`, 'ok');
-      }
-      p = genBaseParams();
-      if(mode === 'awg2') p.extra = genAwg2Extra();
+      if(saved&&use&&saved.mode!==obfMode)
+        notice(`Сохранённые — для ${saved.mode==='awg2'?'AWG 2.0':'AWG 1.0'}, выбран ${obfMode==='awg1'?'AWG 1.0':'AWG 2.0'} — новые`,'er');
+      else
+        notice(`${obfMode==='awg1'?'AWG 1.0':'AWG 2.0'} — параметры сгенерированы случайно`,'ok');
+      p=genBase(); if(obfMode==='awg2') p.ex=genExtra();
     }
+    obfParams=p; obfSections=secs;
+    applyResult();
+    document.getElementById('obfRegenBtn').style.display=(saved&&use&&saved.mode===obfMode)?'none':'inline-block';
+  };
 
-    lastParams = p;
-    parsedSections = sections;
-    renderOutput();
-    regenBtn.style.display = saved && useSavedChk.checked ? 'none' : 'inline-block';
-  }
+  window.obfRegen=function(){
+    obfParams=genBase(); if(obfMode==='awg2') obfParams.ex=genExtra();
+    applyResult(); notice(`Новые случайные параметры (${obfMode==='awg1'?'AWG 1.0':'AWG 2.0'})`,'ok');
+  };
 
-  function renderOutput(){
-    if(!parsedSections || !lastParams) return;
-    lastOutput = buildConfig(parsedSections, lastParams);
-    outWrap.innerHTML = `<pre class="out">${escapeHtml(lastOutput)}</pre>`;
-    outActions.style.display = 'flex';
-    renderCli();
-  }
-
-  function escapeHtml(s){
-    return s.replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-  }
-
-  genBtn.addEventListener('click', generate);
-  regenBtn.addEventListener('click', () => {
-    lastParams = genBaseParams();
-    if(mode === 'awg2') lastParams.extra = genAwg2Extra();
-    renderOutput();
-    showStatus(`Сгенерированы новые случайные параметры (${mode==='awg1'?'AWG 1.0':'AWG 2.0'})`, 'ok');
-  });
-
-  copyBtn.addEventListener('click', async () => {
-    if(!lastOutput) return;
-    try{
-      await navigator.clipboard.writeText(lastOutput);
-      flash(copyBtn, '✓ Скопировано', '📋 Скопировать конфиг');
-    }catch(e){ showStatus('Выделите текст вручную', 'err'); }
-  });
-
-  copyCliBtn.addEventListener('click', async () => {
-    const cmd = buildCliCmd();
-    if(!cmd) return;
-    try{
-      await navigator.clipboard.writeText(cmd);
-      flash(copyCliBtn, '✓ Скопировано', '📋 Скопировать команду');
-    }catch(e){ showStatus('Выделите текст вручную', 'err'); }
-  });
-
-  downloadBtn.addEventListener('click', () => {
-    if(!lastOutput) return;
-    const blob = new Blob([lastOutput],{type:'text/plain'});
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href = url;
-    a.download = `wg-${mode==='awg1'?'awg10':'awg20'}.conf`;
-    document.body.appendChild(a); a.click();
-    document.body.removeChild(a); URL.revokeObjectURL(url);
-  });
-
-  function flash(btn, tempText, origText){
-    btn.textContent = tempText;
-    setTimeout(() => btn.textContent = origText, 1500);
-  }
+  window.obfCopyConf=async function(){
+    if(!obfOutput) return;
+    try{ await navigator.clipboard.writeText(obfOutput); notice('✓ Конфиг скопирован','ok'); }
+    catch(e){ notice('Выделите текст вручную','er'); }
+  };
+  window.obfDownload=function(){
+    if(!obfOutput) return;
+    const b=new Blob([obfOutput],{type:'text/plain'}),u=URL.createObjectURL(b),a=document.createElement('a');
+    a.href=u;a.download=`wg-${obfMode==='awg1'?'awg10':'awg20'}.conf`;
+    document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);
+  };
 })();
+
+
+// Theme toggle
+const themeBtn = document.getElementById('themeToggle');
+themeBtn.addEventListener('click', () => { document.body.classList.toggle('light'); });
 </script>
 </body>
 </html>
