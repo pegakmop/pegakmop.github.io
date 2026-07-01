@@ -1250,7 +1250,7 @@ function buildFixes(checks, iface, peer, version) {
 
   const allowed = getStr(peer, 'allowedips');
   if (allowed.includes('0.0.0.0/0') && !allowed.includes('::/0')) {
-    add('med', 'Добавь <code class="fix-code">::/0</code> в AllowedIPs чтобы закрыть IPv6 leak.');
+    add('med', 'Добавь <code class="fix-code">::/0</code> в AllowedIPs чтобы закрыть возможность утечки IPv6 leak.');
   }
 
   if (Jc !== null && Jc < 3 && Jc > 0) {
