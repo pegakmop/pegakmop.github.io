@@ -59,6 +59,8 @@ print_info() {
   check_service hrneo
   check_service mihomo
   check_service AdGuardHome
+  check_service nfqws
+  check_service nfqws2
   check_service tg-ws-proxy
   check_service wdtt-server
   check_service wdtt-client
