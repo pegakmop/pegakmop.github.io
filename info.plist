@@ -16,8 +16,8 @@
 				<dict>
 					<key>kind</key>
 					<string>display-image</string>
-					<key>https://www.pegakmop.site/180x180.png</key>
-					<string></string>
+					<key>url</key>
+					<string>https://www.pegakmop.site/180x180.png</string>
 				</dict>
 			</array>
 			<key>metadata</key>
