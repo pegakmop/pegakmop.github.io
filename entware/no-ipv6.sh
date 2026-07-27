@@ -1,6 +1,6 @@
 #!/bin/sh
 #отключение ipv6 на интерфейсах...
-curl -kfsS "localhost:79/rci/show/interface/" | jq -r '
+curl -kfsS "127.0.0.1:79/rci/show/interface/" | jq -r '
 	  to_entries[] | 
 	  select(.value.defaultgw == true or .value.via != null) | 
 	  if .value.via then "\(.value.id) \(.value.via)" else "\(.value.id)" end
