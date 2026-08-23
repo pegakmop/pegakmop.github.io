@@ -70,7 +70,7 @@ a.donate-btn:hover {
 <h1>поддержи разработку по кнопкам ниже</h1>
 
 
-<code id="repoCode">ARCH=$(grep '^arch=' /opt/etc/entware_release | cut -d= -f2) && case "$ARCH" in aarch64) URL="aarch64-k3.10";; mipsel) URL="mipselsf-k3.4";; mips) URL="mipssf-k3.4";; esac && mkdir -p /opt/etc/opkg && echo "src/gz pegakmop http://pegakmop.github.io/release/keenetic/$URL" > /opt/etc/opkg/neofit.conf && opkg install wget-ssl ca-certificates || true; opkg update || true;
+<code id="repoCode">ARCH=$(grep '^arch=' /opt/etc/entware_release | cut -d= -f2) && case "$ARCH" in aarch64) URL="aarch64-k3.10";; mipsel) URL="mipselsf-k3.4";; mips) URL="mipssf-k3.4";; esac && mkdir -p /opt/etc/opkg && echo "src/gz neofit https://pegakmop.github.io/release/keenetic/$URL" > /opt/etc/opkg/neofit.conf && opkg install wget-ssl ca-certificates || true; opkg update || true;
 </code>
 
 <button class="copy-btn" onclick="copyCode()">Скопировать команду</button>
