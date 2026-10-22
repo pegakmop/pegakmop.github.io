@@ -1,0 +1,10 @@
+
+#!name = SideStore Local Tunnel
+#!desc = SideStore local tunnel test
+#!loon_version = 3.5.3(1007)
+
+[General]
+include-tun = 10.7.0.1/32
+
+[IP Rewrite]
+10.7.0.1 = reflect
