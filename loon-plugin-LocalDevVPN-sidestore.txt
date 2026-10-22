@@ -1,7 +1,10 @@
-
-#!name = SideStore Local Tunnel
-#!desc = SideStore local tunnel test
-#!loon_version = 3.5.3(1007)
+#!url= https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/loon-plugin-LocalDevVPN-sidestore.txt
+#!homepage = https://t.me/pegakmop
+#!name = LocalDevVPN to loon®️
+#!desc = Необходимо включить: всегда перед переподписанием приложений в SideStore либо для jit в husk по всем вопросам пишем pegakmop.t.me использовать loon version 3.5.2 или новее
+#!icon = https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/512x512.png
+#!date = 2026.10.20
+#!loon_version = 3.5.2
 
 [General]
 include-tun = 10.7.0.1/32
