@@ -1,7 +1,7 @@
 #!url= https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/loon-plugin-LocalDevVPN-sidestore.txt
 #!homepage = https://apps.apple.com/ru/app/loon/id1373567447
 #!name = LocalDevVPN to loon®️
-#!desc = Необходимо включить: всегда перед подписанием/переподписанием ipa приложений в SideStore/LiveContainer+SideStore либо для включения Jit в приложениях Husk или Madeira по всем вопросам этого плагина легкой альтернативы приложения LocalDevVPN пишем https://t.me/pegakmop использовать приложение loon version 3.5.2 или новее
+#!desc = Необходимо включить: всегда перед подписанием или переподписанием ipa файлов приложений в SideStore или LiveContainer+SideStore либо для включения Jit в приложениях Husk или Madeira по всем вопросам этого плагина легкой альтернативы приложения LocalDevVPN пишем https://t.me/pegakmop использовать приложение loon version 3.5.2 или новее
 #!icon = https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/512x512.png
 #!date = 2026.10.20
 #!loon_version = 3.5.2
