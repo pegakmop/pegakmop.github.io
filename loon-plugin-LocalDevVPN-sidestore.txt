@@ -4,7 +4,7 @@
 #!desc = Необходимо включить Loon с включенным плагином перед подписанием или переподписанием ipa файлов приложений в SideStore (https://github.com/SideStore/SideStore) или LiveContainer+SideStore (https://github.com/LiveContainer/LiveContainer) либо для включения Jit в приложениях Husk (https://github.com/Leviidev/Husk) или Madeira (https://github.com/willfaust/Madeira) по всем вопросам этого плагина для loon легкой альтернативы удаленного приложения из App Store LocalDevVPN пишем https://t.me/pegakmop использовать только в приложении loon с version 3.5.2 или новее
 #!icon = https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/512x512.png
 #!openUrl = https://apps.apple.com/ru/app/loon/id1373567447
-#!author = https://t.me/pegakmop
+#!author = pegakmop
 #!date = 2026.10.20
 #!loon_version = 3.5.2
 
