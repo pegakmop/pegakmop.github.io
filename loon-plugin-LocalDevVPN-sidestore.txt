@@ -1,3 +1,4 @@
+#!install = https://www.nsloon.com/openloon/import?plugin=https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/loon-plugin-LocalDevVPN-sidestore.txt
 #!url= https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/loon-plugin-LocalDevVPN-sidestore.txt
 #!homepage = https://apps.apple.com/ru/app/loon/id1373567447
 #!name = LocalDevVPN to loon®️
