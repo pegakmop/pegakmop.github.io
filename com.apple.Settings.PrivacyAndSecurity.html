@@ -1,0 +1,36 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Mode</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #f2f2f7;
+        }
+
+        button {
+            padding: 16px 24px;
+            font-size: 17px;
+            font-weight: 600;
+            color: white;
+            background: #007aff;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <button onclick="window.location.href='settings-navigation://com.apple.Settings.PrivacyAndSecurity/DEVELOPER_MODE'">
+        Открыть Developer Mode
+    </button>
+</body>
+</html>
