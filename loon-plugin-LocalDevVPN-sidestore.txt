@@ -15,5 +15,8 @@ include-tun = 10.7.0.1/32
 10.7.0.1 = reflect
 
 
+
 [Script]
-generic script-path=https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/loon-plugin-LocalDevVPN-sidestore.js, tag=LocalDevVPN, timeout=3
+network-changed script-path=https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/loon-plugin-LocalDevVPN-sidestore.js, tag=LiveContainer, enable=true
+
+###generic script-path=https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/refs/heads/main/loon-plugin-LocalDevVPN-sidestore.js, tag=LocalDevVPN, timeout=3
