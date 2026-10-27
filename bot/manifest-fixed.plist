@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+iRAM-Plus-fixed.ipa <key>items</key>
+iRAM-Plus-fixed.ipa <array>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa <dict>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa <key>assets</key>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa <array>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa <dict>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa <key>kind</key>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa <string>software-package</string>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa <key>url</key>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa <string>https://raw.githubusercontent.com/pegakmop/pegakmop.github.io/main/bot/iRAM-Plus-fixed.ipa</string>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa </dict>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa </array>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa <key>metadata</key>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa <dict>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa <key>bundle-identifier</key>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa <string>novadev.iram-plus.83XJPHTSX3</string>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa <key>bundle-version</key>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa <string>7</string>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa <key>kind</key>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa <string>software</string>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa <key>platform-identifier</key>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa <string>com.apple.platform.iphoneos</string>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa <key>title</key>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa <string>iRAM-Plus</string>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa </dict>
+iRAM-Plus-fixed.ipa iRAM-Plus-fixed.ipa </dict>
+iRAM-Plus-fixed.ipa </array>
+</dict>
+</plist>
